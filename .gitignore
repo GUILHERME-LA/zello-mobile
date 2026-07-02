@@ -1,0 +1,32 @@
+# Flutter
+**/build/
+**/.dart_tool/
+**/.packages
+**/.pub/
+**/pubspec.lock
+*.iml
+.idea/
+.vscode/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Dart
+**/.dart_tool/
+**/doc/api/
+
+# Node (zello-dashboard stays separate)
+zello-dashboard/
+node_modules/
+package.json
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~
