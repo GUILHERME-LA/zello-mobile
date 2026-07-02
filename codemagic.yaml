@@ -1,0 +1,40 @@
+workflows:
+  patient-app:
+    name: Zello Patient App
+    working_directory: zello_patient_app
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.29.2
+      vars:
+        APP_ID: "com.zellosaude.patient"
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build Android APK
+        script: flutter build apk --debug
+    artifacts:
+      - build/**/outputs/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - guilhermrvieira8@gmail.com
+
+  admin-app:
+    name: Zello Admin App
+    working_directory: zello_admin_app
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.29.2
+      vars:
+        APP_ID: "com.zellosaude.admin"
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build Android APK
+        script: flutter build apk --debug
+    artifacts:
+      - build/**/outputs/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - guilhermrvieira8@gmail.com
