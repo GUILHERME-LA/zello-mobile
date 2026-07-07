@@ -3,6 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
 
+// ─────────────────────────────────────────────────────────────
+//  CONSTANTS
+// ─────────────────────────────────────────────────────────────
+
+const _staggerBaseDelay = Duration(milliseconds: 80);
+const _staggerDuration = Duration(milliseconds: 500);
+
+// ─────────────────────────────────────────────────────────────
+//  SCREEN
+// ─────────────────────────────────────────────────────────────
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -11,18 +22,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  static String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Bom dia!';
-    if (hour < 18) return 'Boa tarde!';
-    return 'Boa noite!';
-  }
-
   static String _formatName(String name) {
     if (name.isEmpty) return 'João';
     return name[0].toUpperCase() + name.substring(1);
   }
 
+  // ── Build ─────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
@@ -34,6 +39,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final medCount = medsAsync.valueOrNull?.length ?? 0;
     final examCount = examsAsync.valueOrNull?.length ?? 0;
     final consultCount = consultationsAsync.valueOrNull?.length ?? 0;
+    final totalItems = medCount + examCount + consultCount;
 
     return Scaffold(
       body: SafeArea(
@@ -53,18 +59,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(userName, consultCount),
-                const SizedBox(height: 20),
-                _buildHealthOverview(medCount, examCount, consultCount),
-                const SizedBox(height: 4),
-                const SectionHeader(
-                  title: 'Ações Rápidas',
-                  subtitle: 'O que você precisa fazer hoje',
+                _Header(userName: userName, consultCount: consultCount),
+                SizedBox(
+                  height: 24,
+                  child: Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withAlpha(30),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
                 ),
-                _buildQuickActions(),
+                // ── Empty-state welcome ────────────────────────
+                if (totalItems == 0)
+                  _StaggerItem(
+                    index: 0,
+                    child: _EmptyWelcome(userName: userName),
+                  ),
+                // ── Health overview ────────────────────────────
+                if (totalItems > 0)
+                  _StaggerItem(
+                    index: 0,
+                    child: _HealthOverview(
+                      medCount: medCount,
+                      examCount: examCount,
+                      consultCount: consultCount,
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                // ── Quick actions ──────────────────────────────
+                _StaggerItem(
+                  index: totalItems > 0 ? 1 : 1,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                    child: _buildSectionHeader(context,
+                        title: 'Ações Rápidas',
+                        subtitle: 'O que você precisa fazer hoje'),
+                  ),
+                ),
+                _StaggerItem(
+                  index: totalItems > 0 ? 2 : 2,
+                  child: _QuickActionsGrid(),
+                ),
                 const SizedBox(height: 8),
-                _buildAgentCard(),
-                const SizedBox(height: 24),
+                _StaggerItem(
+                  index: totalItems > 0 ? 3 : 3,
+                  child: _AgentCard(),
+                ),
+                const SizedBox(height: 32),
               ],
             ),
           ),
@@ -73,23 +121,101 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHeader(String userName, int consultCount) {
+  Widget _buildSectionHeader(BuildContext context,
+      {required String title, String? subtitle}) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 24,
+          decoration: BoxDecoration(
+            gradient: ZelloGradients.sectionBar,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  STAGGER ENTRY ANIMATION
+// ─────────────────────────────────────────────────────────────
+
+class _StaggerItem extends StatelessWidget {
+  final int index;
+  final Widget child;
+  const _StaggerItem({required this.index, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: _staggerDuration,
+      curve: Curves.easeOutCubic,
+      // stagger delay per item
+      builder: (context, value, child) {
+        final delay = index * _staggerBaseDelay.inMilliseconds;
+        final delayed =
+            ((value * _staggerDuration.inMilliseconds) - delay)
+                .clamp(0, _staggerDuration.inMilliseconds) /
+            _staggerDuration.inMilliseconds;
+        return Transform.translate(
+          offset: Offset(0, 24 * (1 - delayed)),
+          child: Opacity(opacity: delayed, child: child),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  HEADER
+// ─────────────────────────────────────────────────────────────
+
+class _Header extends StatelessWidget {
+  final String userName;
+  final int consultCount;
+  const _Header({required this.userName, required this.consultCount});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      decoration: BoxDecoration(
+        gradient: ZelloGradients.header,
+        borderRadius: ZelloRadius.headerRadius,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Greeting row ──────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -98,30 +224,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Text(
                     _greeting(),
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.white70),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Olá, $userName',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
                 ],
               ),
               Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined,
-                        color: Colors.white),
-                    onPressed: () => _showNotifications(context),
+                  _HeaderIconButton(
+                    icon: Icons.notifications_outlined,
+                    onTap: () => _showNotifications(context),
                   ),
+                  const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () => context.push('/profile'),
                     child: Container(
@@ -142,12 +269,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
           const SizedBox(height: 20),
+          // ── Glassmorphism consultation chip ────────────────
           Container(
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(30),
               borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.white.withAlpha(20),
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -159,11 +290,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   consultCount > 0
                       ? 'Consultas hoje: $consultCount'
                       : 'Nenhuma consulta hoje',
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(230),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withAlpha(230),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -173,7 +303,195 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHealthOverview(int medCount, int examCount, int consultCount) {
+  static String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Bom dia!';
+    if (hour < 18) return 'Boa tarde!';
+    return 'Boa noite!';
+  }
+
+  static void _showNotifications(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Notificações',
+              style:
+                  Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+            ),
+            const SizedBox(height: 16),
+            _notifItem(context, Icons.calendar_today,
+                'Consulta amanhã às 14:30', 'Dr. Carlos Silva - Cardiologia'),
+            const SizedBox(height: 12),
+            _notifItem(context, Icons.medication, 'Hora do Losartana 50mg',
+                'Próxima dose em 30 min'),
+            const SizedBox(height: 12),
+            _notifItem(context, Icons.science, 'Exame disponível',
+                'Hemograma completo'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _notifItem(
+      BuildContext context, IconData icon, String title, String subtitle) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withAlpha(25),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon,
+              size: 20, color: Theme.of(context).colorScheme.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      )),
+              const SizedBox(height: 2),
+              Text(subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      )),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeaderIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  const _HeaderIconButton({required this.icon, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withAlpha(25),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        splashColor: Colors.white.withAlpha(30),
+        highlightColor: Colors.white.withAlpha(15),
+        child: Container(
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
+          child: Icon(icon, color: Colors.white, size: 22),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  EMPTY WELCOME
+// ─────────────────────────────────────────────────────────────
+
+class _EmptyWelcome extends StatelessWidget {
+  final String userName;
+  const _EmptyWelcome({required this.userName});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: AnimatedCard(
+        onTap: () => context.push('/prontuario'),
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: ZelloGradients.accentGradient,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.favorite_outline,
+                  color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Bem-vindo, $userName!',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Você não tem pendências hoje. Que tal revisar seu prontuário?',
+                    style:
+                        Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right,
+                color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  HEALTH OVERVIEW
+// ─────────────────────────────────────────────────────────────
+
+class _HealthOverview extends StatelessWidget {
+  final int medCount;
+  final int examCount;
+  final int consultCount;
+  const _HealthOverview({
+    required this.medCount,
+    required this.examCount,
+    required this.consultCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -183,8 +501,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onTap: () => context.push('/medications'),
               child: _IndicatorContent(
                 icon: Icons.medication,
-                iconColor: const Color(0xFF1565C0),
-                iconBgColor: const Color(0xFF1565C0).withAlpha(25),
+                iconColor: Theme.of(context).colorScheme.primary,
+                iconBgColor:
+                    Theme.of(context).colorScheme.primary.withAlpha(25),
                 count: medCount,
                 label: 'Medicação${medCount == 1 ? '' : 'ões'}',
                 sublabel: medCount == 1 ? 'cadastrada' : 'cadastradas',
@@ -223,220 +542,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
-  Widget _buildQuickActions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _QuickActionButton(
-                  icon: Icons.chat_bubble_outline,
-                  label: 'Chat com agente',
-                  color: const Color(0xFF1565C0),
-                  bgColor: const Color(0xFF1565C0).withAlpha(20),
-                  onTap: () => context.push('/chat'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _QuickActionButton(
-                  icon: Icons.event_outlined,
-                  label: 'Agenda profissional',
-                  color: const Color(0xFF0891B2),
-                  bgColor: const Color(0xFF0891B2).withAlpha(20),
-                  onTap: () => context.push('/agenda'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _QuickActionButton(
-                  icon: Icons.science_outlined,
-                  label: 'Status de exames',
-                  color: const Color(0xFFD97706),
-                  bgColor: const Color(0xFFD97706).withAlpha(20),
-                  onTap: () => context.push('/exam-status'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _QuickActionButton(
-                  icon: Icons.health_and_safety_outlined,
-                  label: 'Análise de convênio',
-                  color: const Color(0xFF7C3AED),
-                  bgColor: const Color(0xFF7C3AED).withAlpha(20),
-                  onTap: () => context.push('/convenio'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _QuickActionButton(
-                  icon: Icons.local_hospital_outlined,
-                  label: 'Hospitais próximos',
-                  color: const Color(0xFF0D9488),
-                  bgColor: const Color(0xFF0D9488).withAlpha(20),
-                  onTap: () => context.push('/hospitals'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _QuickActionButton(
-                  icon: Icons.folder_outlined,
-                  label: 'Prontuário',
-                  color: const Color(0xFF4338CA),
-                  bgColor: const Color(0xFF4338CA).withAlpha(20),
-                  onTap: () => context.push('/prontuario'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAgentCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: AnimatedCard(
-        onTap: () => context.push('/chat'),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF42A5F5), Color(0xFF1565C0)],
-                ),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(Icons.smart_toy, color: Colors.white, size: 26),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Text(
-                        'Agente de Saúde',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: Color(0xFF1A1A2E),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.circle, size: 8, color: Color(0xFF10B981)),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Assistente online. Clique para conversar.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showNotifications(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Notificações',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _notifItem(Icons.calendar_today, 'Consulta amanhã às 14:30',
-                'Dr. Carlos Silva - Cardiologia'),
-            const SizedBox(height: 12),
-            _notifItem(Icons.medication, 'Hora do Losartana 50mg',
-                'Próxima dose em 30 min'),
-            const SizedBox(height: 12),
-            _notifItem(Icons.science, 'Exame disponível', 'Hemograma completo'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static Widget _notifItem(IconData icon, String title, String subtitle) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFF1565C0).withAlpha(25),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, size: 20, color: const Color(0xFF1565C0)),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      color: Color(0xFF1A1A2E))),
-              const SizedBox(height: 2),
-              Text(subtitle,
-                  style: const TextStyle(
-                      fontSize: 11, color: Color(0xFF6B7280))),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 }
 
-/// Compact indicator content for health overview cards.
-/// Number beside label instead of stacked vertically.
 class _IndicatorContent extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -457,14 +564,15 @@ class _IndicatorContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEmpty = count == 0;
-    final numberColor = isEmpty ? Colors.grey.shade400 : const Color(0xFF1A1A2E);
+    final cs = Theme.of(context).colorScheme;
+    final numberColor =
+        isEmpty ? cs.onSurfaceVariant.withAlpha(120) : cs.onSurface;
 
     return Padding(
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon + number side by side
           Row(
             children: [
               Container(
@@ -479,30 +587,114 @@ class _IndicatorContent extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '$count',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: numberColor,
-                ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: numberColor,
+                    ),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A1A2E),
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
           ),
           const SizedBox(height: 1),
           Text(
             sublabel,
-            style: TextStyle(
-              fontSize: 10,
-              color: isEmpty ? Colors.grey.shade300 : Colors.grey.shade500,
-            ),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: isEmpty
+                      ? cs.onSurfaceVariant.withAlpha(80)
+                      : cs.onSurfaceVariant,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  QUICK ACTIONS GRID
+// ─────────────────────────────────────────────────────────────
+
+class _QuickActionsGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.chat_bubble_outline,
+                  label: 'Chat com agente',
+                  color: Theme.of(context).colorScheme.primary,
+                  bgColor:
+                      Theme.of(context).colorScheme.primary.withAlpha(20),
+                  onTap: () => context.push('/chat'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.event_outlined,
+                  label: 'Agenda',
+                  color: const Color(0xFF0891B2),
+                  bgColor: const Color(0xFF0891B2).withAlpha(20),
+                  onTap: () => context.push('/agenda'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.science_outlined,
+                  label: 'Status exames',
+                  color: const Color(0xFFD97706),
+                  bgColor: const Color(0xFFD97706).withAlpha(20),
+                  onTap: () => context.push('/exam-status'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.health_and_safety_outlined,
+                  label: 'Análise convênio',
+                  color: const Color(0xFF7C3AED),
+                  bgColor: const Color(0xFF7C3AED).withAlpha(20),
+                  onTap: () => context.push('/convenio'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.local_hospital_outlined,
+                  label: 'Hospitais',
+                  color: const Color(0xFF0D9488),
+                  bgColor: const Color(0xFF0D9488).withAlpha(20),
+                  onTap: () => context.push('/hospitals'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.folder_outlined,
+                  label: 'Prontuário',
+                  color: const Color(0xFF4338CA),
+                  bgColor: const Color(0xFF4338CA).withAlpha(20),
+                  onTap: () => context.push('/prontuario'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -548,14 +740,74 @@ class _QuickActionButton extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF4B5563),
-              height: 1.3,
-            ),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  AGENT CARD
+// ─────────────────────────────────────────────────────────────
+
+class _AgentCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: AnimatedCard(
+        onTap: () => context.push('/chat'),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                gradient: ZelloGradients.avatar,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.smart_toy,
+                  color: Colors.white, size: 26),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Agente de Saúde',
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(Icons.circle,
+                          size: 8, color: ZelloColors.online),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Assistente online. Clique para conversar.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right,
+                color: cs.onSurfaceVariant.withAlpha(120)),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/theme/zello_theme.dart';
+import '../core/theme/zello_shadows.dart';
 
 class AnimatedCard extends StatefulWidget {
   final Widget child;
@@ -53,16 +55,28 @@ class _AnimatedCardState extends State<AnimatedCard>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shadows = isDark ? ZelloShadows.darkSm : ZelloShadows.sm;
+
     return AnimatedBuilder(
       animation: _controller,
       child: widget.child,
       builder: (context, child) => Transform.scale(
         scale: _scale.value,
-        child: Material(
-          color: widget.backgroundColor ?? Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          elevation: _elevation.value,
-          shadowColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+        child: Container(
+          padding: widget.padding ?? const EdgeInsets.all(16),
+          margin: widget.margin,
+          decoration: BoxDecoration(
+            color: widget.backgroundColor ??
+                Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            border: Border.all(
+              color: isDark
+                  ? ZelloColors.darkBorder.withAlpha(80)
+                  : ZelloColors.border.withAlpha(80),
+            ),
+            boxShadow: _elevation.value > 1 ? shadows : null,
+          ),
           child: InkWell(
             onTap: widget.enabled && widget.onTap != null
                 ? () {
@@ -71,17 +85,7 @@ class _AnimatedCardState extends State<AnimatedCard>
                   }
                 : null,
             borderRadius: BorderRadius.circular(widget.borderRadius),
-            child: Container(
-              padding: widget.padding ?? const EdgeInsets.all(16),
-              margin: widget.margin,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-                border: Border.all(
-                  color: Theme.of(context).dividerTheme.color ?? Colors.grey.shade100,
-                ),
-              ),
-              child: child,
-            ),
+            child: child,
           ),
         ),
       ),

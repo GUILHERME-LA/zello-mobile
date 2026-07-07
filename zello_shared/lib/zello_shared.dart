@@ -33,6 +33,8 @@ export 'core/demo_data.dart';
 export 'core/ollama/ollama_service.dart';
 export 'core/supabase/supabase_config.dart';
 export 'core/theme/zello_theme.dart';
+export 'core/theme/zello_shadows.dart';
+export 'core/theme/zello_text_styles.dart';
 export 'core/constants/api_endpoints.dart';
 export 'core/constants/lgpd.dart';
 export 'core/utils/formatters.dart';

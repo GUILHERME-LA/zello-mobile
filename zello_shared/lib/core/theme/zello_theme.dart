@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'zello_text_styles.dart';
+import 'zello_shadows.dart';
 
 // ═══════════════════════════════════════════════════════════
 //  DESIGN TOKENS
@@ -189,6 +190,60 @@ class ZelloGradients {
       Color(0xFF1565C0),
     ],
   );
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GLASSMORPHISM UTILITY
+// ═══════════════════════════════════════════════════════════
+
+/// Glassmorphism surface — frosted-glass effect for premium overlays.
+/// Apply as [BoxDecoration] to containers that should feel elevated & translucent.
+class ZelloGlass {
+  ZelloGlass._();
+
+  /// Light-theme glass surface.
+  static BoxDecoration light({
+    double opacity = 0.6,
+    double blur = 20,
+    double radius = 16,
+    Color? tint,
+  }) =>
+      BoxDecoration(
+        color: (tint ?? ZelloColors.surface).withAlpha((255 * opacity).round()),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: ZelloColors.surface.withAlpha(80),
+          width: 1,
+        ),
+        boxShadow: ZelloShadows.sm,
+      );
+
+  /// Dark-theme glass surface.
+  static BoxDecoration dark({
+    double opacity = 0.5,
+    double blur = 20,
+    double radius = 16,
+    Color? tint,
+  }) =>
+      BoxDecoration(
+        color: (tint ?? ZelloColors.darkSurface)
+            .withAlpha((255 * opacity).round()),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: ZelloColors.darkSurfaceLight.withAlpha(60),
+          width: 1,
+        ),
+        boxShadow: ZelloShadows.darkSm,
+      );
+
+  /// Adaptive glass (auto light/dark based on current brightness).
+  static BoxDecoration adaptive(BuildContext context, {
+    double opacity = 0.6,
+    double radius = 16,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? dark(opacity: opacity, radius: radius) : light(opacity: opacity, radius: radius);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
