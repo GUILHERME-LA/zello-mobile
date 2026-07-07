@@ -1,9 +1,14 @@
+enum UserRole { admin, professional, patient }
+
 class User {
   final String id;
   final String name;
   final String email;
   final String phone;
   final String token;
+  final UserRole role;
+  final String? profileId;
+  final String? professionalId;
 
   const User({
     required this.id,
@@ -11,6 +16,9 @@ class User {
     required this.email,
     required this.phone,
     required this.token,
+    this.role = UserRole.patient,
+    this.profileId,
+    this.professionalId,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -20,6 +28,12 @@ class User {
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       token: json['token'] as String? ?? '',
+      role: UserRole.values.firstWhere(
+        (e) => e.name == json['role'],
+        orElse: () => UserRole.patient,
+      ),
+      profileId: json['profile_id'] as String?,
+      professionalId: json['professional_id'] as String?,
     );
   }
 
@@ -30,6 +44,9 @@ class User {
       'email': email,
       'phone': phone,
       'token': token,
+      'role': role.name,
+      'profile_id': profileId,
+      'professional_id': professionalId,
     };
   }
 
@@ -39,6 +56,9 @@ class User {
     String? email,
     String? phone,
     String? token,
+    UserRole? role,
+    String? profileId,
+    String? professionalId,
   }) {
     return User(
       id: id ?? this.id,
@@ -46,8 +66,15 @@ class User {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       token: token ?? this.token,
+      role: role ?? this.role,
+      profileId: profileId ?? this.profileId,
+      professionalId: professionalId ?? this.professionalId,
     );
   }
+
+  bool get isAdmin => role == UserRole.admin;
+  bool get isProfessional => role == UserRole.professional;
+  bool get isPatient => role == UserRole.patient;
 
   @override
   bool operator ==(Object other) {
@@ -59,5 +86,5 @@ class User {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'User(id: $id, name: $name, email: $email)';
+  String toString() => 'User(id: $id, name: $name, email: $email, role: ${role.name})';
 }

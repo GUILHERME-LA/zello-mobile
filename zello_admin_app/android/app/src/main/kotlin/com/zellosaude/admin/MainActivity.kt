@@ -1,4 +1,4 @@
-package com.example.zello_patient_app
+package com.zellosaude.admin
 
 import io.flutter.embedding.android.FlutterActivity
 

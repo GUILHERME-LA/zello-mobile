@@ -1,12 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:zello_shared/zello_shared.dart';
 
 void main() {
-  test('adds one to input values', () {
-    final calculator = Calculator();
-    expect(calculator.addOne(2), 3);
-    expect(calculator.addOne(-7), -6);
-    expect(calculator.addOne(0), 1);
+  test('Formatters.getInitials works correctly', () {
+    expect(Formatters.getInitials('João Silva'), 'JS');
+    expect(Formatters.getInitials('Ana'), 'A');
+    expect(Formatters.getInitials(''), '?');
   });
 }

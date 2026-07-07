@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 enum ConsultationType { in_person, tele }
 
 enum ConsultationStatus { scheduled, completed, cancelled, in_progress }

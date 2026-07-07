@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/theme/zello_theme.dart';
 
 class ZelloCard extends StatelessWidget {
   final Widget child;

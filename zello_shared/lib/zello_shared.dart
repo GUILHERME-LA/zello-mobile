@@ -1,6 +1,5 @@
-library zello_shared;
-
 // Models
+export 'models/permission.dart';
 export 'models/user.dart';
 export 'models/patient.dart';
 export 'models/conversation.dart';
@@ -11,14 +10,60 @@ export 'models/consultation.dart';
 export 'models/hospital.dart';
 export 'models/agent.dart';
 export 'models/dashboard_stats.dart';
+export 'models/professional.dart';
+export 'models/professional_availability.dart';
+export 'models/exam_request.dart';
+export 'models/insurance.dart';
+export 'models/ai_recommendation.dart';
 
 // Core
 export 'core/api/api_client.dart';
+export 'core/demo_data.dart';
+export 'core/ollama/ollama_service.dart';
+export 'core/supabase/supabase_config.dart';
 export 'core/theme/zello_theme.dart';
 export 'core/constants/api_endpoints.dart';
+export 'core/constants/lgpd.dart';
 export 'core/utils/formatters.dart';
+export 'core/notifications/notification_service.dart';
+
+// Providers
+export 'providers/api_client_provider.dart';
+export 'providers/auth_provider.dart';
+export 'providers/supabase_client_provider.dart';
+export 'providers/conversations_provider.dart';
+export 'providers/messages_provider.dart';
+export 'providers/patients_provider.dart';
+export 'providers/medications_provider.dart';
+export 'providers/exams_provider.dart';
+export 'providers/consultations_provider.dart';
+export 'providers/hospitals_provider.dart';
+export 'providers/agents_provider.dart';
+export 'providers/dashboard_provider.dart';
+export 'providers/patient_exams_provider.dart';
+export 'providers/patient_consultations_provider.dart';
+export 'providers/patient_medications_provider.dart';
+export 'providers/ollama_provider.dart';
+export 'providers/professionals_provider.dart';
+export 'providers/professional_availability_provider.dart';
+export 'providers/exam_requests_provider.dart';
+export 'providers/insurances_provider.dart';
+export 'providers/permissions_provider.dart';
+export 'providers/ai_recommendations_provider.dart';
+
+// Screens
+export 'screens/forgot_password_screen.dart';
+export 'screens/change_password_screen.dart';
 
 // Widgets
 export 'widgets/zello_badge.dart';
 export 'widgets/zello_avatar.dart';
 export 'widgets/zello_card.dart';
+export 'widgets/animated_card.dart';
+export 'widgets/skeleton_loader.dart';
+export 'widgets/glass_card.dart';
+export 'widgets/section_header.dart';
+export 'widgets/error_state.dart';
+export 'widgets/empty_state.dart';
+export 'widgets/loading_state.dart';
+export 'widgets/gradient_header.dart';

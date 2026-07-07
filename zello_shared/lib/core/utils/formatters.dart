@@ -21,6 +21,14 @@ class Formatters {
     return DateFormat('dd/MM/yy HH:mm').format(date);
   }
 
+  static String formatRelativeTime(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) return 'há ${diff.inDays}d';
+    if (diff.inHours > 0) return 'há ${diff.inHours}h';
+    if (diff.inMinutes > 0) return 'há ${diff.inMinutes}min';
+    return 'agora';
+  }
+
   static String getInitials(String name) {
     final parts = name.split(' ').where((p) => p.isNotEmpty).toList();
     if (parts.length >= 2) {

@@ -7,6 +7,9 @@ class Patient {
   final DateTime? birthDate;
   final DateTime? lastAccess;
   final int totalConversations;
+  final String? professionalId;
+  final String? city;
+  final String? state;
 
   const Patient({
     required this.id,
@@ -17,6 +20,9 @@ class Patient {
     this.birthDate,
     this.lastAccess,
     this.totalConversations = 0,
+    this.professionalId,
+    this.city,
+    this.state,
   });
 
   factory Patient.fromJson(Map<String, dynamic> json) {
@@ -33,6 +39,9 @@ class Patient {
           ? DateTime.tryParse(json['lastAccess'] as String)
           : null,
       totalConversations: (json['totalConversations'] as num?)?.toInt() ?? 0,
+      professionalId: json['professionalId'] as String?,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
     );
   }
 
@@ -46,6 +55,9 @@ class Patient {
       'birthDate': birthDate?.toIso8601String(),
       'lastAccess': lastAccess?.toIso8601String(),
       'totalConversations': totalConversations,
+      'professionalId': professionalId,
+      'city': city,
+      'state': state,
     };
   }
 
@@ -58,6 +70,9 @@ class Patient {
     DateTime? birthDate,
     DateTime? lastAccess,
     int? totalConversations,
+    String? professionalId,
+    String? city,
+    String? state,
   }) {
     return Patient(
       id: id ?? this.id,
@@ -68,6 +83,9 @@ class Patient {
       birthDate: birthDate ?? this.birthDate,
       lastAccess: lastAccess ?? this.lastAccess,
       totalConversations: totalConversations ?? this.totalConversations,
+      professionalId: professionalId ?? this.professionalId,
+      city: city ?? this.city,
+      state: state ?? this.state,
     );
   }
 

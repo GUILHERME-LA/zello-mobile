@@ -4,10 +4,13 @@ class Medication {
   final String dosage;
   final String frequency;
   final String prescribingDoctor;
+  final String? prescribedBy;
   final DateTime? startDate;
   final DateTime? endDate;
   final bool isActive;
   final DateTime? nextDose;
+  final String? observations;
+  final DateTime? discontinuedAt;
 
   const Medication({
     required this.id,
@@ -15,10 +18,13 @@ class Medication {
     this.dosage = '',
     this.frequency = '',
     this.prescribingDoctor = '',
+    this.prescribedBy,
     this.startDate,
     this.endDate,
     this.isActive = true,
     this.nextDose,
+    this.observations,
+    this.discontinuedAt,
   });
 
   factory Medication.fromJson(Map<String, dynamic> json) {
@@ -28,6 +34,7 @@ class Medication {
       dosage: json['dosage'] as String? ?? '',
       frequency: json['frequency'] as String? ?? '',
       prescribingDoctor: json['prescribingDoctor'] as String? ?? '',
+      prescribedBy: json['prescribedBy'] as String?,
       startDate: json['startDate'] != null
           ? DateTime.tryParse(json['startDate'] as String)
           : null,
@@ -37,6 +44,10 @@ class Medication {
       isActive: json['isActive'] as bool? ?? true,
       nextDose: json['nextDose'] != null
           ? DateTime.tryParse(json['nextDose'] as String)
+          : null,
+      observations: json['observations'] as String?,
+      discontinuedAt: json['discontinuedAt'] != null
+          ? DateTime.tryParse(json['discontinuedAt'] as String)
           : null,
     );
   }
@@ -48,10 +59,13 @@ class Medication {
       'dosage': dosage,
       'frequency': frequency,
       'prescribingDoctor': prescribingDoctor,
+      'prescribedBy': prescribedBy,
       'startDate': startDate?.toIso8601String(),
       'endDate': endDate?.toIso8601String(),
       'isActive': isActive,
       'nextDose': nextDose?.toIso8601String(),
+      'observations': observations,
+      'discontinuedAt': discontinuedAt?.toIso8601String(),
     };
   }
 
@@ -61,10 +75,13 @@ class Medication {
     String? dosage,
     String? frequency,
     String? prescribingDoctor,
+    String? prescribedBy,
     DateTime? startDate,
     DateTime? endDate,
     bool? isActive,
     DateTime? nextDose,
+    String? observations,
+    DateTime? discontinuedAt,
   }) {
     return Medication(
       id: id ?? this.id,
@@ -72,10 +89,13 @@ class Medication {
       dosage: dosage ?? this.dosage,
       frequency: frequency ?? this.frequency,
       prescribingDoctor: prescribingDoctor ?? this.prescribingDoctor,
+      prescribedBy: prescribedBy ?? this.prescribedBy,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       isActive: isActive ?? this.isActive,
       nextDose: nextDose ?? this.nextDose,
+      observations: observations ?? this.observations,
+      discontinuedAt: discontinuedAt ?? this.discontinuedAt,
     );
   }
 
