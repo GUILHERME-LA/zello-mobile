@@ -50,7 +50,7 @@ class SectionHeader extends StatelessWidget {
                     subtitle!,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF6B7280),
+                      color: Color(0xFF4B5563),
                     ),
                   ),
                 ],

@@ -18,10 +18,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return 'Boa noite!';
   }
 
+  static String _formatName(String name) {
+    if (name.isEmpty) return 'João';
+    return name[0].toUpperCase() + name.substring(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
-    final userName = auth.user?.name ?? 'João';
+    final userName = _formatName(auth.user?.name ?? '');
     final medsAsync = ref.watch(medicationsProvider);
     final examsAsync = ref.watch(examsProvider);
     final consultationsAsync = ref.watch(consultationsProvider);
@@ -49,15 +54,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(userName, consultCount),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 _buildHealthOverview(medCount, examCount, consultCount),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 const SectionHeader(
                   title: 'Ações Rápidas',
                   subtitle: 'O que você precisa fazer hoje',
                 ),
                 _buildQuickActions(),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 _buildAgentCard(),
                 const SizedBox(height: 24),
               ],
@@ -70,7 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHeader(String userName, int consultCount) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -138,14 +143,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(30),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.psychology, color: Colors.white.withAlpha(179), size: 20),
+                Icon(Icons.psychology,
+                    color: Colors.white.withAlpha(179), size: 20),
                 const SizedBox(width: 10),
                 Text(
                   consultCount > 0
@@ -173,113 +181,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: AnimatedCard(
               onTap: () => context.push('/medications'),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF42A5F5).withAlpha(25),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.medication,
-                        color: Color(0xFF1565C0), size: 22),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '$medCount',
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                  Text(
-                    'Medicações\n${medCount == 1 ? 'cadastrada' : 'cadastradas'}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
+              child: _IndicatorContent(
+                icon: Icons.medication,
+                iconColor: const Color(0xFF1565C0),
+                iconBgColor: const Color(0xFF1565C0).withAlpha(25),
+                count: medCount,
+                label: 'Medicação${medCount == 1 ? '' : 'ões'}',
+                sublabel: medCount == 1 ? 'cadastrada' : 'cadastradas',
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: AnimatedCard(
               onTap: () => context.push('/exams'),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withAlpha(25),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child:
-                        const Icon(Icons.science, color: Color(0xFF10B981), size: 22),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '$examCount',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                  Text(
-                    'Exame${examCount == 1 ? '' : 'ns'}\n${examCount == 1 ? 'disponível' : 'disponíveis'}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
+              child: _IndicatorContent(
+                icon: Icons.science,
+                iconColor: const Color(0xFF10B981),
+                iconBgColor: const Color(0xFF10B981).withAlpha(25),
+                count: examCount,
+                label: 'Exame${examCount == 1 ? '' : 'ns'}',
+                sublabel: examCount == 1 ? 'disponível' : 'disponíveis',
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: AnimatedCard(
               onTap: () => context.push('/consultations'),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withAlpha(25),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.calendar_today,
-                        color: Color(0xFFF59E0B), size: 22),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '$consultCount',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                  Text(
-                    'Consulta${consultCount == 1 ? '' : 's'}\n${consultCount == 1 ? 'agendada' : 'agendadas'}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
+              child: _IndicatorContent(
+                icon: Icons.calendar_today,
+                iconColor: const Color(0xFFF59E0B),
+                iconBgColor: const Color(0xFFF59E0B).withAlpha(25),
+                count: consultCount,
+                label: 'Consulta${consultCount == 1 ? '' : 's'}',
+                sublabel: consultCount == 1 ? 'agendada' : 'agendadas',
               ),
             ),
           ),
@@ -298,57 +234,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.chat_bubble_outline,
-                  label: 'Chat com\nagente',
+                  label: 'Chat com agente',
                   color: const Color(0xFF1565C0),
+                  bgColor: const Color(0xFF1565C0).withAlpha(20),
                   onTap: () => context.push('/chat'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.event_outlined,
-                  label: 'Agenda do\nprofissional',
-                  color: const Color(0xFF10B981),
+                  label: 'Agenda profissional',
+                  color: const Color(0xFF0891B2),
+                  bgColor: const Color(0xFF0891B2).withAlpha(20),
                   onTap: () => context.push('/agenda'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.science_outlined,
-                  label: 'Status\nexames',
-                  color: const Color(0xFFF59E0B),
+                  label: 'Status de exames',
+                  color: const Color(0xFFD97706),
+                  bgColor: const Color(0xFFD97706).withAlpha(20),
                   onTap: () => context.push('/exam-status'),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.health_and_safety_outlined,
-                  label: 'Análise\nde convênio',
-                  color: const Color(0xFF8B5CF6),
+                  label: 'Análise de convênio',
+                  color: const Color(0xFF7C3AED),
+                  bgColor: const Color(0xFF7C3AED).withAlpha(20),
                   onTap: () => context.push('/convenio'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.local_hospital_outlined,
-                  label: 'Hospitais\nPróximos',
-                  color: const Color(0xFF42A5F5),
+                  label: 'Hospitais próximos',
+                  color: const Color(0xFF0D9488),
+                  bgColor: const Color(0xFF0D9488).withAlpha(20),
                   onTap: () => context.push('/hospitals'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.folder_outlined,
                   label: 'Prontuário',
-                  color: const Color(0xFF0D47A1),
+                  color: const Color(0xFF4338CA),
+                  bgColor: const Color(0xFF4338CA).withAlpha(20),
                   onTap: () => context.push('/prontuario'),
                 ),
               ),
@@ -367,17 +309,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Row(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF42A5F5), Color(0xFF1565C0)],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.smart_toy, color: Colors.white, size: 28),
+              child: const Icon(Icons.smart_toy, color: Colors.white, size: 26),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,7 +338,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Icon(Icons.circle, size: 8, color: Color(0xFF10B981)),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     'Assistente online. Clique para conversar.',
                     style: TextStyle(
@@ -469,8 +411,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: const Color(0xFF1565C0).withAlpha(25),
             borderRadius: BorderRadius.circular(10),
           ),
-          child:
-              Icon(icon, size: 20, color: const Color(0xFF1565C0)),
+          child: Icon(icon, size: 20, color: const Color(0xFF1565C0)),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -494,16 +435,93 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
+/// Compact indicator content for health overview cards.
+/// Number beside label instead of stacked vertically.
+class _IndicatorContent extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBgColor;
+  final int count;
+  final String label;
+  final String sublabel;
+
+  const _IndicatorContent({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBgColor,
+    required this.count,
+    required this.label,
+    required this.sublabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isEmpty = count == 0;
+    final numberColor = isEmpty ? Colors.grey.shade400 : const Color(0xFF1A1A2E);
+
+    return Padding(
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon + number side by side
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: numberColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 1),
+          Text(
+            sublabel,
+            style: TextStyle(
+              fontSize: 10,
+              color: isEmpty ? Colors.grey.shade300 : Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _QuickActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final Color bgColor;
   final VoidCallback? onTap;
 
   const _QuickActionButton({
     required this.icon,
     required this.label,
     required this.color,
+    required this.bgColor,
     this.onTap,
   });
 
@@ -511,26 +529,29 @@ class _QuickActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedCard(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: color.withAlpha(25),
-              borderRadius: BorderRadius.circular(14),
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             label,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF6B7280),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF4B5563),
               height: 1.3,
             ),
           ),

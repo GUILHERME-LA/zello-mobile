@@ -40,7 +40,7 @@ class _AnimatedCardState extends State<AnimatedCard>
     _scale = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    _elevation = Tween<double>(begin: 0, end: 4).animate(
+    _elevation = Tween<double>(begin: 1, end: 4).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -62,7 +62,7 @@ class _AnimatedCardState extends State<AnimatedCard>
           color: widget.backgroundColor ?? Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(widget.borderRadius),
           elevation: _elevation.value,
-          shadowColor: Theme.of(context).colorScheme.primary.withAlpha(26),
+          shadowColor: Theme.of(context).colorScheme.primary.withAlpha(40),
           child: InkWell(
             onTap: widget.enabled && widget.onTap != null
                 ? () {
@@ -77,7 +77,7 @@ class _AnimatedCardState extends State<AnimatedCard>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(widget.borderRadius),
                 border: Border.all(
-                  color: Theme.of(context).dividerTheme.color ?? Colors.grey.shade200,
+                  color: Theme.of(context).dividerTheme.color ?? Colors.grey.shade100,
                 ),
               ),
               child: child,
