@@ -170,6 +170,15 @@ class _ExamsTab extends ConsumerWidget {
                             ? Formatters.formatDate(exams[i].date!)
                             : 'Data não informada',
                         icon: LucideIcons.fileText,
+                        onTap: () => _showItemDetails(
+                          context,
+                          title: exams[i].name,
+                          subtitle: exams[i].date != null
+                              ? Formatters.formatDate(exams[i].date!)
+                              : 'Data não informada',
+                          status: _getStatusLabel(exams[i].status),
+                          icon: LucideIcons.fileText,
+                        ),
                         trailingWidget: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -269,6 +278,13 @@ class _ConsultationsTab extends ConsumerWidget {
                         subtitle: consultations[i].specialty,
                         trailing: consultations[i].status.name,
                         icon: LucideIcons.user,
+                        onTap: () => _showItemDetails(
+                          context,
+                          title: consultations[i].doctorName,
+                          subtitle: consultations[i].specialty,
+                          status: consultations[i].status.name,
+                          icon: LucideIcons.user,
+                        ),
                       ),
                     ),
                   ),
@@ -333,6 +349,14 @@ class _MedicationsTab extends ConsumerWidget {
                             '${medications[i].dosage} - ${medications[i].frequency}',
                         trailing: medications[i].isActive ? 'Ativo' : 'Inativo',
                         icon: LucideIcons.pill,
+                        onTap: () => _showItemDetails(
+                          context,
+                          title: medications[i].name,
+                          subtitle:
+                              '${medications[i].dosage} - ${medications[i].frequency}',
+                          status: medications[i].isActive ? 'Ativo' : 'Inativo',
+                          icon: LucideIcons.pill,
+                        ),
                       ),
                     ),
                   ),
@@ -617,6 +641,101 @@ class _ReferralsTab extends ConsumerWidget {
 }
 
 // ============================================================
+// Bottom sheet de detalhe (torna os itens clicáveis)
+// ============================================================
+void _showItemDetails(
+  BuildContext context, {
+  required String title,
+  required String subtitle,
+  String? status,
+  IconData icon = LucideIcons.fileText,
+}) {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (ctx) => Padding(
+      padding:
+          const EdgeInsets.fromLTRB(24, 20, 24, 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: ZelloColors.primaryLight.withAlpha(25),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: ZelloColors.primaryLight, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(title,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _DetailRow(label: 'Descrição', value: subtitle),
+          if (status != null) ...[
+            const SizedBox(height: 8),
+            _DetailRow(label: 'Status', value: status),
+          ],
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () => Navigator.pop(ctx),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: ZelloColors.primary,
+                side: BorderSide(color: ZelloColors.primaryLight.withAlpha(120)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Fechar'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _DetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 90,
+          child: Text(label,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+        ),
+        Expanded(
+          child: Text(value,
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A2E))),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
 // _ItemCard (reutilizado das abas existentes)
 // ============================================================
 class _ItemCard extends StatelessWidget {
@@ -625,6 +744,7 @@ class _ItemCard extends StatelessWidget {
   final String? trailing;
   final IconData icon;
   final Widget? trailingWidget;
+  final VoidCallback? onTap;
 
   const _ItemCard({
     required this.title,
@@ -632,11 +752,13 @@ class _ItemCard extends StatelessWidget {
     this.trailing,
     required this.icon,
     this.trailingWidget,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedCard(
+      onTap: onTap,
       child: Row(
         children: [
           Container(
