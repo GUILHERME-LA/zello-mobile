@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -32,19 +33,19 @@ class ProfessionalDetailScreen extends ConsumerWidget {
                     height: 80,
                     decoration: BoxDecoration(
                       color: (prof.type == 'medico'
-                              ? const Color(0xFF3B82F6)
-                              : const Color(0xFF8B5CF6))
+                              ? ZelloColors.primaryLighter
+                              : ZelloColors.primary)
                           .withAlpha(25),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       prof.type == 'medico'
-                          ? Icons.local_hospital
-                          : Icons.psychology,
+                          ? LucideIcons.building2
+                          : LucideIcons.brain,
                       size: 40,
                       color: prof.type == 'medico'
-                          ? const Color(0xFF3B82F6)
-                          : const Color(0xFF8B5CF6),
+                          ? ZelloColors.primaryLighter
+                          : ZelloColors.primary,
                     ),
                   ),
                 ),
@@ -71,10 +72,10 @@ class ProfessionalDetailScreen extends ConsumerWidget {
                     onPressed: () {
                       context.push('/professionals/${prof.id}/permissions');
                     },
-                    icon: const Icon(Icons.admin_panel_settings),
+                    icon: const Icon(LucideIcons.shield),
                     label: const Text('Gerenciar Permissões'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B82F6),
+                      backgroundColor: ZelloColors.primaryLighter,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

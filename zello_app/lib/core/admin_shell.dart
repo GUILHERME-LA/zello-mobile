@@ -1,15 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:zello_shared/zello_shared.dart';
 
-class AdminShell extends StatelessWidget {
+class AdminShell extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
   const AdminShell({super.key, required this.navigationShell});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
+    final userName = auth.user?.name ?? 'Admin';
+    final initials = userName.isNotEmpty
+        ? userName[0].toUpperCase()
+        : 'A';
+
     return Scaffold(
-      body: navigationShell,
+      body: Stack(
+        children: [
+          // ── Screen content ────────────────────────────────
+          navigationShell,
+
+          // ── Profile / logout button (top‑right) ───────────
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 16,
+            child: PopupMenuButton<_AdminMenuAction>(
+              offset: const Offset(0, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 8,
+              color: Theme.of(context).colorScheme.surface,
+              shadowColor: Theme.of(context).colorScheme.primary.withAlpha(30),
+              onSelected: (action) async {
+                switch (action) {
+                  case _AdminMenuAction.settings:
+                    context.push('/admin/settings');
+                  case _AdminMenuAction.logout:
+                    ref.read(authProvider.notifier).logout();
+                    context.go('/login');
+                }
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: _AdminMenuAction.settings,
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.settings,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      const SizedBox(width: 12),
+                      Text('Configurações',
+                          style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  value: _AdminMenuAction.logout,
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.logOut,
+                          size: 18, color: ZelloColors.danger),
+                      const SizedBox(width: 12),
+                      Text('Sair',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: ZelloColors.danger)),
+                    ],
+                  ),
+                ),
+              ],
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(30),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withAlpha(40),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (index) {
@@ -20,23 +110,23 @@ class AdminShell extends StatelessWidget {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
+            icon: Icon(LucideIcons.layoutDashboard),
+            selectedIcon: Icon(LucideIcons.layoutDashboard),
             label: 'Dashboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.medical_services_outlined),
-            selectedIcon: Icon(Icons.medical_services),
+            icon: Icon(LucideIcons.stethoscope),
+            selectedIcon: Icon(LucideIcons.stethoscope),
             label: 'Profissionais',
           ),
           NavigationDestination(
-            icon: Icon(Icons.event_outlined),
-            selectedIcon: Icon(Icons.event),
+            icon: Icon(LucideIcons.calendar),
+            selectedIcon: Icon(LucideIcons.calendar),
             label: 'Agenda',
           ),
           NavigationDestination(
-            icon: Icon(Icons.inbox_outlined),
-            selectedIcon: Icon(Icons.inbox),
+            icon: Icon(LucideIcons.inbox),
+            selectedIcon: Icon(LucideIcons.inbox),
             label: 'Solicitações',
           ),
         ],
@@ -44,3 +134,5 @@ class AdminShell extends StatelessWidget {
     );
   }
 }
+
+enum _AdminMenuAction { settings, logout }

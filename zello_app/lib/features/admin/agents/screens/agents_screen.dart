@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -86,14 +87,14 @@ class AgentsScreen extends ConsumerWidget {
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Nome do agente',
-                prefixIcon: Icon(Icons.person_outline),
+                prefixIcon: Icon(LucideIcons.user),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Tipo',
-                prefixIcon: Icon(Icons.category_outlined),
+                prefixIcon: Icon(LucideIcons.grid),
               ),
             ),
             const SizedBox(height: 24),
@@ -124,8 +125,8 @@ class AgentsScreen extends ConsumerWidget {
 
   void _showAgentDetail(BuildContext context, Agent agent) {
     final statusColor = switch (agent.status) {
-      AgentStatus.online => const Color(0xFF10B981),
-      AgentStatus.busy => const Color(0xFFF59E0B),
+      AgentStatus.online => ZelloColors.primaryLight,
+      AgentStatus.busy => ZelloColors.primaryLighter,
       AgentStatus.offline => const Color(0xFF9CA3AF),
     };
     final statusLabel = switch (agent.status) {
@@ -192,7 +193,7 @@ class AgentsScreen extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Text(statusLabel,
                               style: TextStyle(
-                                  fontSize: 12, color: statusLabel == 'Online' ? const Color(0xFF10B981) : const Color(0xFF6B7280))),
+                                  fontSize: 12, color: statusLabel == 'Online' ? ZelloColors.primaryLight : const Color(0xFF6B7280))),
                         ],
                       ),
                     ],
@@ -267,7 +268,7 @@ class AgentsScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
-              icon: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(LucideIcons.plus, color: Colors.white),
               onPressed: () => _showAddAgent(context),
             ),
           ),
@@ -285,8 +286,8 @@ class _AgentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = switch (agent.status) {
-      AgentStatus.online => const Color(0xFF10B981),
-      AgentStatus.busy => const Color(0xFFF59E0B),
+      AgentStatus.online => ZelloColors.primaryLight,
+      AgentStatus.busy => ZelloColors.primaryLighter,
       AgentStatus.offline => const Color(0xFF9CA3AF),
     };
     final statusLabel = switch (agent.status) {
@@ -349,7 +350,7 @@ class _AgentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+              const Icon(LucideIcons.chevronRight, color: Color(0xFF9CA3AF)),
             ],
           ),
           const SizedBox(height: 16),

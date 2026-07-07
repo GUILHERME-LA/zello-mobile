@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -27,7 +28,7 @@ class UnassignedPatientsScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Paciente vinculado com sucesso'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: ZelloColors.primaryLight,
           ),
         );
       }
@@ -66,7 +67,7 @@ class UnassignedPatientsScreen extends ConsumerWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.person_add_alt_1,
+                      Icon(LucideIcons.userPlus,
                           color: Colors.white, size: 28),
                       SizedBox(width: 14),
                       Column(
@@ -101,7 +102,7 @@ class UnassignedPatientsScreen extends ConsumerWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check_circle_outline,
+                            Icon(LucideIcons.checkCircle2,
                                 size: 64, color: Colors.green.shade300),
                             const SizedBox(height: 16),
                             const Text('Nenhum paciente pendente',
@@ -142,7 +143,7 @@ class UnassignedPatientsScreen extends ConsumerWidget {
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          Icon(Icons.phone,
+                                          Icon(LucideIcons.phone,
                                               size: 12,
                                               color: Colors.grey.shade500),
                                           const SizedBox(width: 4),

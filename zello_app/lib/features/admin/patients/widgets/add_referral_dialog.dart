@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -28,7 +29,7 @@ class _AddReferralDialogState extends ConsumerState<AddReferralDialog> {
     return AlertDialog(
       title: const Row(
         children: [
-          Icon(Icons.send_outlined, color: Color(0xFFF59E0B)),
+          Icon(LucideIcons.send, color: ZelloColors.primaryLighter),
           SizedBox(width: 8),
           Text('Encaminhamento'),
         ],
@@ -80,7 +81,7 @@ class _AddReferralDialogState extends ConsumerState<AddReferralDialog> {
           child: const Text('Cancelar'),
         ),
         ElevatedButton.icon(
-          icon: const Icon(Icons.send, size: 18),
+          icon: const Icon(LucideIcons.send, size: 18),
           label: const Text('Encaminhar'),
           onPressed: _save,
         ),

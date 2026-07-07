@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -85,7 +86,7 @@ class _AddMedicationDialogState extends ConsumerState<AddMedicationDialog> {
                 title: Text(_startDate != null
                     ? 'Início: ${Formatters.formatDate(_startDate!)}'
                     : 'Data de início'),
-                trailing: const Icon(Icons.calendar_today),
+                trailing: const Icon(LucideIcons.calendar),
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
@@ -102,7 +103,7 @@ class _AddMedicationDialogState extends ConsumerState<AddMedicationDialog> {
                 title: Text(_endDate != null
                     ? 'Fim: ${Formatters.formatDate(_endDate!)}'
                     : 'Data de fim (opcional)'),
-                trailing: const Icon(Icons.calendar_today),
+                trailing: const Icon(LucideIcons.calendar),
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,

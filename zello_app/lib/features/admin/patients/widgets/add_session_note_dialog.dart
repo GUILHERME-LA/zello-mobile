@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -47,7 +48,7 @@ class _AddSessionNoteDialogState extends ConsumerState<AddSessionNoteDialog> {
     return AlertDialog(
       title: const Row(
         children: [
-          Icon(Icons.psychology, color: Color(0xFF8B5CF6)),
+          Icon(LucideIcons.brain, color: ZelloColors.primary),
           SizedBox(width: 8),
           Text('Registrar Sessão'),
         ],
@@ -64,11 +65,11 @@ class _AddSessionNoteDialogState extends ConsumerState<AddSessionNoteDialog> {
                 // Data
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.calendar_today),
+                  leading: const Icon(LucideIcons.calendar),
                   title: Text(
                     '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                   ),
-                  trailing: const Icon(Icons.edit_calendar),
+                  trailing: const Icon(LucideIcons.calendarCheck),
                   onTap: () async {
                     final picked = await showDatePicker(
                       context: context,
@@ -96,7 +97,7 @@ class _AddSessionNoteDialogState extends ConsumerState<AddSessionNoteDialog> {
                     return ChoiceChip(
                       label: Text('${_moodEmojis[mood]} $mood'),
                       selected: selected,
-                      selectedColor: const Color(0xFF8B5CF6).withAlpha(30),
+                      selectedColor: ZelloColors.primary.withAlpha(30),
                       onSelected: (_) =>
                           setState(() => _selectedMood = mood),
                     );
@@ -128,7 +129,7 @@ class _AddSessionNoteDialogState extends ConsumerState<AddSessionNoteDialog> {
           child: const Text('Cancelar'),
         ),
         ElevatedButton.icon(
-          icon: const Icon(Icons.save, size: 18),
+          icon: const Icon(LucideIcons.save, size: 18),
           label: const Text('Salvar'),
           onPressed: _save,
         ),

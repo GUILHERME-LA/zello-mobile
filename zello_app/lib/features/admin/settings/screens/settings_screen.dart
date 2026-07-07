@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -70,7 +71,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                   child: Column(
                     children: [
                       _buildSwitchTile(
-                        Icons.auto_awesome,
+                        LucideIcons.sparkles,
                         'Resposta Automática',
                         'Agente responde automaticamente',
                         _autoReply,
@@ -78,7 +79,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                       ),
                       const Divider(height: 1),
                       _buildSwitchTile(
-                        Icons.notifications_outlined,
+                        LucideIcons.bell,
                         'Notificações',
                         'Alertas de novas conversas',
                         _notifications,
@@ -86,7 +87,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                       ),
                       const Divider(height: 1),
                       _buildSwitchTile(
-                        Icons.analytics_outlined,
+                        LucideIcons.barChart,
                         'Analytics',
                         'Relatórios de uso e desempenho',
                         _analytics,
@@ -103,7 +104,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                 child: Column(
                   children: [
                     _buildIntegrationTile(
-                      Icons.webhook,
+                      LucideIcons.gitBranch,
                       'Webhook n8n',
                       ApiEndpoints.baseUrl,
                       () => _showInfo('Webhook n8n',
@@ -113,7 +114,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                     ),
                     const SizedBox(height: 12),
                     _buildIntegrationTile(
-                      Icons.api,
+                      LucideIcons.code,
                       'API Key',
                       '••••••••••••••••',
                       () => _showInfo('API Key',
@@ -129,16 +130,16 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    _buildInfoTile(Icons.storage, 'Banco de Dados',
+                    _buildInfoTile(LucideIcons.database, 'Banco de Dados',
                         'PostgreSQL • Conectado'),
                     const SizedBox(height: 12),
                     _buildInfoTile(
-                        Icons.cloud_done, 'Servidor', 'Online • v2.4.1'),
+                        LucideIcons.cloud, 'Servidor', 'Online • v2.4.1'),
                     const SizedBox(height: 12),
-                    _buildInfoTile(Icons.security, 'SSL/TLS', 'Ativo'),
+                    _buildInfoTile(LucideIcons.shield, 'SSL/TLS', 'Ativo'),
                     const SizedBox(height: 12),
                     _buildIntegrationTile(
-                      Icons.lock_outline,
+                      LucideIcons.lock,
                       'Alterar Senha',
                       '',
                       () => context.push('/change-password'),
@@ -156,7 +157,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.logout, size: 18, color: Color(0xFFEF4444)),
+                      Icon(LucideIcons.logOut, size: 18, color: Color(0xFFEF4444)),
                       SizedBox(width: 8),
                       Text('Sair da Conta',
                           style: TextStyle(
@@ -199,7 +200,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
               onPressed: () => context.pop(),
             ),
           ),
@@ -271,7 +272,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+          const Icon(LucideIcons.chevronRight, color: Color(0xFF9CA3AF)),
         ],
       ),
     );
@@ -299,7 +300,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+          const Icon(LucideIcons.chevronRight, color: Color(0xFF9CA3AF)),
         ],
       ),
     );

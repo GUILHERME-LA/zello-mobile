@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -46,7 +47,7 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
             Expanded(
               child: professionalId == null
                   ? EmptyState(
-                      icon: Icons.person_off_outlined,
+                      icon: LucideIcons.userX,
                       title: 'Profissional não identificado',
                       subtitle: isAdmin
                           ? 'Selecione um profissional acima para ver a agenda.'
@@ -60,7 +61,7 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
       floatingActionButton: professionalId != null
           ? FloatingActionButton(
               onPressed: () => _showCreateSlotDialog(professionalId),
-              child: const Icon(Icons.add),
+              child: const Icon(LucideIcons.plus),
             )
           : null,
     );
@@ -132,7 +133,7 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               children: const [
                 EmptyState(
-                  icon: Icons.event_busy_outlined,
+                  icon: LucideIcons.calendarX,
                   title: 'Nenhum horário para este dia',
                   subtitle: 'Toque + para adicionar um horário disponível.',
                 ),
@@ -155,8 +156,8 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
                         height: 48,
                         decoration: BoxDecoration(
                           color: slot.isBooked
-                              ? const Color(0xFFF59E0B)
-                              : const Color(0xFF10B981),
+                              ? ZelloColors.primaryLighter
+                              : ZelloColors.primaryLight,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -177,8 +178,8 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: slot.isBooked
-                                    ? const Color(0xFFF59E0B)
-                                    : const Color(0xFF10B981),
+                                    ? ZelloColors.primaryLighter
+                                    : ZelloColors.primaryLight,
                               ),
                             ),
                           ],
@@ -186,7 +187,7 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
                       ),
                       if (!slot.isBooked)
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+                          icon: const Icon(LucideIcons.trash2, color: Color(0xFFEF4444)),
                           onPressed: () async {
                             try {
                               await ref.read(availabilityProvider.notifier).delete(slot.id);

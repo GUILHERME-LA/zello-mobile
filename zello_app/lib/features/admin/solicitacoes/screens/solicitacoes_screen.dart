@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -34,7 +35,7 @@ class _SolicitacoesScreenState extends ConsumerState<SolicitacoesScreen> {
                       return ListView(
                         children: const [
                           EmptyState(
-                            icon: Icons.inbox_outlined,
+                            icon: LucideIcons.inbox,
                             title: 'Nenhuma solicitação pendente',
                             subtitle: 'Quando um paciente solicitar um exame, aparecerá aqui.',
                           ),
@@ -203,7 +204,7 @@ class _ExamRequestCard extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: onRefuse,
-                      icon: const Icon(Icons.close, size: 16),
+                      icon: const Icon(LucideIcons.x, size: 16),
                       label: const Text('Recusar'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFEF4444),
@@ -215,7 +216,7 @@ class _ExamRequestCard extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: onConfirm,
-                      icon: const Icon(Icons.check, size: 16),
+                      icon: const Icon(LucideIcons.check, size: 16),
                       label: const Text('Confirmar'),
                     ),
                   ),
@@ -237,26 +238,26 @@ class _ExamRequestCard extends StatelessWidget {
   Color get _statusColor {
     switch (request.status) {
       case 'confirmado':
-        return const Color(0xFF10B981);
+        return ZelloColors.primaryLight;
       case 'recusado':
         return const Color(0xFFEF4444);
       case 'concluido':
-        return const Color(0xFF3B82F6);
+        return ZelloColors.primaryLighter;
       default:
-        return const Color(0xFFF59E0B);
+        return ZelloColors.primaryLighter;
     }
   }
 
   IconData get _statusIcon {
     switch (request.status) {
       case 'confirmado':
-        return Icons.check_circle_outline;
+        return LucideIcons.checkCircle2;
       case 'recusado':
-        return Icons.cancel_outlined;
+        return LucideIcons.xCircle;
       case 'concluido':
-        return Icons.task_alt;
+        return LucideIcons.checkCircle2;
       default:
-        return Icons.schedule;
+        return LucideIcons.clock;
     }
   }
 

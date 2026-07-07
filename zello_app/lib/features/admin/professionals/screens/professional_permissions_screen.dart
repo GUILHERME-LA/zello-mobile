@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -8,31 +9,31 @@ const List<PermissionDefinition> allPermissions = [
     key: 'patients',
     label: 'Ver Pacientes',
     description: 'Acesso à lista de pacientes',
-    icon: Icons.people,
+    icon: LucideIcons.users,
   ),
   PermissionDefinition(
     key: 'exams',
     label: 'Gerenciar Exames',
     description: 'Adicionar e editar exames',
-    icon: Icons.science,
+    icon: LucideIcons.flaskConical,
   ),
   PermissionDefinition(
     key: 'consultations',
     label: 'Gerenciar Consultas',
     description: 'Agendar e editar consultas',
-    icon: Icons.event,
+    icon: LucideIcons.calendar,
   ),
   PermissionDefinition(
     key: 'medications',
     label: 'Gerenciar Medicações',
     description: 'Prescrever e editar medicações',
-    icon: Icons.medication,
+    icon: LucideIcons.pill,
   ),
   PermissionDefinition(
     key: 'reports',
     label: 'Ver Relatórios',
     description: 'Acesso a estatísticas e relatórios',
-    icon: Icons.bar_chart,
+    icon: LucideIcons.barChart,
   ),
 ];
 
@@ -82,7 +83,7 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
             )
           else
             IconButton(
-              icon: const Icon(Icons.check),
+              icon: const Icon(LucideIcons.check),
               onPressed: _savePermissions,
             ),
         ],
@@ -119,18 +120,18 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
                           height: 48,
                           decoration: BoxDecoration(
                             color: (prof.type == 'medico'
-                                    ? const Color(0xFF3B82F6)
-                                    : const Color(0xFF8B5CF6))
+                                    ? ZelloColors.primaryLighter
+                                    : ZelloColors.primary)
                                 .withAlpha(25),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             prof.type == 'medico'
-                                ? Icons.local_hospital
-                                : Icons.psychology,
+                                ? LucideIcons.building2
+                                : LucideIcons.brain,
                             color: prof.type == 'medico'
-                                ? const Color(0xFF3B82F6)
-                                : const Color(0xFF8B5CF6),
+                                ? ZelloColors.primaryLighter
+                                : ZelloColors.primary,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -211,7 +212,7 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
             decoration: BoxDecoration(
               border: Border.all(
                 color: isSelected
-                    ? const Color(0xFF3B82F6)
+                    ? ZelloColors.primaryLighter
                     : const Color(0xFFE5E7EB),
                 width: isSelected ? 2 : 1,
               ),
@@ -224,7 +225,7 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
                   height: 40,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFF3B82F6)
+                        ? ZelloColors.primaryLighter
                         : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -272,7 +273,7 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
                       }
                     });
                   },
-                  activeColor: const Color(0xFF3B82F6),
+                  activeColor: ZelloColors.primaryLighter,
                 ),
               ],
             ),
@@ -313,7 +314,7 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Permissões salvas com sucesso!'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: ZelloColors.primaryLight,
           ),
         );
         Navigator.of(context).pop();

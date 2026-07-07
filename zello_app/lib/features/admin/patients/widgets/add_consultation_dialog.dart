@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -60,7 +61,7 @@ class _AddConsultationDialogState extends ConsumerState<AddConsultationDialog> {
                 title: Text(_date != null
                     ? Formatters.formatDate(_date!)
                     : 'Selecionar data'),
-                trailing: const Icon(Icons.calendar_today),
+                trailing: const Icon(LucideIcons.calendar),
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -17,7 +18,7 @@ class ConversationsScreen extends ConsumerWidget {
               title: 'Conversas',
               subtitle: 'Gerencie conversas com pacientes',
               trailing: IconButton(
-                icon: const Icon(Icons.search, color: Colors.white),
+                icon: const Icon(LucideIcons.search, color: Colors.white),
                 onPressed: () => _showSearch(context),
               ),
             ),
@@ -34,7 +35,7 @@ class ConversationsScreen extends ConsumerWidget {
                         physics: const AlwaysScrollableScrollPhysics(),
                         children: const [
                           EmptyState(
-                            icon: Icons.chat_bubble_outline,
+                            icon: LucideIcons.messageCircle,
                             title: 'Nenhuma conversa ativa',
                             subtitle: 'Quando um paciente iniciar uma conversa, aparecerá aqui.',
                           ),
@@ -225,7 +226,7 @@ class _ConversationCard extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: const Center(
-                      child: Icon(Icons.priority_high,
+                      child: Icon(LucideIcons.alertTriangle,
                           size: 8, color: Colors.white),
                     ),
                   ),
@@ -294,7 +295,7 @@ class _ConversationSearchDelegate extends SearchDelegate<String?> {
   List<Widget>? buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: const Icon(Icons.clear),
+        icon: const Icon(LucideIcons.x),
         onPressed: () => query = '',
       ),
     ];
@@ -303,7 +304,7 @@ class _ConversationSearchDelegate extends SearchDelegate<String?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(LucideIcons.arrowLeft),
       onPressed: () => close(context, null),
     );
   }

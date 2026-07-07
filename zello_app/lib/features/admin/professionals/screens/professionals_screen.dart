@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -18,7 +19,7 @@ class ProfessionalsScreen extends ConsumerWidget {
               title: 'Profissionais',
               subtitle: 'Gerencie médicos e psicólogos',
               trailing: IconButton(
-                icon: const Icon(Icons.add, color: Colors.white),
+                icon: const Icon(LucideIcons.plus, color: Colors.white),
                 onPressed: () => context.push('/professionals/create'),
               ),
             ),
@@ -34,7 +35,7 @@ class ProfessionalsScreen extends ConsumerWidget {
                       return ListView(
                         children: const [
                           EmptyState(
-                            icon: Icons.medical_services_outlined,
+                            icon: LucideIcons.stethoscope,
                             title: 'Nenhum profissional cadastrado',
                             subtitle: 'Toque + para cadastrar o primeiro',
                           ),
@@ -58,18 +59,18 @@ class ProfessionalsScreen extends ConsumerWidget {
                                   height: 48,
                                   decoration: BoxDecoration(
                                     color: (prof.type == 'medico'
-                                            ? const Color(0xFF3B82F6)
-                                            : const Color(0xFF8B5CF6))
+                                            ? ZelloColors.primaryLighter
+                                            : ZelloColors.primary)
                                         .withAlpha(25),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
                                     prof.type == 'medico'
-                                        ? Icons.local_hospital
-                                        : Icons.psychology,
+                                        ? LucideIcons.building2
+                                        : LucideIcons.brain,
                                     color: prof.type == 'medico'
-                                        ? const Color(0xFF3B82F6)
-                                        : const Color(0xFF8B5CF6),
+                                        ? ZelloColors.primaryLighter
+                                        : ZelloColors.primary,
                                   ),
                                 ),
                                 const SizedBox(width: 14),
@@ -103,7 +104,7 @@ class ProfessionalsScreen extends ConsumerWidget {
                                       : ZelloBadgeVariant.psychology,
                                 ),
                                 const SizedBox(width: 8),
-                                const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+                                const Icon(LucideIcons.chevronRight, color: Color(0xFF9CA3AF)),
                               ],
                             ),
                           ),

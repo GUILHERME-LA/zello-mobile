@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -34,7 +35,7 @@ class PatientDetailScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
             onPressed: () => context.pop(),
           ),
           backgroundColor: const Color(0xFF1565C0),
@@ -54,14 +55,14 @@ class PatientDetailScreen extends ConsumerWidget {
             indicatorWeight: 3,
             tabs: isPsicologo
                 ? const [
-                    Tab(icon: Icon(Icons.calendar_month), text: 'Consultas'),
-                    Tab(icon: Icon(Icons.psychology), text: 'Sessões'),
-                    Tab(icon: Icon(Icons.send_outlined), text: 'Encaminhamentos'),
+                    Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'),
+                    Tab(icon: Icon(LucideIcons.brain), text: 'Sessões'),
+                    Tab(icon: Icon(LucideIcons.send), text: 'Encaminhamentos'),
                   ]
                 : const [
-                    Tab(icon: Icon(Icons.science), text: 'Exames'),
-                    Tab(icon: Icon(Icons.calendar_month), text: 'Consultas'),
-                    Tab(icon: Icon(Icons.medication), text: 'Medicações'),
+                    Tab(icon: Icon(LucideIcons.flaskConical), text: 'Exames'),
+                    Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'),
+                    Tab(icon: Icon(LucideIcons.pill), text: 'Medicações'),
                   ],
           ),
         ),
@@ -103,11 +104,11 @@ class _ExamsTab extends ConsumerWidget {
   Color _getStatusColor(ExamStatus status) {
     switch (status) {
       case ExamStatus.pending:
-        return const Color(0xFFD97706);
+        return ZelloColors.primaryLight;
       case ExamStatus.available:
-        return const Color(0xFF059669);
+        return ZelloColors.primary;
       case ExamStatus.reviewed:
-        return const Color(0xFF2563EB);
+        return ZelloColors.primary;
     }
   }
 
@@ -150,7 +151,7 @@ class _ExamsTab extends ConsumerWidget {
         examsAsync.when(
           data: (exams) => exams.isEmpty
               ? const EmptyState(
-                  icon: Icons.science_outlined,
+                  icon: LucideIcons.flaskConical,
                   title: 'Nenhum exame cadastrado',
                   subtitle: 'Toque + para adicionar o primeiro exame.',
                 )
@@ -168,7 +169,7 @@ class _ExamsTab extends ConsumerWidget {
                         subtitle: exams[i].date != null
                             ? Formatters.formatDate(exams[i].date!)
                             : 'Data não informada',
-                        icon: Icons.description_outlined,
+                        icon: LucideIcons.fileText,
                         trailingWidget: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -195,8 +196,8 @@ class _ExamsTab extends ConsumerWidget {
                                 constraints: const BoxConstraints(),
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(
-                                    Icons.check_circle_outline,
-                                    color: Color(0xFF059669),
+                                    LucideIcons.checkCircle2,
+                                    color: ZelloColors.primary,
                                     size: 22),
                                 tooltip: 'Concluir Exame',
                                 onPressed: () => _handleCompleteExam(
@@ -225,7 +226,7 @@ class _ExamsTab extends ConsumerWidget {
               context: context,
               builder: (_) => AddExamDialog(patientId: patient.id),
             ),
-            child: const Icon(Icons.add),
+            child: const Icon(LucideIcons.plus),
           ),
         ),
       ],
@@ -250,7 +251,7 @@ class _ConsultationsTab extends ConsumerWidget {
         consultationsAsync.when(
           data: (consultations) => consultations.isEmpty
               ? const EmptyState(
-                  icon: Icons.calendar_month_outlined,
+                  icon: LucideIcons.calendar,
                   title: 'Nenhuma consulta cadastrada',
                   subtitle: 'Toque + para agendar a primeira consulta.',
                 )
@@ -267,7 +268,7 @@ class _ConsultationsTab extends ConsumerWidget {
                         title: consultations[i].doctorName,
                         subtitle: consultations[i].specialty,
                         trailing: consultations[i].status.name,
-                        icon: Icons.person,
+                        icon: LucideIcons.user,
                       ),
                     ),
                   ),
@@ -288,7 +289,7 @@ class _ConsultationsTab extends ConsumerWidget {
               context: context,
               builder: (_) => AddConsultationDialog(patientId: patient.id),
             ),
-            child: const Icon(Icons.add),
+            child: const Icon(LucideIcons.plus),
           ),
         ),
       ],
@@ -313,7 +314,7 @@ class _MedicationsTab extends ConsumerWidget {
         medicationsAsync.when(
           data: (medications) => medications.isEmpty
               ? const EmptyState(
-                  icon: Icons.medication_outlined,
+                  icon: LucideIcons.pill,
                   title: 'Nenhuma medicação cadastrada',
                   subtitle: 'Toque + para adicionar a primeira medicação.',
                 )
@@ -331,7 +332,7 @@ class _MedicationsTab extends ConsumerWidget {
                         subtitle:
                             '${medications[i].dosage} - ${medications[i].frequency}',
                         trailing: medications[i].isActive ? 'Ativo' : 'Inativo',
-                        icon: Icons.medication,
+                        icon: LucideIcons.pill,
                       ),
                     ),
                   ),
@@ -352,7 +353,7 @@ class _MedicationsTab extends ConsumerWidget {
               context: context,
               builder: (_) => AddMedicationDialog(patientId: patient.id),
             ),
-            child: const Icon(Icons.add),
+            child: const Icon(LucideIcons.plus),
           ),
         ),
       ],
@@ -393,7 +394,7 @@ class _SessionNotesTab extends ConsumerWidget {
         notesAsync.when(
           data: (notes) => notes.isEmpty
               ? const EmptyState(
-                  icon: Icons.psychology_outlined,
+                  icon: LucideIcons.brain,
                   title: 'Nenhuma sessão registrada',
                   subtitle:
                       'Toque + para registrar a primeira sessão/evolução.',
@@ -432,7 +433,7 @@ class _SessionNotesTab extends ConsumerWidget {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF8B5CF6)
+                                      color: ZelloColors.primary
                                           .withAlpha(25),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
@@ -441,7 +442,7 @@ class _SessionNotesTab extends ConsumerWidget {
                                       style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
-                                        color: Color(0xFF8B5CF6),
+                                        color: ZelloColors.primary,
                                       ),
                                     ),
                                   ),
@@ -479,12 +480,12 @@ class _SessionNotesTab extends ConsumerWidget {
           right: 16,
           bottom: 16,
           child: FloatingActionButton(
-            backgroundColor: const Color(0xFF8B5CF6),
+            backgroundColor: ZelloColors.primary,
             onPressed: () => showDialog(
               context: context,
               builder: (_) => AddSessionNoteDialog(patientId: patient.id),
             ),
-            child: const Icon(Icons.add),
+            child: const Icon(LucideIcons.plus),
           ),
         ),
       ],
@@ -508,7 +509,7 @@ class _ReferralsTab extends ConsumerWidget {
         referralsAsync.when(
           data: (referrals) => referrals.isEmpty
               ? const EmptyState(
-                  icon: Icons.send_outlined,
+                  icon: LucideIcons.send,
                   title: 'Nenhum encaminhamento',
                   subtitle: 'Toque + para encaminhar para outra especialidade.',
                 )
@@ -533,13 +534,13 @@ class _ReferralsTab extends ConsumerWidget {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF59E0B)
+                                      color: ZelloColors.primaryLighter
                                           .withAlpha(25),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
-                                        Icons.send_outlined,
-                                        color: Color(0xFFF59E0B)),
+                                        LucideIcons.send,
+                                        color: ZelloColors.primaryLighter),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -563,8 +564,8 @@ class _ReferralsTab extends ConsumerWidget {
                                             fontSize: 12,
                                             color: referrals[i].status ==
                                                     'ativo'
-                                                ? const Color(0xFFF59E0B)
-                                                : const Color(0xFF10B981),
+                                                ? ZelloColors.primaryLighter
+                                                : ZelloColors.primaryLight,
                                           ),
                                         ),
                                       ],
@@ -602,12 +603,12 @@ class _ReferralsTab extends ConsumerWidget {
           right: 16,
           bottom: 16,
           child: FloatingActionButton(
-            backgroundColor: const Color(0xFFF59E0B),
+            backgroundColor: ZelloColors.primaryLighter,
             onPressed: () => showDialog(
               context: context,
               builder: (_) => AddReferralDialog(patientId: patient.id),
             ),
-            child: const Icon(Icons.add),
+            child: const Icon(LucideIcons.plus),
           ),
         ),
       ],

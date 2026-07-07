@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/zello_theme.dart';
 
 class GradientHeader extends StatelessWidget {
   final String title;
@@ -20,16 +21,9 @@ class GradientHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPadding),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
+      decoration: BoxDecoration(
+        gradient: ZelloGradients.header,
+        borderRadius: ZelloRadius.headerRadius,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,29 +36,25 @@ class GradientHeader extends StatelessWidget {
                 if (greeting != null)
                   Text(
                     greeting!,
-                    style: TextStyle(
-                      color: Colors.white.withAlpha(179),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withAlpha(179),
+                        ),
                   ),
                 if (greeting != null) const SizedBox(height: 2),
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     subtitle!,
-                    style: TextStyle(
-                      color: Colors.white.withAlpha(179),
-                      fontSize: 13,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withAlpha(179),
+                        ),
                   ),
                 ],
               ],

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -38,7 +39,7 @@ class PatientsScreen extends ConsumerWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.people_outline,
+                            Icon(LucideIcons.users,
                                 size: 64, color: Colors.grey.shade300),
                             const SizedBox(height: 16),
                             const Text('Nenhum paciente cadastrado',
@@ -86,7 +87,7 @@ class PatientsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPatient(context, ref),
-        child: const Icon(Icons.add),
+        child: const Icon(LucideIcons.plus),
       ),
     );
   }
@@ -110,7 +111,7 @@ class PatientsScreen extends ConsumerWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.people_alt_outlined,
+              Icon(LucideIcons.users,
                   color: Colors.white, size: 28),
               SizedBox(width: 14),
               Column(
@@ -133,7 +134,7 @@ class PatientsScreen extends ConsumerWidget {
             decoration: InputDecoration(
               hintText: 'Buscar pacientes...',
               hintStyle: TextStyle(color: Colors.white.withAlpha(128)),
-              prefixIcon: Icon(Icons.search,
+              prefixIcon: Icon(LucideIcons.search,
                   color: Colors.white.withAlpha(179), size: 22),
               filled: true,
               fillColor: Colors.white.withAlpha(30),
@@ -183,7 +184,7 @@ class _PatientCard extends StatelessWidget {
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: isActive
-                            ? const Color(0xFF10B981).withAlpha(25)
+                            ? ZelloColors.primaryLight.withAlpha(25)
                             : const Color(0xFFE5E7EB),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -192,7 +193,7 @@ class _PatientCard extends StatelessWidget {
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: isActive
-                                  ? const Color(0xFF10B981)
+                                  ? ZelloColors.primaryLight
                                   : const Color(0xFF6B7280))),
                     ),
                   ],
@@ -200,7 +201,7 @@ class _PatientCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.phone, size: 12, color: Colors.grey.shade500),
+                    Icon(LucideIcons.phone, size: 12, color: Colors.grey.shade500),
                     const SizedBox(width: 4),
                     Text(patient.phone,
                         style: const TextStyle(
@@ -210,7 +211,7 @@ class _PatientCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+          const Icon(LucideIcons.chevronRight, color: Color(0xFF9CA3AF)),
         ],
       ),
     );

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
 
@@ -56,14 +57,14 @@ class _AdminHospitalsScreenState extends ConsumerState<AdminHospitalsScreen> {
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Nome do hospital',
-                prefixIcon: Icon(Icons.local_hospital_outlined),
+                prefixIcon: Icon(LucideIcons.building2),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Cidade',
-                prefixIcon: Icon(Icons.location_city),
+                prefixIcon: Icon(LucideIcons.building2),
               ),
             ),
             const SizedBox(height: 24),
@@ -126,7 +127,7 @@ class _AdminHospitalsScreenState extends ConsumerState<AdminHospitalsScreen> {
                     ),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.local_hospital,
+                  child: const Icon(LucideIcons.building2,
                       color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 16),
@@ -149,7 +150,7 @@ class _AdminHospitalsScreenState extends ConsumerState<AdminHospitalsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: item.status == 'Ativo'
-                        ? const Color(0xFF10B981).withAlpha(25)
+                        ? ZelloColors.primaryLight.withAlpha(25)
                         : const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -158,7 +159,7 @@ class _AdminHospitalsScreenState extends ConsumerState<AdminHospitalsScreen> {
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: item.status == 'Ativo'
-                              ? const Color(0xFF10B981)
+                              ? ZelloColors.primaryLight
                               : const Color(0xFF6B7280))),
                 ),
               ],
@@ -255,7 +256,7 @@ class _AdminHospitalsScreenState extends ConsumerState<AdminHospitalsScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
-              icon: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(LucideIcons.plus, color: Colors.white),
               onPressed: _showAddHospital,
             ),
           ),
@@ -297,7 +298,7 @@ class _HospitalCard extends StatelessWidget {
               color: const Color(0xFF1565C0).withAlpha(25),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.local_hospital,
+            child: const Icon(LucideIcons.building2,
                 color: Color(0xFF1565C0), size: 26),
           ),
           const SizedBox(width: 14),
@@ -320,7 +321,7 @@ class _HospitalCard extends StatelessWidget {
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: isActive
-                            ? const Color(0xFF10B981).withAlpha(25)
+                            ? ZelloColors.primaryLight.withAlpha(25)
                             : const Color(0xFFE5E7EB),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -329,7 +330,7 @@ class _HospitalCard extends StatelessWidget {
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: isActive
-                                  ? const Color(0xFF10B981)
+                                  ? ZelloColors.primaryLight
                                   : const Color(0xFF6B7280))),
                     ),
                   ],
@@ -337,14 +338,14 @@ class _HospitalCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.location_on,
+                    Icon(LucideIcons.mapPin,
                         size: 12, color: Colors.grey.shade500),
                     const SizedBox(width: 4),
                     Text(item.city,
                         style: const TextStyle(
                             fontSize: 12, color: Color(0xFF6B7280))),
                     const SizedBox(width: 12),
-                    Icon(Icons.description_outlined,
+                    Icon(LucideIcons.fileText,
                         size: 12, color: Colors.grey.shade500),
                     const SizedBox(width: 4),
                     Text('${item.plans} planos',
@@ -355,7 +356,7 @@ class _HospitalCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+          const Icon(LucideIcons.chevronRight, color: Color(0xFF9CA3AF)),
         ],
       ),
     );
