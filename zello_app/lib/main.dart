@@ -71,7 +71,7 @@ class ZelloApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Zello Saúde',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       theme: ZelloTheme.lightTheme(),
       darkTheme: ZelloTheme.darkTheme(),
       routerConfig: appRouter,

@@ -63,7 +63,7 @@ class ZelloColors {
   static const accentDark = Color(0xFF1565C0);
 
   // ── Surfaces (Light) ──────────────────────────────────
-  static const background = Color(0xFFF8FAFC);
+  static const background = Color(0xFFF6F8FA);
   static const surface = Color(0xFFFFFFFF);
   static const surfaceLight = Color(0xFFE8F0FE);
   static const surfaceLighter = Color(0xFFF1F5F9);
