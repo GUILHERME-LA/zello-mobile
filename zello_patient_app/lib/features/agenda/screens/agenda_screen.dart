@@ -132,6 +132,10 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  // Fecha o modal antes do async para evitar
+                  // use_build_context_synchronously
+                  Navigator.pop(ctx);
+
                   final auth = ref.read(authProvider);
                   await ref.read(examRequestsProvider.notifier).request(
                         ExamRequest(
@@ -146,7 +150,6 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
                       );
                   await ref.read(availabilityProvider.notifier).markBooked(slot.id);
                   if (mounted) {
-                    Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text('Solicitação enviada! Aguarde confirmação.')),
