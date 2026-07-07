@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -244,8 +245,8 @@ class _Header extends StatelessWidget {
               ),
               Row(
                 children: [
-                  _HeaderIconButton(
-                    icon: Icons.notifications_outlined,
+                    _HeaderIconButton(
+                    icon: LucideIcons.bell,
                     onTap: () => _showNotifications(context),
                   ),
                   const SizedBox(width: 8),
@@ -259,7 +260,7 @@ class _Header extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.person_outline,
+                        LucideIcons.user,
                         color: Colors.white,
                       ),
                     ),
@@ -283,7 +284,7 @@ class _Header extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.psychology,
+                Icon(LucideIcons.brain,
                     color: Colors.white.withAlpha(179), size: 20),
                 const SizedBox(width: 10),
                 Text(
@@ -341,13 +342,13 @@ class _Header extends StatelessWidget {
                       ),
             ),
             const SizedBox(height: 16),
-            _notifItem(context, Icons.calendar_today,
+            _notifItem(context, LucideIcons.calendar,
                 'Consulta amanhã às 14:30', 'Dr. Carlos Silva - Cardiologia'),
             const SizedBox(height: 12),
-            _notifItem(context, Icons.medication, 'Hora do Losartana 50mg',
+            _notifItem(context, LucideIcons.pill, 'Hora do Losartana 50mg',
                 'Próxima dose em 30 min'),
             const SizedBox(height: 12),
-            _notifItem(context, Icons.science, 'Exame disponível',
+            _notifItem(context, LucideIcons.flaskConical, 'Exame disponível',
                 'Hemograma completo'),
           ],
         ),
@@ -442,7 +443,7 @@ class _EmptyWelcome extends StatelessWidget {
                 gradient: ZelloGradients.accentGradient,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.favorite_outline,
+              child: const Icon(LucideIcons.heart,
                   color: Colors.white, size: 24),
             ),
             const SizedBox(width: 16),
@@ -467,7 +468,7 @@ class _EmptyWelcome extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right,
+            Icon(LucideIcons.chevronRight,
                 color: cs.onSurfaceVariant),
           ],
         ),
@@ -500,7 +501,7 @@ class _HealthOverview extends StatelessWidget {
             child: AnimatedCard(
               onTap: () => context.push('/medications'),
               child: _IndicatorContent(
-                icon: Icons.medication,
+                icon: LucideIcons.pill,
                 iconColor: Theme.of(context).colorScheme.primary,
                 iconBgColor:
                     Theme.of(context).colorScheme.primary.withAlpha(25),
@@ -515,9 +516,9 @@ class _HealthOverview extends StatelessWidget {
             child: AnimatedCard(
               onTap: () => context.push('/exams'),
               child: _IndicatorContent(
-                icon: Icons.science,
-                iconColor: const Color(0xFF10B981),
-                iconBgColor: const Color(0xFF10B981).withAlpha(25),
+                icon: LucideIcons.flaskConical,
+                iconColor: const Color(0xFF42A5F5),
+                iconBgColor: const Color(0xFF42A5F5).withAlpha(25),
                 count: examCount,
                 label: 'Exame${examCount == 1 ? '' : 'ns'}',
                 sublabel: examCount == 1 ? 'disponível' : 'disponíveis',
@@ -529,9 +530,9 @@ class _HealthOverview extends StatelessWidget {
             child: AnimatedCard(
               onTap: () => context.push('/consultations'),
               child: _IndicatorContent(
-                icon: Icons.calendar_today,
-                iconColor: const Color(0xFFF59E0B),
-                iconBgColor: const Color(0xFFF59E0B).withAlpha(25),
+                icon: LucideIcons.calendar,
+                iconColor: const Color(0xFF0D47A1),
+                iconBgColor: const Color(0xFF0D47A1).withAlpha(25),
                 count: consultCount,
                 label: 'Consulta${consultCount == 1 ? '' : 's'}',
                 sublabel: consultCount == 1 ? 'agendada' : 'agendadas',
@@ -632,7 +633,7 @@ class _QuickActionsGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.chat_bubble_outline,
+                  icon: LucideIcons.messageCircle,
                   label: 'Chat com agente',
                   color: Theme.of(context).colorScheme.primary,
                   bgColor:
@@ -643,20 +644,20 @@ class _QuickActionsGrid extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.event_outlined,
+                  icon: LucideIcons.calendarCheck,
                   label: 'Agenda',
-                  color: const Color(0xFF0891B2),
-                  bgColor: const Color(0xFF0891B2).withAlpha(20),
+                  color: const Color(0xFF1E88E5),
+                  bgColor: const Color(0xFF1E88E5).withAlpha(20),
                   onTap: () => context.push('/agenda'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.science_outlined,
+                  icon: LucideIcons.testTube,
                   label: 'Status exames',
-                  color: const Color(0xFFD97706),
-                  bgColor: const Color(0xFFD97706).withAlpha(20),
+                  color: const Color(0xFF42A5F5),
+                  bgColor: const Color(0xFF42A5F5).withAlpha(20),
                   onTap: () => context.push('/exam-status'),
                 ),
               ),
@@ -667,30 +668,30 @@ class _QuickActionsGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.health_and_safety_outlined,
+                  icon: LucideIcons.heartPulse,
                   label: 'Análise convênio',
-                  color: const Color(0xFF7C3AED),
-                  bgColor: const Color(0xFF7C3AED).withAlpha(20),
+                  color: const Color(0xFF0D47A1),
+                  bgColor: const Color(0xFF0D47A1).withAlpha(20),
                   onTap: () => context.push('/convenio'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.local_hospital_outlined,
+                  icon: LucideIcons.building2,
                   label: 'Hospitais',
-                  color: const Color(0xFF0D9488),
-                  bgColor: const Color(0xFF0D9488).withAlpha(20),
+                  color: const Color(0xFF1565C0),
+                  bgColor: const Color(0xFF1565C0).withAlpha(20),
                   onTap: () => context.push('/hospitals'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.folder_outlined,
+                  icon: LucideIcons.folder,
                   label: 'Prontuário',
-                  color: const Color(0xFF4338CA),
-                  bgColor: const Color(0xFF4338CA).withAlpha(20),
+                  color: const Color(0xFF1976D2),
+                  bgColor: const Color(0xFF1976D2).withAlpha(20),
                   onTap: () => context.push('/prontuario'),
                 ),
               ),
@@ -772,7 +773,7 @@ class _AgentCard extends StatelessWidget {
                 gradient: ZelloGradients.avatar,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.smart_toy,
+              child: const Icon(LucideIcons.bot,
                   color: Colors.white, size: 26),
             ),
             const SizedBox(width: 14),
@@ -790,7 +791,7 @@ class _AgentCard extends StatelessWidget {
                                 ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(Icons.circle,
+                      Icon(LucideIcons.circle,
                           size: 8, color: ZelloColors.online),
                     ],
                   ),
@@ -804,7 +805,7 @@ class _AgentCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right,
+            Icon(LucideIcons.chevronRight,
                 color: cs.onSurfaceVariant.withAlpha(120)),
           ],
         ),

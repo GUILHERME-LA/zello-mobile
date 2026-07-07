@@ -57,10 +57,10 @@ class ZelloColors {
   static const primaryLight = Color(0xFF1E88E5);
   static const primaryLighter = Color(0xFF42A5F5);
 
-  // ── Accent (Teal) ─────────────────────────────────────
-  static const accent = Color(0xFF14B8A6);
-  static const accentLight = Color(0xFF5EEAD4);
-  static const accentDark = Color(0xFF0D9488);
+  // ── Accent (Blue) ─────────────────────────────────────
+  static const accent = Color(0xFF42A5F5);
+  static const accentLight = Color(0xFFBBDEFB);
+  static const accentDark = Color(0xFF1565C0);
 
   // ── Surfaces (Light) ──────────────────────────────────
   static const background = Color(0xFFF8FAFC);
@@ -100,8 +100,8 @@ class ZelloColors {
 
   // ── Specialty ─────────────────────────────────────────
   static const medical = Color(0xFF3B82F6);
-  static const psychology = Color(0xFF8B5CF6);
-  static const psychologyLight = Color(0xFFEDE9FE);
+  static const psychology = Color(0xFF1E88E5);
+  static const psychologyLight = Color(0xFFE3F2FD);
   static const online = Color(0xFF10B981);
   static const busy = Color(0xFFF59E0B);
   static const offline = Color(0xFF94A3B8);
@@ -131,8 +131,8 @@ class ZelloGradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF14B8A6),
-      Color(0xFF0D9488),
+      Color(0xFF42A5F5),
+      Color(0xFF1565C0),
     ],
   );
 
@@ -178,7 +178,7 @@ class ZelloGradients {
 
   /// Section header bar gradient.
   static const LinearGradient sectionBar = LinearGradient(
-    colors: [Color(0xFF14B8A6), Color(0xFF1565C0)],
+    colors: [Color(0xFF42A5F5), Color(0xFF1565C0)],
   );
 
   /// Avatar gradient.
