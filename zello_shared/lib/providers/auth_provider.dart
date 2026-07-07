@@ -67,8 +67,19 @@ class AuthNotifier extends StateNotifier<ZelloAuthState> {
         state = ZelloAuthState(status: ZelloAuthStatus.authenticated, user: enrichedUser);
         return;
       }
-    } catch (_) {}
-    state = ZelloAuthState(status: ZelloAuthStatus.authenticated, user: baseUser);
+      // Usuario autenticado mas sem profile (trigger handle_new_user nao rodou)
+      state = ZelloAuthState(
+        status: ZelloAuthStatus.error,
+        error: 'Conta sem perfil. Contate o administrador ou refaça o cadastro.',
+        user: baseUser,
+      );
+    } catch (e) {
+      state = ZelloAuthState(
+        status: ZelloAuthStatus.error,
+        error: 'Erro ao carregar perfil: ${e.toString()}',
+        user: baseUser,
+      );
+    }
   }
 
   void _onAuthChange(AuthState authState) {

@@ -392,3 +392,84 @@ CREATE POLICY consultations_professional_all ON zello.consultations
 CREATE POLICY consultations_patient_select ON zello.consultations
     FOR SELECT TO authenticated
     USING (patient_id IN (SELECT id FROM zello.patients WHERE user_id = auth.uid()));
+
+-- =============================================================
+-- FIX: Garantir que anon e authenticated acessem schema zello
+-- =============================================================
+GRANT USAGE ON SCHEMA zello TO anon, authenticated;
+
+-- =============================================================
+-- FIX: Recriar handle_new_user com trigger garantido
+-- =============================================================
+CREATE OR REPLACE FUNCTION zello.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+  INSERT INTO zello.profiles (user_id, role, name, email)
+  VALUES (
+    NEW.id,
+    'patient',
+    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    NEW.email
+  )
+  ON CONFLICT (user_id) DO UPDATE
+  SET email = EXCLUDED.email,
+      name = COALESCE(zello.profiles.name, EXCLUDED.name);
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION zello.handle_new_user();
+
+-- =============================================================
+-- FIX: Criar admin auth user + profile (CUIDADO: altere a senha!)
+-- =============================================================
+DO $$
+DECLARE
+  v_user_id uuid;
+  v_email text := 'admin@zellosaude.com';
+  v_password text := 'Admin@123';
+BEGIN
+  -- Verifica se o admin já existe
+  SELECT id INTO v_user_id FROM auth.users WHERE email = v_email;
+
+  -- Se não existir, cria o auth user
+  IF v_user_id IS NULL THEN
+    v_user_id := gen_random_uuid();
+    INSERT INTO auth.users (
+      id, email, encrypted_password, email_confirmed_at,
+      confirmation_sent_at, confirmation_token, recovery_token,
+      email_change_token_new, email_change, raw_app_meta_data,
+      raw_user_meta_data, created_at, updated_at, role,
+      is_super_admin, phone_confirmed_at, banned_until
+    ) VALUES (
+      v_user_id,
+      v_email,
+      crypt(v_password, gen_salt('bf')),
+      now(),
+      now(), '', '',
+      '', '', '{"provider":"email","providers":["email"]}',
+      jsonb_build_object('name', 'Administrador'),
+      now(), now(),
+      'authenticated',
+      false, now(), null
+    );
+    RAISE NOTICE 'Admin auth user criado: % (senha: %)', v_email, v_password;
+  ELSE
+    RAISE NOTICE 'Admin auth user ja existe: %', v_email;
+  END IF;
+
+  -- Garante que o profile existe com role = admin
+  INSERT INTO zello.profiles (user_id, role, name, email)
+  VALUES (v_user_id, 'admin', 'Administrador', v_email)
+  ON CONFLICT (user_id) DO UPDATE
+  SET role = 'admin',
+      email = EXCLUDED.email,
+      name = 'Administrador';
+
+  RAISE NOTICE 'Profile admin garantido para user_id: %', v_user_id;
+END $$;
