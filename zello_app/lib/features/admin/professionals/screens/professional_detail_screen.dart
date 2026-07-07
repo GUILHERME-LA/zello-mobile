@@ -70,7 +70,7 @@ class ProfessionalDetailScreen extends ConsumerWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      context.push('/professionals/${prof.id}/permissions');
+                      context.push('/admin/professionals/${prof.id}/permissions');
                     },
                     icon: const Icon(LucideIcons.shield),
                     label: const Text('Gerenciar Permissões'),

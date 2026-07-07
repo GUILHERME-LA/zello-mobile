@@ -20,7 +20,7 @@ class ProfessionalsScreen extends ConsumerWidget {
               subtitle: 'Gerencie médicos e psicólogos',
               trailing: IconButton(
                 icon: const Icon(LucideIcons.plus, color: Colors.white),
-                onPressed: () => context.push('/professionals/create'),
+                onPressed: () => context.push('/admin/professionals/create'),
               ),
             ),
             Expanded(
@@ -51,7 +51,7 @@ class ProfessionalsScreen extends ConsumerWidget {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: AnimatedCard(
-                            onTap: () => context.push('/professionals/${prof.id}'),
+                            onTap: () => context.push('/admin/professionals/${prof.id}'),
                             child: Row(
                               children: [
                                 Container(

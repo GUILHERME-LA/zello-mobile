@@ -62,7 +62,7 @@ class PatientsScreen extends ConsumerWidget {
                         child: _PatientCard(
                           patient: patients[index],
                           onTap: () =>
-                              context.push('/patients/${patients[index].id}'),
+                              context.push('/admin/patients/${patients[index].id}'),
                         ),
                       ),
                     );

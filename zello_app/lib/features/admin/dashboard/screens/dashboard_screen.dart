@@ -98,7 +98,7 @@ class DashboardScreen extends ConsumerWidget {
         value: '${stats.totalPatients}',
         icon: LucideIcons.users,
         color: ZelloColors.primary,
-        onTap: () => context.push('/patients'),
+        onTap: () => context.push('/admin/patients'),
       ),
       if (isProfessional && stats.unassignedPatients > 0)
         _MetricTile(
@@ -106,7 +106,7 @@ class DashboardScreen extends ConsumerWidget {
           value: '${stats.unassignedPatients}',
           icon: LucideIcons.userPlus,
           color: ZelloColors.primaryLighter,
-          onTap: () => context.push('/patients/unassigned'),
+          onTap: () => context.push('/admin/patients/unassigned'),
         )
       else
         _MetricTile(
@@ -114,14 +114,14 @@ class DashboardScreen extends ConsumerWidget {
           value: '${stats.activeConversations}',
           icon: LucideIcons.messageCircle,
           color: ZelloColors.primaryLight,
-          onTap: () => context.push('/conversations'),
+          onTap: () => context.push('/admin/conversations'),
         ),
       _MetricTile(
         title: 'Agentes Ativos',
         value: '${stats.agentsOnline}',
         icon: LucideIcons.bot,
         color: ZelloColors.primary,
-        onTap: () => context.push('/agents'),
+        onTap: () => context.push('/admin/agents'),
         alert: stats.agentsOnline == 0,
       ),
       _MetricTile(
@@ -193,21 +193,21 @@ class DashboardScreen extends ConsumerWidget {
         subtitle: 'Gerenciar médicos e psicólogos',
         icon: LucideIcons.stethoscope,
         color: ZelloColors.primary,
-        onTap: () => context.push('/professionals'),
+        onTap: () => context.push('/admin/professionals'),
       ),
       _ManagementTile(
         title: 'Agenda',
         subtitle: 'Consultas e horários',
         icon: LucideIcons.calendar,
         color: ZelloColors.primaryLight,
-        onTap: () => context.push('/agenda'),
+        onTap: () => context.push('/admin/agenda'),
       ),
       _ManagementTile(
         title: 'Solicitações',
         subtitle: 'Pendências e requisições',
         icon: LucideIcons.inbox,
         color: ZelloColors.primaryLighter,
-        onTap: () => context.push('/solicitacoes'),
+        onTap: () => context.push('/admin/solicitacoes'),
       ),
     ];
 
