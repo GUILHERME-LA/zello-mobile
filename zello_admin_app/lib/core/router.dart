@@ -22,6 +22,10 @@ final adminRouter = GoRouter(
   initialLocation: '/login',
   redirect: (context, state) {
     final auth = ProviderScope.containerOf(context).read(authProvider);
+
+    // Aguarda recuperação de sessão (app reaberto)
+    if (auth.status == ZelloAuthStatus.initial) return null;
+
     final isLoggedIn = auth.status == ZelloAuthStatus.authenticated;
     final isOnLogin = state.matchedLocation == '/login';
 

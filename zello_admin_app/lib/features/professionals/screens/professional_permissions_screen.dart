@@ -287,6 +287,8 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
 
     try {
       final api = ref.read(apiClientProvider);
+      final auth = ref.read(authProvider);
+      final adminProfileId = auth.user?.profileId;
       final currentPermissions = ref.read(professionalPermissionsProvider(widget.professionalId)).valueOrNull ?? [];
       final currentKeys = currentPermissions.map((p) => p.permission).toSet();
 
@@ -300,7 +302,7 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
       // Adicionar permissões que foram marcadas
       for (final permKey in _selectedPermissions) {
         if (!currentKeys.contains(permKey)) {
-          await api.grantPermission(widget.professionalId, permKey);
+          await api.grantPermission(widget.professionalId, permKey, grantedBy: adminProfileId);
         }
       }
 

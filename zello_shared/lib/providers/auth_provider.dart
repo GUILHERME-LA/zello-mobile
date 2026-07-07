@@ -24,6 +24,8 @@ class ZelloAuthState {
   bool get isAdmin => user?.isAdmin == true;
   bool get isProfessional => user?.isProfessional == true;
   bool get isPatient => user?.isPatient == true;
+  bool get isMedico => user?.isMedico == true;
+  bool get isPsicologo => user?.isPsicologo == true;
 }
 
 class AuthNotifier extends StateNotifier<ZelloAuthState> {
@@ -33,6 +35,30 @@ class AuthNotifier extends StateNotifier<ZelloAuthState> {
 
   AuthNotifier(this._api, this._supabase) : super(const ZelloAuthState()) {
     _authSub = _supabase.auth.onAuthStateChange.listen(_onAuthChange);
+    // O initialSession já foi emitido durante Supabase.initialize(),
+    // antes de nos inscrevermos na stream. Recuperamos manualmente.
+    _recoverSession();
+  }
+
+  /// Verifica se há sessão salva (app reaberto ou restart).
+  /// Necessário porque o evento [AuthChangeEvent.initialSession] já foi
+  /// emitido pela stream antes do AuthNotifier ser criado.
+  Future<void> _recoverSession() async {
+    final session = _supabase.auth.currentSession;
+    if (session != null) {
+      final meta = session.user.userMetadata ?? {};
+      final baseUser = User(
+        id: session.user.id,
+        name: meta['name'] as String? ?? session.user.email?.split('@').first ?? '',
+        email: session.user.email ?? '',
+        phone: meta['phone'] as String? ?? '',
+        token: session.accessToken,
+      );
+      _api.loadCurrentPatient(baseUser.id);
+      _loadProfile(baseUser);
+    } else {
+      state = const ZelloAuthState(status: ZelloAuthStatus.unauthenticated);
+    }
   }
 
   Future<void> _loadProfile(User baseUser) async {
@@ -50,19 +76,28 @@ class AuthNotifier extends StateNotifier<ZelloAuthState> {
         final profileId = profile['id'] as String?;
 
         String? professionalId;
+        ProfessionalType? professionalType;
         if (role == UserRole.professional && profileId != null) {
           final profRecord = await _supabase
               .from('professionals')
-              .select('id')
+              .select('id, type')
               .eq('profile_id', profileId)
               .maybeSingle();
           professionalId = profRecord?['id'] as String?;
+          final typeStr = profRecord?['type'] as String?;
+          if (typeStr != null) {
+            professionalType = ProfessionalType.values.firstWhere(
+              (e) => e.name == typeStr,
+              orElse: () => ProfessionalType.medico,
+            );
+          }
         }
 
         final enrichedUser = baseUser.copyWith(
           role: role,
           profileId: profileId,
           professionalId: professionalId,
+          professionalType: professionalType,
         );
         state = ZelloAuthState(status: ZelloAuthStatus.authenticated, user: enrichedUser);
         return;
@@ -84,7 +119,8 @@ class AuthNotifier extends StateNotifier<ZelloAuthState> {
 
   void _onAuthChange(AuthState authState) {
     final session = authState.session;
-    if (authState.event == AuthChangeEvent.signedIn && session != null) {
+    if (session != null) {
+      // signedIn, initialSession, tokenRefreshed — qualquer evento com sessão válida
       final meta = session.user.userMetadata ?? {};
       final baseUser = User(
         id: session.user.id,

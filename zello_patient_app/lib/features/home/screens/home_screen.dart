@@ -346,10 +346,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _QuickActionButton(
-                  icon: Icons.person_outline,
-                  label: 'Meu\nPerfil',
+                  icon: Icons.folder_outlined,
+                  label: 'Prontuário',
                   color: const Color(0xFF0D47A1),
-                  onTap: () => context.push('/profile'),
+                  onTap: () => context.push('/prontuario'),
                 ),
               ),
             ],

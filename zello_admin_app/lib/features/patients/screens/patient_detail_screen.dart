@@ -5,6 +5,8 @@ import 'package:zello_shared/zello_shared.dart';
 import '../widgets/add_exam_dialog.dart';
 import '../widgets/add_consultation_dialog.dart';
 import '../widgets/add_medication_dialog.dart';
+import '../widgets/add_session_note_dialog.dart';
+import '../widgets/add_referral_dialog.dart';
 
 final _patientDetailProvider =
     FutureProvider.family<Patient, String>((ref, patientId) async {
@@ -20,9 +22,15 @@ class PatientDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final patientAsync = ref.watch(_patientDetailProvider(patientId));
+    final auth = ref.watch(authProvider);
+    final isPsicologo = auth.isPsicologo;
+
+    // Psicólogo: 3 abas diferentes (Consultas, Sessões, Encaminhamentos)
+    // Admin/Médico: 3 abas (Exames, Consultas, Medicações)
+    final tabCount = isPsicologo ? 3 : 3;
 
     return DefaultTabController(
-      length: 3,
+      length: tabCount,
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -32,30 +40,47 @@ class PatientDetailScreen extends ConsumerWidget {
           backgroundColor: const Color(0xFF1565C0),
           foregroundColor: Colors.white,
           title: patientAsync.when(
-            data: (p) => Text(p.name, style: const TextStyle(fontSize: 18, color: Colors.white)),
-            loading: () => const Text('Carregando...', style: TextStyle(color: Colors.white)),
-            error: (_, __) => const Text('Paciente', style: TextStyle(color: Colors.white)),
+            data: (p) =>
+                Text(p.name, style: const TextStyle(fontSize: 18, color: Colors.white)),
+            loading: () =>
+                const Text('Carregando...', style: TextStyle(color: Colors.white)),
+            error: (_, __) =>
+                const Text('Paciente', style: TextStyle(color: Colors.white)),
           ),
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             indicatorWeight: 3,
-            tabs: [
-              Tab(icon: Icon(Icons.science), text: 'Exames'),
-              Tab(icon: Icon(Icons.calendar_month), text: 'Consultas'),
-              Tab(icon: Icon(Icons.medication), text: 'Medicações'),
-            ],
+            tabs: isPsicologo
+                ? const [
+                    Tab(icon: Icon(Icons.calendar_month), text: 'Consultas'),
+                    Tab(icon: Icon(Icons.psychology), text: 'Sessões'),
+                    Tab(icon: Icon(Icons.send_outlined), text: 'Encaminhamentos'),
+                  ]
+                : const [
+                    Tab(icon: Icon(Icons.science), text: 'Exames'),
+                    Tab(icon: Icon(Icons.calendar_month), text: 'Consultas'),
+                    Tab(icon: Icon(Icons.medication), text: 'Medicações'),
+                  ],
           ),
         ),
         body: patientAsync.when(
-          data: (patient) => TabBarView(
-            children: [
-              _ExamsTab(patient: patient),
-              _ConsultationsTab(patient: patient),
-              _MedicationsTab(patient: patient),
-            ],
-          ),
+          data: (patient) => isPsicologo
+              ? TabBarView(
+                  children: [
+                    _ConsultationsTab(patient: patient),
+                    _SessionNotesTab(patient: patient),
+                    _ReferralsTab(patient: patient),
+                  ],
+                )
+              : TabBarView(
+                  children: [
+                    _ExamsTab(patient: patient),
+                    _ConsultationsTab(patient: patient),
+                    _MedicationsTab(patient: patient),
+                  ],
+                ),
           loading: () => const LoadingState(),
           error: (e, _) => ErrorState(
             message: 'Não foi possível carregar os dados do paciente.',
@@ -68,6 +93,9 @@ class PatientDetailScreen extends ConsumerWidget {
   }
 }
 
+// ============================================================
+// _ExamsTab (Médico/Admin)
+// ============================================================
 class _ExamsTab extends ConsumerWidget {
   final Patient patient;
   const _ExamsTab({required this.patient});
@@ -94,7 +122,8 @@ class _ExamsTab extends ConsumerWidget {
     }
   }
 
-  Future<void> _handleCompleteExam(BuildContext context, WidgetRef ref, String examId) async {
+  Future<void> _handleCompleteExam(
+      BuildContext context, WidgetRef ref, String examId) async {
     try {
       await ref.read(apiClientProvider).updateExamStatus(examId, 'available');
       ref.invalidate(patientExamsProvider(patient.id));
@@ -144,9 +173,11 @@ class _ExamsTab extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(exams[i].status).withAlpha(25),
+                                color: _getStatusColor(exams[i].status)
+                                    .withAlpha(25),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -163,9 +194,13 @@ class _ExamsTab extends ConsumerWidget {
                               IconButton(
                                 constraints: const BoxConstraints(),
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.check_circle_outline, color: Color(0xFF059669), size: 22),
+                                icon: const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Color(0xFF059669),
+                                    size: 22),
                                 tooltip: 'Concluir Exame',
-                                onPressed: () => _handleCompleteExam(context, ref, exams[i].id),
+                                onPressed: () => _handleCompleteExam(
+                                    context, ref, exams[i].id),
                               ),
                             ],
                           ],
@@ -178,7 +213,8 @@ class _ExamsTab extends ConsumerWidget {
           error: (e, _) => ErrorState(
             message: 'Não foi possível carregar os exames.',
             technicalDetails: '$e',
-            onRetry: () => ref.invalidate(patientExamsProvider(patient.id)),
+            onRetry: () =>
+                ref.invalidate(patientExamsProvider(patient.id)),
           ),
         ),
         Positioned(
@@ -197,13 +233,17 @@ class _ExamsTab extends ConsumerWidget {
   }
 }
 
+// ============================================================
+// _ConsultationsTab (Admin/Médico/Psicólogo)
+// ============================================================
 class _ConsultationsTab extends ConsumerWidget {
   final Patient patient;
   const _ConsultationsTab({required this.patient});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final consultationsAsync = ref.watch(patientConsultationsProvider(patient.id));
+    final consultationsAsync =
+        ref.watch(patientConsultationsProvider(patient.id));
 
     return Stack(
       children: [
@@ -236,7 +276,8 @@ class _ConsultationsTab extends ConsumerWidget {
           error: (e, _) => ErrorState(
             message: 'Não foi possível carregar as consultas.',
             technicalDetails: '$e',
-            onRetry: () => ref.invalidate(patientConsultationsProvider(patient.id)),
+            onRetry: () =>
+                ref.invalidate(patientConsultationsProvider(patient.id)),
           ),
         ),
         Positioned(
@@ -255,13 +296,17 @@ class _ConsultationsTab extends ConsumerWidget {
   }
 }
 
+// ============================================================
+// _MedicationsTab (Médico/Admin apenas)
+// ============================================================
 class _MedicationsTab extends ConsumerWidget {
   final Patient patient;
   const _MedicationsTab({required this.patient});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final medicationsAsync = ref.watch(patientMedicationsProvider(patient.id));
+    final medicationsAsync =
+        ref.watch(patientMedicationsProvider(patient.id));
 
     return Stack(
       children: [
@@ -283,7 +328,8 @@ class _MedicationsTab extends ConsumerWidget {
                       padding: const EdgeInsets.only(bottom: 8),
                       child: _ItemCard(
                         title: medications[i].name,
-                        subtitle: '${medications[i].dosage} - ${medications[i].frequency}',
+                        subtitle:
+                            '${medications[i].dosage} - ${medications[i].frequency}',
                         trailing: medications[i].isActive ? 'Ativo' : 'Inativo',
                         icon: Icons.medication,
                       ),
@@ -294,7 +340,8 @@ class _MedicationsTab extends ConsumerWidget {
           error: (e, _) => ErrorState(
             message: 'Não foi possível carregar as medicações.',
             technicalDetails: '$e',
-            onRetry: () => ref.invalidate(patientMedicationsProvider(patient.id)),
+            onRetry: () =>
+                ref.invalidate(patientMedicationsProvider(patient.id)),
           ),
         ),
         Positioned(
@@ -313,6 +360,264 @@ class _MedicationsTab extends ConsumerWidget {
   }
 }
 
+// ============================================================
+// _SessionNotesTab (Psicólogo)
+// ============================================================
+class _SessionNotesTab extends ConsumerWidget {
+  final Patient patient;
+  const _SessionNotesTab({required this.patient});
+
+  String _getMoodEmoji(String mood) {
+    switch (mood) {
+      case 'ansioso':
+        return '😰';
+      case 'triste':
+        return '😢';
+      case 'calmo':
+        return '😌';
+      case 'feliz':
+        return '😊';
+      case 'irritado':
+        return '😠';
+      default:
+        return '😐';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notesAsync = ref.watch(patientSessionNotesProvider(patient.id));
+
+    return Stack(
+      children: [
+        notesAsync.when(
+          data: (notes) => notes.isEmpty
+              ? const EmptyState(
+                  icon: Icons.psychology_outlined,
+                  title: 'Nenhuma sessão registrada',
+                  subtitle:
+                      'Toque + para registrar a primeira sessão/evolução.',
+                )
+              : RefreshIndicator(
+                  onRefresh: () async =>
+                      ref.invalidate(patientSessionNotesProvider(patient.id)),
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: notes.length,
+                    itemBuilder: (_, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: AnimatedCard(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    _getMoodEmoji(notes[i].mood),
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '${notes[i].date.day.toString().padLeft(2, '0')}/${notes[i].date.month.toString().padLeft(2, '0')}/${notes[i].date.year}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF8B5CF6)
+                                          .withAlpha(25),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      notes[i].status,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF8B5CF6),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (notes[i].content.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  notes[i].content,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade700,
+                                    height: 1.4,
+                                  ),
+                                  maxLines: 4,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+          loading: () => const LoadingState(linesPerCard: 2),
+          error: (e, _) => ErrorState(
+            message: 'Não foi possível carregar as sessões.',
+            technicalDetails: '$e',
+            onRetry: () =>
+                ref.invalidate(patientSessionNotesProvider(patient.id)),
+          ),
+        ),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: FloatingActionButton(
+            backgroundColor: const Color(0xFF8B5CF6),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (_) => AddSessionNoteDialog(patientId: patient.id),
+            ),
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// _ReferralsTab (Psicólogo)
+// ============================================================
+class _ReferralsTab extends ConsumerWidget {
+  final Patient patient;
+  const _ReferralsTab({required this.patient});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final referralsAsync = ref.watch(patientReferralsProvider(patient.id));
+
+    return Stack(
+      children: [
+        referralsAsync.when(
+          data: (referrals) => referrals.isEmpty
+              ? const EmptyState(
+                  icon: Icons.send_outlined,
+                  title: 'Nenhum encaminhamento',
+                  subtitle: 'Toque + para encaminhar para outra especialidade.',
+                )
+              : RefreshIndicator(
+                  onRefresh: () async =>
+                      ref.invalidate(patientReferralsProvider(patient.id)),
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: referrals.length,
+                    itemBuilder: (_, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: AnimatedCard(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF59E0B)
+                                          .withAlpha(25),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                        Icons.send_outlined,
+                                        color: Color(0xFFF59E0B)),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          referrals[i].toSpecialty.isNotEmpty
+                                              ? referrals[i].toSpecialty
+                                              : 'Especialidade não informada',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14),
+                                        ),
+                                        Text(
+                                          referrals[i].status == 'ativo'
+                                              ? 'Ativo'
+                                              : 'Concluído',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: referrals[i].status ==
+                                                    'ativo'
+                                                ? const Color(0xFFF59E0B)
+                                                : const Color(0xFF10B981),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (referrals[i].reason.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  referrals[i].reason,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+          loading: () => const LoadingState(linesPerCard: 2),
+          error: (e, _) => ErrorState(
+            message: 'Não foi possível carregar os encaminhamentos.',
+            technicalDetails: '$e',
+            onRetry: () =>
+                ref.invalidate(patientReferralsProvider(patient.id)),
+          ),
+        ),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: FloatingActionButton(
+            backgroundColor: const Color(0xFFF59E0B),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (_) => AddReferralDialog(patientId: patient.id),
+            ),
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// _ItemCard (reutilizado das abas existentes)
+// ============================================================
 class _ItemCard extends StatelessWidget {
   final String title;
   final String subtitle;

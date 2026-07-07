@@ -29,6 +29,7 @@ class ApiClient {
   }
 
   bool get useDemoData => _useDemoData;
+  String? get currentPatientId => _currentPatientId;
 
   void enableDemo() {
     _useDemoData = true;
@@ -548,12 +549,24 @@ class ApiClient {
     );
   }
 
-  Future<void> grantPermission(String professionalId, String permission) async {
+  Future<void> grantPermission(String professionalId, String permission, {String? grantedBy}) async {
     await _tryOrDemoVoid(() async {
+      if (grantedBy == null) {
+        // Fallback: busca o profile_id do admin logado
+        final profile = await _supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', _supabase.auth.currentUser!.id)
+            .maybeSingle();
+        grantedBy = profile?['id'] as String?;
+        if (grantedBy == null) {
+          throw Exception('Perfil do administrador não encontrado');
+        }
+      }
       await _supabase.from('permissions').insert({
         'professional_id': professionalId,
         'permission': permission,
-        'granted_by': _supabase.auth.currentUser?.id,
+        'granted_by': grantedBy,
       });
     });
   }

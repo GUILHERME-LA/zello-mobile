@@ -32,11 +32,15 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
               subtitle: 'Gerencie os horários dos profissionais',
             ),
             if (isAdmin) _buildProfessionalSelector(),
-            CalendarDatePicker(
-              initialDate: _selectedDate,
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 90)),
-              onDateChanged: (d) => setState(() => _selectedDate = d),
+            // CalendarDatePicker precisa de altura fixa para não overflow
+            SizedBox(
+              height: 300,
+              child: CalendarDatePicker(
+                initialDate: _selectedDate,
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 90)),
+                onDateChanged: (d) => setState(() => _selectedDate = d),
+              ),
             ),
             const Divider(height: 1),
             Expanded(

@@ -15,11 +15,16 @@ import '../features/agenda/screens/agenda_screen.dart';
 import '../features/exames/screens/exam_status_screen.dart';
 import '../features/convenio/screens/convenio_screen.dart';
 import '../features/convenio/screens/convenio_result_screen.dart';
+import '../features/prontuario/screens/prontuario_screen.dart';
 
 final patientRouter = GoRouter(
   initialLocation: '/login',
   redirect: (context, state) {
     final auth = ProviderScope.containerOf(context).read(authProvider);
+
+    // Aguarda recuperação de sessão (app reaberto)
+    if (auth.status == ZelloAuthStatus.initial) return null;
+
     final isLoggedIn = auth.status == ZelloAuthStatus.authenticated;
     final isOnLogin = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
 
@@ -56,5 +61,6 @@ final patientRouter = GoRouter(
     GoRoute(path: '/exam-status', builder: (context, state) => const ExamStatusScreen()),
     GoRoute(path: '/convenio', builder: (context, state) => const ConvenioScreen()),
     GoRoute(path: '/convenio/resultado', builder: (context, state) => const ConvenioResultScreen()),
+    GoRoute(path: '/prontuario', builder: (context, state) => const ProntuarioScreen()),
   ],
 );

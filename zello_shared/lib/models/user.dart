@@ -1,5 +1,8 @@
 enum UserRole { admin, professional, patient }
 
+/// Tipo de profissional — usado para diferenciar funcionalidades
+enum ProfessionalType { medico, psicologo }
+
 class User {
   final String id;
   final String name;
@@ -9,6 +12,7 @@ class User {
   final UserRole role;
   final String? profileId;
   final String? professionalId;
+  final ProfessionalType? professionalType;
 
   const User({
     required this.id,
@@ -19,6 +23,7 @@ class User {
     this.role = UserRole.patient,
     this.profileId,
     this.professionalId,
+    this.professionalType,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -34,6 +39,12 @@ class User {
       ),
       profileId: json['profile_id'] as String?,
       professionalId: json['professional_id'] as String?,
+      professionalType: json['professional_type'] != null
+          ? ProfessionalType.values.firstWhere(
+              (e) => e.name == json['professional_type'],
+              orElse: () => ProfessionalType.medico,
+            )
+          : null,
     );
   }
 
@@ -47,6 +58,7 @@ class User {
       'role': role.name,
       'profile_id': profileId,
       'professional_id': professionalId,
+      'professional_type': professionalType?.name,
     };
   }
 
@@ -59,6 +71,7 @@ class User {
     UserRole? role,
     String? profileId,
     String? professionalId,
+    ProfessionalType? professionalType,
   }) {
     return User(
       id: id ?? this.id,
@@ -69,12 +82,15 @@ class User {
       role: role ?? this.role,
       profileId: profileId ?? this.profileId,
       professionalId: professionalId ?? this.professionalId,
+      professionalType: professionalType ?? this.professionalType,
     );
   }
 
   bool get isAdmin => role == UserRole.admin;
   bool get isProfessional => role == UserRole.professional;
   bool get isPatient => role == UserRole.patient;
+  bool get isMedico => professionalType == ProfessionalType.medico;
+  bool get isPsicologo => professionalType == ProfessionalType.psicologo;
 
   @override
   bool operator ==(Object other) {

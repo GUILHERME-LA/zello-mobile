@@ -169,7 +169,7 @@ class ExamsScreen extends ConsumerWidget {
 
   static Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft, end: Alignment.bottomRight,
@@ -179,17 +179,33 @@ class ExamsScreen extends ConsumerWidget {
           bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24),
         ),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.science, color: Colors.white, size: 28),
-          SizedBox(width: 14),
-          Column(
+          const Icon(Icons.science, color: Colors.white, size: 28),
+          const SizedBox(width: 14),
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Exames', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
               SizedBox(height: 2),
               Text('Consulte seus resultados', style: TextStyle(color: Colors.white70, fontSize: 12)),
             ],
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(30),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('🚧', style: TextStyle(fontSize: 14)),
+                SizedBox(width: 4),
+                Text('Em Desenvolvimento', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+              ],
+            ),
           ),
         ],
       ),

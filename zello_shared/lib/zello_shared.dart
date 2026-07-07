@@ -15,6 +15,17 @@ export 'models/professional_availability.dart';
 export 'models/exam_request.dart';
 export 'models/insurance.dart';
 export 'models/ai_recommendation.dart';
+export 'models/ai_analysis_result.dart';
+export 'models/session_note.dart';
+export 'models/referral.dart';
+export 'models/surgery.dart';
+export 'models/hospitalization.dart';
+export 'models/symptom.dart';
+export 'models/allergy.dart';
+export 'models/vaccine.dart';
+export 'models/health_profile.dart';
+export 'models/prontuario_analysis_result.dart';
+export 'models/prontuario_import_result.dart';
 
 // Core
 export 'core/api/api_client.dart';
@@ -50,6 +61,13 @@ export 'providers/exam_requests_provider.dart';
 export 'providers/insurances_provider.dart';
 export 'providers/permissions_provider.dart';
 export 'providers/ai_recommendations_provider.dart';
+export 'providers/ai_analysis_provider.dart';
+export 'providers/filtered_professionals_provider.dart';
+export 'providers/session_notes_provider.dart';
+export 'providers/referrals_provider.dart';
+export 'providers/patient_health_provider.dart';
+export 'providers/prontuario_analysis_provider.dart';
+export 'providers/prontuario_import_provider.dart';
 
 // Screens
 export 'screens/forgot_password_screen.dart';

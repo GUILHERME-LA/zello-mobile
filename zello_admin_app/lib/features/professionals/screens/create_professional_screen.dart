@@ -51,11 +51,51 @@ class _CreateProfessionalScreenState
       ref.invalidate(professionalsProvider);
       final tempPassword = result['temp_password'] as String?;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profissional cadastrado! Senha temporária: $tempPassword'),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 12),
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Color(0xFF10B981), size: 28),
+                SizedBox(width: 12),
+                Expanded(child: Text('Profissional Cadastrado!')),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Compartilhe os dados abaixo com o profissional:'),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _credentialRow('Email', _emailCtrl.text),
+                      const SizedBox(height: 8),
+                      _credentialRow('Senha temporária', tempPassword ?? ''),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Após o primeiro login, o profissional deverá alterar esta senha.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK, anotei!'),
+              ),
+            ],
           ),
         );
         context.pop();
@@ -148,6 +188,17 @@ class _CreateProfessionalScreenState
           ),
         ),
       ),
+    );
+  }
+
+  Widget _credentialRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+        const SizedBox(width: 12),
+        SelectableText(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }

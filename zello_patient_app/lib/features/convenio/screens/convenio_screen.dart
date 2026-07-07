@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zello_shared/zello_shared.dart';
+
+// Lista de estados brasileiros
+const List<String> _estados = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
+  'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
+  'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+];
 
 class ConvenioScreen extends ConsumerStatefulWidget {
   const ConvenioScreen({super.key});
@@ -15,6 +23,7 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
   final _planNameCtrl = TextEditingController();
   final _planTypeCtrl = TextEditingController();
   final _symptomsCtrl = TextEditingController();
+  String? _selectedEstado;
 
   @override
   void dispose() {
@@ -27,6 +36,8 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final analysisState = ref.watch(aiAnalysisProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Análise de Convênio')),
       body: SingleChildScrollView(
@@ -49,7 +60,7 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Informe os dados do seu convênio para análise de cobertura.',
+                        'Informe os dados do seu convênio para análise de cobertura com IA.',
                         style: TextStyle(
                             fontSize: 13, color: Colors.grey.shade700),
                       ),
@@ -63,7 +74,8 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Operadora (ex: Unimed, Bradesco Saúde)',
                 ),
-                validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -71,7 +83,8 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Nome do plano',
                 ),
-                validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -79,6 +92,17 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Tipo (enfermaria, apartamento, premium)',
                 ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _selectedEstado,
+                decoration: const InputDecoration(
+                  labelText: 'Estado',
+                ),
+                items: _estados
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedEstado = v),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -93,9 +117,22 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: _analyze,
-                  icon: const Icon(Icons.auto_awesome, size: 18),
-                  label: const Text('Analisar Convênio'),
+                  onPressed: analysisState.status == AiAnalysisStatus.loading
+                      ? null
+                      : _analyze,
+                  icon: analysisState.status == AiAnalysisStatus.loading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.auto_awesome, size: 18),
+                  label: Text(
+                    analysisState.status == AiAnalysisStatus.loading
+                        ? 'Analisando...'
+                        : 'Analisar Convênio',
+                  ),
                 ),
               ),
             ],
@@ -107,11 +144,19 @@ class _ConvenioScreenState extends ConsumerState<ConvenioScreen> {
 
   Future<void> _analyze() async {
     if (!_formKey.currentState!.validate()) return;
-    context.push('/convenio/resultado', extra: {
-      'provider': _providerCtrl.text.trim(),
-      'planName': _planNameCtrl.text.trim(),
-      'planType': _planTypeCtrl.text.trim(),
-      'symptoms': _symptomsCtrl.text.trim(),
-    });
+
+    // Chama a Edge Function via provider
+    await ref.read(aiAnalysisProvider.notifier).analyze(
+          provider: _providerCtrl.text.trim(),
+          planName: _planNameCtrl.text.trim(),
+          planType: _planTypeCtrl.text.trim(),
+          symptoms: _symptomsCtrl.text.trim(),
+          uf: _selectedEstado ?? '',
+        );
+
+    // Navega para a tela de resultado (seja sucesso ou erro)
+    if (mounted) {
+      context.push('/convenio/resultado');
+    }
   }
 }
