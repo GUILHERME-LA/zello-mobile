@@ -14,6 +14,32 @@ class _SolicitacoesScreenState extends ConsumerState<SolicitacoesScreen> {
   @override
   Widget build(BuildContext context) {
     final examReqAsync = ref.watch(examRequestsProvider);
+    final canExams = ref.watch(canAccessProvider('exams'));
+
+    if (!canExams) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(LucideIcons.lock, size: 64, color: Colors.grey.shade300),
+                const SizedBox(height: 16),
+                const Text(
+                  'Você não tem permissão para gerenciar exames',
+                  style: TextStyle(fontSize: 16, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Solicite acesso ao administrador do sistema.',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(

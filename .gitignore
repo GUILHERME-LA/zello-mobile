@@ -35,3 +35,16 @@ Thumbs.db
 
 # Temp / scratch
 test_app/
+
+# Secrets and environment files
+.env
+.env.*
+*.env
+*.pem
+*.keystore
+
+# Flutter internal files
+.flutter
+.flutter_tool_state
+**/.flutter/
+**/.flutter_tool_state/

@@ -12,16 +12,16 @@ class ProfessionalsScreen extends ConsumerWidget {
     final professionalsAsync = ref.watch(professionalsProvider);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/admin/professionals/create'),
+        child: const Icon(LucideIcons.plus),
+      ),
       body: SafeArea(
         child: Column(
           children: [
             GradientHeader(
               title: 'Profissionais',
               subtitle: 'Gerencie médicos e psicólogos',
-              trailing: IconButton(
-                icon: const Icon(LucideIcons.plus, color: Colors.white),
-                onPressed: () => context.push('/admin/professionals/create'),
-              ),
             ),
             Expanded(
               child: RefreshIndicator(

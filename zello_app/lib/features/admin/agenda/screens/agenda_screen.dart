@@ -19,10 +19,40 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
     final auth = ref.watch(authProvider);
     final user = auth.user;
     final isAdmin = user?.isAdmin == true;
+    final canConsultations = ref.watch(canAccessProvider('consultations'));
+
+    if (!canConsultations) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(LucideIcons.lock, size: 64, color: Colors.grey.shade300),
+                const SizedBox(height: 16),
+                const Text(
+                  'Você não tem permissão para gerenciar consultas',
+                  style: TextStyle(fontSize: 16, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Solicite acesso ao administrador do sistema.',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     final professionalId = isAdmin
         ? _selectedProfessionalId
         : user?.professionalId;
+
+    // Altura do calendário responsiva: 40% da tela, entre 220 e 300px
+    final calendarHeight =
+        (MediaQuery.of(context).size.height * 0.4).clamp(220.0, 300.0);
 
     return Scaffold(
       body: SafeArea(
@@ -33,9 +63,8 @@ class _AgendaScreenState extends ConsumerState<AgendaScreen> {
               subtitle: 'Gerencie os horários dos profissionais',
             ),
             if (isAdmin) _buildProfessionalSelector(),
-            // CalendarDatePicker precisa de altura fixa para não overflow
             SizedBox(
-              height: 300,
+              height: calendarHeight,
               child: CalendarDatePicker(
                 initialDate: _selectedDate,
                 firstDate: DateTime.now(),

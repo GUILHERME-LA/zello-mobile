@@ -73,9 +73,13 @@ final appRouter = GoRouter(
       return '/admin/dashboard';
     }
 
-    // Professional não pode acessar /admin/agents e /admin/settings
+    // Professional não pode acessar telas de admin/gestão
     if (isProfessional) {
-      final professionalRestricted = ['/admin/agents', '/admin/settings'];
+      final professionalRestricted = [
+        '/admin/agents',
+        '/admin/settings',
+        '/admin/professionals',
+      ];
       if (professionalRestricted.any((r) => location.startsWith(r))) {
         return '/admin/dashboard';
       }

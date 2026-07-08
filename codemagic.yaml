@@ -1,7 +1,7 @@
 workflows:
-  patient-app:
-    name: Zello Patient App
-    working_directory: zello_patient_app
+  zello-app:
+    name: Zello App
+    working_directory: zello_app
     instance_type: mac_mini_m2
     environment:
       flutter: 3.29.2
@@ -21,7 +21,7 @@ workflows:
 
   admin-app:
     name: Zello Admin App
-    working_directory: zello_admin_app
+    working_directory: zello_app
     instance_type: mac_mini_m2
     environment:
       flutter: 3.29.2

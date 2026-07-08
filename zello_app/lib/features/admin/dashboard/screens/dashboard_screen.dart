@@ -10,7 +10,8 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(dashboardStatsProvider);
-    final isProfessional = ref.watch(authProvider).isProfessional;
+    final auth = ref.watch(authProvider);
+    final isProfessional = auth.isProfessional;
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 800;
 
@@ -91,6 +92,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget _buildMetricsGrid(
       BuildContext context, WidgetRef ref, DashboardStats stats, bool isWide) {
     final isProfessional = ref.watch(authProvider).isProfessional;
+    final canPatients = ref.watch(canAccessProvider('patients'));
 
     final metrics = <_MetricTile>[
       _MetricTile(
@@ -98,7 +100,7 @@ class DashboardScreen extends ConsumerWidget {
         value: '${stats.totalPatients}',
         icon: LucideIcons.users,
         color: ZelloColors.primary,
-        onTap: () => context.push('/admin/patients'),
+        onTap: canPatients ? () => context.push('/admin/patients') : null,
       ),
       if (isProfessional && stats.unassignedPatients > 0)
         _MetricTile(
@@ -106,7 +108,7 @@ class DashboardScreen extends ConsumerWidget {
           value: '${stats.unassignedPatients}',
           icon: LucideIcons.userPlus,
           color: ZelloColors.primaryLighter,
-          onTap: () => context.push('/admin/patients/unassigned'),
+          onTap: canPatients ? () => context.push('/admin/patients/unassigned') : null,
         )
       else
         _MetricTile(
@@ -187,6 +189,9 @@ class DashboardScreen extends ConsumerWidget {
   // Gerenciamento (ListTile-style)
   // ──────────────────────────────────────────────
   Widget _buildManagementList(BuildContext context, WidgetRef ref) {
+    final canConsultations = ref.watch(canAccessProvider('consultations'));
+    final canExams = ref.watch(canAccessProvider('exams'));
+
     final tiles = [
       _ManagementTile(
         title: 'Profissionais',
@@ -200,14 +205,14 @@ class DashboardScreen extends ConsumerWidget {
         subtitle: 'Consultas e horários',
         icon: LucideIcons.calendar,
         color: ZelloColors.primaryLight,
-        onTap: () => context.push('/admin/agenda'),
+        onTap: canConsultations ? () => context.push('/admin/agenda') : null,
       ),
       _ManagementTile(
         title: 'Solicitações',
         subtitle: 'Pendências e requisições',
         icon: LucideIcons.inbox,
         color: ZelloColors.primaryLighter,
-        onTap: () => context.push('/admin/solicitacoes'),
+        onTap: canExams ? () => context.push('/admin/solicitacoes') : null,
       ),
     ];
 

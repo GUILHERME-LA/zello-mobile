@@ -503,7 +503,15 @@ class ApiClient {
         // Restaurar sessão do admin IMEDIATAMENTE após signUp,
         // pois o Supabase troca a sessão para o novo usuário automaticamente
         if (currentSession != null && currentSession.refreshToken != null) {
-          await _supabase.auth.setSession(currentSession.refreshToken!);
+          try {
+            await _supabase.auth.setSession(currentSession.refreshToken!);
+          } catch (_) {
+            await _supabase.auth.signOut();
+            throw Exception(
+              'Sessão do administrador expirou durante a criação do profissional. '
+              'Faça login novamente.',
+            );
+          }
         }
 
         // O trigger handle_new_user já criou um profile com role 'patient'.

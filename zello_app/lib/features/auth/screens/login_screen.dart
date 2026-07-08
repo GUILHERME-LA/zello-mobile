@@ -80,7 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(next.error!),
-              backgroundColor: Colors.red.shade700,
+              backgroundColor: ZelloColors.danger,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -93,11 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF5F9FF), Color(0xFFFFFFFF)],
-          ),
+          gradient: ZelloGradients.screenBackground,
         ),
         child: SafeArea(
           child: Center(
@@ -117,18 +113,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           width: 88,
                           height: 88,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-                            ),
+                            gradient: ZelloGradients.avatar,
                             shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    const Color(0xFF1565C0).withAlpha(51),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
+                            boxShadow: ZelloShadows.accent(ZelloColors.primary),
                           ),
                           child: Icon(
                             isProfessional
@@ -144,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0D47A1),
+                            color: ZelloColors.primaryDark,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -155,7 +142,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               : 'Acesse sua conta',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade600,
+                            color: ZelloColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -163,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         // Role toggle
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: ZelloColors.surfaceLighter,
                             borderRadius: BorderRadius.circular(30),
                           ),
                           padding: const EdgeInsets.all(4),
@@ -183,14 +170,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(28),
                                       boxShadow: !isProfessional
-                                          ? [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withAlpha(13),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ]
+                                          ? ZelloShadows.xs
                                           : null,
                                     ),
                                     child: Row(
@@ -201,8 +181,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           Icons.person,
                                           size: 18,
                                           color: !isProfessional
-                                              ? const Color(0xFF1565C0)
-                                              : Colors.grey,
+                                              ? ZelloColors.primary
+                                              : ZelloColors.textTertiary,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
@@ -212,8 +192,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                 ? FontWeight.w600
                                                 : FontWeight.w400,
                                             color: !isProfessional
-                                                ? const Color(0xFF1565C0)
-                                                : Colors.grey.shade600,
+                                                ? ZelloColors.primary
+                                                : ZelloColors.textSecondary,
                                           ),
                                         ),
                                       ],
@@ -235,14 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(28),
                                       boxShadow: isProfessional
-                                          ? [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withAlpha(13),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ]
+                                          ? ZelloShadows.xs
                                           : null,
                                     ),
                                     child: Row(
@@ -253,8 +226,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           Icons.medical_services,
                                           size: 18,
                                           color: isProfessional
-                                              ? const Color(0xFF1565C0)
-                                              : Colors.grey,
+                                              ? ZelloColors.primary
+                                              : ZelloColors.textTertiary,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
@@ -264,8 +237,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                 ? FontWeight.w600
                                                 : FontWeight.w400,
                                             color: isProfessional
-                                                ? const Color(0xFF1565C0)
-                                                : Colors.grey.shade600,
+                                                ? ZelloColors.primary
+                                                : ZelloColors.textSecondary,
                                           ),
                                         ),
                                       ],
@@ -325,7 +298,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             child: const Text(
                               'Esqueceu a senha?',
                               style: TextStyle(
-                                color: Color(0xFF1565C0),
+                                color: ZelloColors.primary,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13,
                               ),
@@ -342,7 +315,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               child: const Text(
                                 'Criar conta',
                                 style: TextStyle(
-                                  color: Color(0xFF1565C0),
+                                  color: ZelloColors.primary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                 ),
@@ -358,7 +331,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             child: Text(
                               authState.error!,
                               style: TextStyle(
-                                color: Colors.red.shade700,
+                                color: ZelloColors.danger,
                                 fontSize: 13,
                               ),
                               textAlign: TextAlign.center,
@@ -374,8 +347,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           child: ElevatedButton(
                             onPressed: isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1565C0),
-                              foregroundColor: Colors.white,
+                              backgroundColor: ZelloColors.primary,
+                              foregroundColor: ZelloColors.textOnPrimary,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -418,9 +391,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                               ),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFF1565C0),
+                                foregroundColor: ZelloColors.primary,
                                 side: const BorderSide(
-                                    color: Color(0xFF1565C0)),
+                                    color: ZelloColors.primary),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -436,7 +409,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey.shade500,
+                              color: ZelloColors.textTertiary,
                             ),
                           ),
                         ],

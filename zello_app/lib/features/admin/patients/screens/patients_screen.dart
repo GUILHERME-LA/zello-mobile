@@ -20,6 +20,7 @@ class PatientsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final patientsAsync = ref.watch(patientsProvider);
+    final canAccess = ref.watch(canAccessProvider('patients'));
 
     return Scaffold(
       body: SafeArea(
@@ -27,68 +28,90 @@ class PatientsScreen extends ConsumerWidget {
           children: [
             _buildHeader(context),
             Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  ref.invalidate(patientsProvider);
-                  await ref.read(patientsProvider.future);
-                },
-                child: patientsAsync.when(
-                  data: (patients) {
-                    if (patients.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(LucideIcons.users,
-                                size: 64, color: Colors.grey.shade300),
-                            const SizedBox(height: 16),
-                            const Text('Nenhum paciente cadastrado',
-                                style: TextStyle(
-                                    fontSize: 16, color: Color(0xFF6B7280))),
-                            const SizedBox(height: 8),
-                            const Text(
-                                'Toque + para cadastrar o primeiro paciente',
-                                style: TextStyle(
-                                    fontSize: 13, color: Color(0xFF9CA3AF))),
-                          ],
+              child: !canAccess
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.lock,
+                              size: 64, color: Colors.grey.shade300),
+                          const SizedBox(height: 16),
+                          const Text(
+                              'Você não tem permissão para acessar pacientes',
+                              style: TextStyle(
+                                  fontSize: 16, color: Color(0xFF6B7280))),
+                          const SizedBox(height: 8),
+                          const Text(
+                              'Solicite acesso ao administrador do sistema.',
+                              style: TextStyle(
+                                  fontSize: 13, color: Color(0xFF9CA3AF))),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        ref.invalidate(patientsProvider);
+                        await ref.read(patientsProvider.future);
+                      },
+                      child: patientsAsync.when(
+                        data: (patients) {
+                          if (patients.isEmpty) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(LucideIcons.users,
+                                      size: 64, color: Colors.grey.shade300),
+                                  const SizedBox(height: 16),
+                                  const Text('Nenhum paciente cadastrado',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Color(0xFF6B7280))),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                      'Toque + para cadastrar o primeiro paciente',
+                                      style: TextStyle(
+                                          fontSize: 13, color: Color(0xFF9CA3AF))),
+                                ],
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                            itemCount: patients.length,
+                            itemBuilder: (context, index) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: _PatientCard(
+                                patient: patients[index],
+                                onTap: () =>
+                                    context.push('/admin/patients/${patients[index].id}'),
+                              ),
+                            ),
+                          );
+                        },
+                        loading: () => ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                          itemCount: 5,
+                          itemBuilder: (_, __) => const Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: SkeletonCard(),
+                          ),
                         ),
-                      );
-                    }
-                    return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                      itemCount: patients.length,
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: _PatientCard(
-                          patient: patients[index],
-                          onTap: () =>
-                              context.push('/admin/patients/${patients[index].id}'),
+                        error: (e, _) => Center(
+                          child: Text('Erro ao carregar pacientes: $e',
+                              style: const TextStyle(color: Colors.red)),
                         ),
                       ),
-                    );
-                  },
-                  loading: () => ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                    itemCount: 5,
-                    itemBuilder: (_, __) => const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: SkeletonCard(),
                     ),
-                  ),
-                  error: (e, _) => Center(
-                    child: Text('Erro ao carregar pacientes: $e',
-                        style: const TextStyle(color: Colors.red)),
-                  ),
-                ),
-              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPatient(context, ref),
-        child: const Icon(LucideIcons.plus),
-      ),
+      floatingActionButton: canAccess
+          ? FloatingActionButton(
+              onPressed: () => _showAddPatient(context, ref),
+              child: const Icon(LucideIcons.plus),
+            )
+          : null,
     );
   }
 

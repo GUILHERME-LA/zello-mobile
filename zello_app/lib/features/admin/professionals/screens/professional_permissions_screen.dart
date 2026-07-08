@@ -71,22 +71,6 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
     return Scaffold(
       appBar: AppBar(
         title: const Text('Permissões'),
-        actions: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(LucideIcons.check),
-              onPressed: _savePermissions,
-            ),
-        ],
       ),
       body: permissionsAsync.when(
         data: (permissions) {
@@ -101,85 +85,119 @@ class _ProfessionalPermissionsScreenState extends ConsumerState<ProfessionalPerm
               ?.where((p) => p.id == widget.professionalId)
               .firstOrNull;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (prof != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (prof != null) ...[
                         Container(
-                          width: 48,
-                          height: 48,
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: (prof.type == 'medico'
-                                    ? ZelloColors.primaryLighter
-                                    : ZelloColors.primary)
-                                .withAlpha(25),
-                            shape: BoxShape.circle,
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(
-                            prof.type == 'medico'
-                                ? LucideIcons.building2
-                                : LucideIcons.brain,
-                            color: prof.type == 'medico'
-                                ? ZelloColors.primaryLighter
-                                : ZelloColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
                             children: [
-                              Text(
-                                prof.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: (prof.type == 'medico'
+                                          ? ZelloColors.primaryLighter
+                                          : ZelloColors.primary)
+                                      .withAlpha(25),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  prof.type == 'medico'
+                                      ? LucideIcons.building2
+                                      : LucideIcons.brain,
+                                  color: prof.type == 'medico'
+                                      ? ZelloColors.primaryLighter
+                                      : ZelloColors.primary,
                                 ),
                               ),
-                              Text(
-                                prof.type == 'medico' ? 'Médico' : 'Psicólogo',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF6B7280),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      prof.name,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      prof.type == 'medico' ? 'Médico' : 'Psicólogo',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(height: 24),
                       ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                const Text(
-                  'Permissões do Profissional',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                      const Text(
+                        'Permissões do Profissional',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Selecione as permissões que este profissional poderá exercer.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ...allPermissions.map((perm) => _buildPermissionTile(perm)),
+                      const SizedBox(height: 16),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Selecione as permissões que este profissional poderá exercer.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF6B7280),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(color: const Color(0xFFE5E7EB)),
                   ),
                 ),
-                const SizedBox(height: 16),
-                ...allPermissions.map((perm) => _buildPermissionTile(perm)),
-              ],
-            ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(LucideIcons.check),
+                    label: Text(_isLoading ? 'Salvando...' : 'Salvar Permissões'),
+                    onPressed: _isLoading ? null : _savePermissions,
+                  ),
+                ),
+              ),
+            ],
           );
         },
         loading: () => const LoadingState(),

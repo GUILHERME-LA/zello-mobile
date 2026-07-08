@@ -381,3 +381,73 @@ Widget _btn(bool isLoading, String label, Future<void> Function() onSave) {
     ),
   );
 }
+
+// ==================== EDIT PROFILE ====================
+
+void showEditProfileDialog(BuildContext context, WidgetRef ref, String patientId, HealthProfile current) {
+  final weightCtrl = TextEditingController(text: current.weight > 0 ? current.weight.toStringAsFixed(0) : '');
+  final heightCtrl = TextEditingController(text: current.height > 0 ? current.height.toStringAsFixed(0) : '');
+  final bloodCtrl = TextEditingController(text: current.bloodType);
+  final conditionsCtrl = TextEditingController(text: current.medicalConditions);
+  final chronicCtrl = TextEditingController(text: current.chronicConditions);
+  final medsCtrl = TextEditingController(text: current.medications);
+  final familyCtrl = TextEditingController(text: current.familyHistory);
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (ctx) => Padding(
+      padding: EdgeInsets.fromLTRB(24, 12, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 16),
+            const Text('Editar Perfil de Saúde', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 20),
+            Row(children: [
+              Expanded(child: TextField(controller: weightCtrl, decoration: const InputDecoration(labelText: 'Peso (kg)'), keyboardType: TextInputType.number)),
+              const SizedBox(width: 12),
+              Expanded(child: TextField(controller: heightCtrl, decoration: const InputDecoration(labelText: 'Altura (cm)'), keyboardType: TextInputType.number)),
+            ]),
+            const SizedBox(height: 12),
+            TextField(controller: bloodCtrl, decoration: const InputDecoration(labelText: 'Tipo Sanguíneo', hintText: 'Ex: A+, O-')),
+            const SizedBox(height: 12),
+            TextField(controller: conditionsCtrl, decoration: const InputDecoration(labelText: 'Condições Médicas'), maxLines: 3),
+            const SizedBox(height: 12),
+            TextField(controller: chronicCtrl, decoration: const InputDecoration(labelText: 'Condições Crônicas'), maxLines: 3),
+            const SizedBox(height: 12),
+            TextField(controller: medsCtrl, decoration: const InputDecoration(labelText: 'Medicações em Uso'), maxLines: 3),
+            const SizedBox(height: 12),
+            TextField(controller: familyCtrl, decoration: const InputDecoration(labelText: 'Histórico Familiar'), maxLines: 3),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final profile = HealthProfile(
+                    id: current.id,
+                    patientId: patientId,
+                    weight: double.tryParse(weightCtrl.text) ?? 0,
+                    height: double.tryParse(heightCtrl.text) ?? 0,
+                    bloodType: bloodCtrl.text.trim(),
+                    medicalConditions: conditionsCtrl.text.trim(),
+                    chronicConditions: chronicCtrl.text.trim(),
+                    medications: medsCtrl.text.trim(),
+                    familyHistory: familyCtrl.text.trim(),
+                  );
+                  await ref.read(patientHealthProvider).saveHealthProfile(profile);
+                  ref.invalidate(patientHealthProfileProvider(patientId));
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: const Text('Salvar'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}

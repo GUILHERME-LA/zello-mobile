@@ -19,8 +19,9 @@ class ProntuarioAnalysisState {
 
 class ProntuarioAnalysisNotifier extends StateNotifier<ProntuarioAnalysisState> {
   final SupabaseClient _supabase;
+  final Ref _ref;
 
-  ProntuarioAnalysisNotifier(this._supabase)
+  ProntuarioAnalysisNotifier(this._supabase, this._ref)
       : super(const ProntuarioAnalysisState());
 
   /// Monta o payload com todos os dados de saúde do paciente e chama a Edge Function
@@ -160,5 +161,5 @@ class ProntuarioAnalysisNotifier extends StateNotifier<ProntuarioAnalysisState> 
 final prontuarioAnalysisProvider =
     StateNotifierProvider<ProntuarioAnalysisNotifier, ProntuarioAnalysisState>((ref) {
   final supabase = Supabase.instance.client;
-  return ProntuarioAnalysisNotifier(supabase);
+  return ProntuarioAnalysisNotifier(supabase, ref);
 });

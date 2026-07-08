@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:zello_shared/zello_shared.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/chat_input.dart';
@@ -13,11 +14,45 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _isMedical = true;
+  RealtimeChannel? _realtimeChannel;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(messagesProvider.notifier).loadMessages('c1'));
+    _subscribeRealTime();
+  }
+
+  void _subscribeRealTime() {
+    _realtimeChannel = Supabase.instance.client
+        .channel('chat-realtime')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'messages',
+          callback: (payload) {
+            final data = payload.newRecord;
+            if (data['conversation_id'] != 'c1') return;
+            final message = Message(
+              id: data['id'].toString(),
+              conversationId: data['conversation_id'] as String,
+              content: data['content'] as String,
+              sender: data['sender'] == 'agent'
+                  ? MessageSender.agent
+                  : MessageSender.user,
+              timestamp: DateTime.parse(data['created_at'] as String),
+            );
+            ref.read(messagesProvider.notifier).addMessage(message);
+          },
+        )
+        .subscribe();
+  }
+
+  @override
+  void dispose() {
+    _realtimeChannel?.unsubscribe();
+    _realtimeChannel = null;
+    super.dispose();
   }
 
   void _sendMessage(String content) {
@@ -36,14 +71,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             _buildHeader(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: const Color(0xFFFEF3C7),
+              color: ZelloColors.warningLight,
               child: const Row(
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: Color(0xFFF59E0B)),
+                  Icon(Icons.info_outline, size: 16, color: ZelloColors.warning),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text('Assistente de IA. Não substitui consulta médica.',
-                        style: TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+                        style: TextStyle(fontSize: 11, color: ZelloColors.textSecondary)),
                   ),
                 ],
               ),
@@ -70,10 +105,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-        ),
+        gradient: ZelloGradients.header,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24),
         ),
@@ -99,7 +131,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 Row(
                   children: [
                     Container(width: 6, height: 6,
-                        decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                        decoration: const BoxDecoration(color: ZelloColors.online, shape: BoxShape.circle)),
                     const SizedBox(width: 6),
                     Text('Online',
                         style: TextStyle(color: Colors.white.withAlpha(179), fontSize: 12)),
@@ -121,10 +153,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             itemBuilder: (context) => [
               const PopupMenuItem(value: true, child: Row(
-                children: [Icon(Icons.medical_services, size: 18, color: Color(0xFF1565C0)), SizedBox(width: 10), Text('Módulo Médico')],
+                children: [Icon(Icons.medical_services, size: 18, color: ZelloColors.medical), SizedBox(width: 10), Text('Módulo Médico')],
               )),
               const PopupMenuItem(value: false, child: Row(
-                children: [Icon(Icons.psychology, size: 18, color: Color(0xFF8B5CF6)), SizedBox(width: 10), Text('Módulo Psicológico')],
+                children: [Icon(Icons.psychology, size: 18, color: ZelloColors.psychology), SizedBox(width: 10), Text('Módulo Psicológico')],
               )),
             ],
           ),

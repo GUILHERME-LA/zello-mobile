@@ -99,9 +99,10 @@ class ZelloColors {
   static const infoLight = Color(0xFFDBEAFE);
 
   // ── Specialty ─────────────────────────────────────────
-  static const medical = Color(0xFF3B82F6);
-  static const psychology = Color(0xFF1E88E5);
-  static const psychologyLight = Color(0xFFE3F2FD);
+  static const medical = Color(0xFF0D9488);
+  static const medicalLight = Color(0xFFCCFBF1);
+  static const psychology = Color(0xFF7C3AED);
+  static const psychologyLight = Color(0xFFEDE9FE);
   static const online = Color(0xFF10B981);
   static const busy = Color(0xFFF59E0B);
   static const offline = Color(0xFF94A3B8);

@@ -26,12 +26,43 @@ class PatientDetailScreen extends ConsumerWidget {
     final auth = ref.watch(authProvider);
     final isPsicologo = auth.isPsicologo;
 
-    // Psicólogo: 3 abas diferentes (Consultas, Sessões, Encaminhamentos)
-    // Admin/Médico: 3 abas (Exames, Consultas, Medicações)
-    final tabCount = isPsicologo ? 3 : 3;
+    // Verifica permissões individuais
+    final canExams = ref.watch(canAccessProvider('exams'));
+    final canConsultations = ref.watch(canAccessProvider('consultations'));
+    final canMedications = ref.watch(canAccessProvider('medications'));
+
+    // Monta lista de abas conforme permissões
+    final tabs = <Tab>[];
+    final tabWidgets = <Widget Function(Patient)>[];
+
+    if (isPsicologo) {
+      if (canConsultations) {
+        tabs.add(const Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'));
+        tabWidgets.add((p) => _ConsultationsTab(patient: p));
+      }
+      tabs.add(const Tab(icon: Icon(LucideIcons.brain), text: 'Sessões'));
+      tabWidgets.add((p) => _SessionNotesTab(patient: p));
+      tabs.add(const Tab(icon: Icon(LucideIcons.send), text: 'Encaminhamentos'));
+      tabWidgets.add((p) => _ReferralsTab(patient: p));
+    } else {
+      if (canExams) {
+        tabs.add(const Tab(icon: Icon(LucideIcons.flaskConical), text: 'Exames'));
+        tabWidgets.add((p) => _ExamsTab(patient: p));
+      }
+      if (canConsultations) {
+        tabs.add(const Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'));
+        tabWidgets.add((p) => _ConsultationsTab(patient: p));
+      }
+      if (canMedications) {
+        tabs.add(const Tab(icon: Icon(LucideIcons.pill), text: 'Medicações'));
+        tabWidgets.add((p) => _MedicationsTab(patient: p));
+      }
+    }
+
+    final hasTabs = tabs.isNotEmpty;
 
     return DefaultTabController(
-      length: tabCount,
+      length: hasTabs ? tabs.length : 1,
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -48,40 +79,38 @@ class PatientDetailScreen extends ConsumerWidget {
             error: (_, __) =>
                 const Text('Paciente', style: TextStyle(color: Colors.white)),
           ),
-          bottom: TabBar(
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: Colors.white,
-            indicatorWeight: 3,
-            tabs: isPsicologo
-                ? const [
-                    Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'),
-                    Tab(icon: Icon(LucideIcons.brain), text: 'Sessões'),
-                    Tab(icon: Icon(LucideIcons.send), text: 'Encaminhamentos'),
-                  ]
-                : const [
-                    Tab(icon: Icon(LucideIcons.flaskConical), text: 'Exames'),
-                    Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'),
-                    Tab(icon: Icon(LucideIcons.pill), text: 'Medicações'),
-                  ],
-          ),
+          bottom: hasTabs
+              ? TabBar(
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white70,
+                  indicatorColor: Colors.white,
+                  indicatorWeight: 3,
+                  tabs: tabs,
+                )
+              : null,
         ),
         body: patientAsync.when(
-          data: (patient) => isPsicologo
-              ? TabBarView(
+          data: (patient) {
+            if (!hasTabs) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _ConsultationsTab(patient: patient),
-                    _SessionNotesTab(patient: patient),
-                    _ReferralsTab(patient: patient),
-                  ],
-                )
-              : TabBarView(
-                  children: [
-                    _ExamsTab(patient: patient),
-                    _ConsultationsTab(patient: patient),
-                    _MedicationsTab(patient: patient),
+                    Icon(LucideIcons.lock, size: 64, color: Color(0xFFD1D5DB)),
+                    SizedBox(height: 16),
+                    Text(
+                      'Você não tem permissão para acessar\nnenhuma seção deste paciente.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Color(0xFF6B7280)),
+                    ),
                   ],
                 ),
+              );
+            }
+            return TabBarView(
+              children: tabWidgets.map((fn) => fn(patient)).toList(),
+            );
+          },
           loading: () => const LoadingState(),
           error: (e, _) => ErrorState(
             message: 'Não foi possível carregar os dados do paciente.',
