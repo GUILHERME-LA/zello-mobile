@@ -63,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 _Header(userName: userName, consultCount: consultCount),
                 SizedBox(
-                  height: 24,
+                  height: 20,
                   child: Center(
                     child: Container(
                       width: 40,
@@ -72,7 +72,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withAlpha(30),
+                            .withAlpha(20),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -99,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _StaggerItem(
                   index: totalItems > 0 ? 1 : 1,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                    padding: const EdgeInsets.only(left: 16, right: 16, top: 4),
                     child: _buildSectionHeader(context,
                         title: 'Ações Rápidas',
                         subtitle: 'O que você precisa fazer hoje'),
@@ -107,12 +107,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 _StaggerItem(
                   index: totalItems > 0 ? 2 : 2,
-                  child: _QuickActionsGrid(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _QuickActionsGrid(),
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 _StaggerItem(
                   index: totalItems > 0 ? 3 : 3,
-                  child: _AgentCard(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _AgentCard(),
+                  ),
                 ),
                 const SizedBox(height: 32),
               ],
@@ -128,22 +134,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       children: [
         Container(
-          width: 4,
-          height: 24,
+          width: 3,
+          height: 20,
           decoration: BoxDecoration(
             gradient: ZelloGradients.sectionBar,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
               ),
               if (subtitle != null) ...[
@@ -163,6 +169,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
+
+  void _logout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sair da conta'),
+        content: const Text('Tem certeza que deseja sair da sua conta?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              ref.read(authProvider.notifier).logout();
+              context.go('/login');
+            },
+            child: const Text('SAIR', style: TextStyle(color: ZelloColors.danger)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  final authProvider = Provider.notifier(authNotifier);
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -133,25 +133,71 @@ class ProfileScreen extends ConsumerWidget {
       _MenuOption(Icons.shield_outlined, 'Privacidade', 'Dados protegidos'),
     ];
     return Column(
-      children: options.map((o) => Padding(
+      children: [...options.map((o) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: AnimatedCard(
           onTap: () => _showMenuOption(context, o.title, o.subtitle),
           child: Row(
             children: [
-              Icon(o.icon, size: 22, color: const Color(0xFF1565C0)),
-              const SizedBox(width: 14),
+              Icon(o.icon, size: 20, color: const Color(0xFF1565C0)),
+              const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF1A1A2E))),
-                Text(o.subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1A1A2E))),
+                Text(o.subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
               ])),
-              const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+              const Icon(Icons.chevron_right, size: 16, color: Color(0xFF9CA3AF)),
             ],
           ),
         ),
       )).toList(),
+      // Logout option at bottom
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: AnimatedCard(
+          onTap: () => _showLogoutDialog(context),
+          child: Row(
+            children: [
+              Icon(Icons.logout, size: 20, color: const Color(0xFFDC2626)),
+              const SizedBox(width: 12),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Sair da conta', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: const Color(0xFFDC2626))),
+                Text('Fazer logout da sua conta', style: const TextStyle(fontSize: 11, color: const Color(0xFFD16D6D))),
+              ])),
+              const Icon(Icons.chevron_right, size: 16, color: const Color(0xFFD16D6D)),
+            ],
+          ),
+        ),
+      ),
+      ],
     );
   }
+
+  static void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sair da conta'),
+        content: const Text('Tem certeza que deseja sair da sua conta?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // Implement logout logic here
+              ref.read(authProvider.notifier).logout();
+              context.go('/login');
+            },
+            child: const Text('SAIR', style: TextStyle(color: const Color(0xFFDC2626))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static _AdminNotifier? get ref => null;
 }
 
 class _MenuOption {

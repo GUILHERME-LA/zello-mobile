@@ -98,11 +98,11 @@ class AdminShell extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(LucideIcons.settings,
-                          size: 18,
+                          size: 16,
                           color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Text('Configurações',
-                          style: Theme.of(context).textTheme.bodyMedium),
+                          style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ),
@@ -112,25 +112,25 @@ class AdminShell extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(LucideIcons.logOut,
-                          size: 18, color: ZelloColors.danger),
-                      const SizedBox(width: 12),
+                          size: 16, color: ZelloColors.danger),
+                      const SizedBox(width: 10),
                       Text('Sair',
                           style: Theme.of(context)
                               .textTheme
-                              .bodyMedium
+                              .bodySmall
                               ?.copyWith(color: ZelloColors.danger)),
                     ],
                   ),
                 ),
               ],
               child: Container(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(30),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.white.withAlpha(40),
+                    color: Colors.white.withAlpha(35),
                   ),
                 ),
                 child: Center(
@@ -138,8 +138,8 @@ class AdminShell extends ConsumerWidget {
                     initials,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 ),
