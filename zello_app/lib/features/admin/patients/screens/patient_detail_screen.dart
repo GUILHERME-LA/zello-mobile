@@ -43,13 +43,13 @@ class PatientDetailScreen extends ConsumerWidget {
       tabs.add(const Tab(icon: Icon(LucideIcons.send), text: 'Encaminhamentos'));
       tabWidgets.add((p) => _ReferralsTab(patient: p));
     } else {
-      if (canConsultations) {
-        tabs.add(const Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'));
-        tabWidgets.add((p) => _ConsultationsTab(patient: p));
-      }
       if (canMedications) {
         tabs.add(const Tab(icon: Icon(LucideIcons.pill), text: 'Medicações'));
         tabWidgets.add((p) => _MedicationsTab(patient: p));
+      }
+      if (canConsultations) {
+        tabs.add(const Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'));
+        tabWidgets.add((p) => _ConsultationsTab(patient: p));
       }
     }
 

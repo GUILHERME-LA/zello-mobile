@@ -27,7 +27,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final medsAsync = ref.watch(medicationsProvider);
     final consultationsAsync = ref.watch(consultationsProvider);
 
-    final medCount = medsAsync.valueOrNull?.length ?? 0;
+    final allMeds = medsAsync.valueOrNull ?? [];
+    final activeMeds = allMeds.where((m) => m.isActive).toList();
+    final medCount = allMeds.length;
     final consultCount = consultationsAsync.valueOrNull?.length ?? 0;
     final totalItems = medCount + consultCount;
 
@@ -64,14 +66,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 ),
-                if (totalItems == 0)
+                if (activeMeds.isNotEmpty)
                   _StaggerItem(
                     index: 0,
+                    child: _MedicationHeroCard(meds: activeMeds),
+                  ),
+                if (totalItems == 0)
+                  _StaggerItem(
+                    index: 1,
                     child: _EmptyWelcome(userName: userName),
                   ),
                 if (totalItems > 0)
                   _StaggerItem(
-                    index: 0,
+                    index: 1,
                     child: _HealthOverview(
                       medCount: medCount,
                       consultCount: consultCount,
@@ -79,7 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 const SizedBox(height: 4),
                 _StaggerItem(
-                  index: totalItems > 0 ? 1 : 1,
+                  index: 2,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
                     child: _buildSectionHeader(context,
@@ -88,12 +95,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 _StaggerItem(
-                  index: totalItems > 0 ? 2 : 2,
+                  index: 3,
                   child: _QuickActionsGrid(),
                 ),
                 const SizedBox(height: 8),
                 _StaggerItem(
-                  index: totalItems > 0 ? 3 : 3,
+                  index: 4,
                   child: _AgentCard(),
                 ),
                 const SizedBox(height: 32),
@@ -851,5 +858,119 @@ class _AgentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _MedicationHeroCard extends StatelessWidget {
+  final List<Medication> meds;
+  const _MedicationHeroCard({required this.meds});
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final upcoming = meds
+        .where((m) => m.nextDose != null && m.nextDose!.isAfter(now))
+        .toList()
+      ..sort((a, b) => a.nextDose!.compareTo(b.nextDose!));
+    final next =
+        upcoming.isNotEmpty ? upcoming.first : (meds.isNotEmpty ? meds.first : null);
+    final cs = Theme.of(context).colorScheme;
+
+    return AnimatedCard(
+      padding: const EdgeInsets.all(18),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: ZelloGradients.accentGradient,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(LucideIcons.pill, color: Colors.white, size: 26),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Próxima dose',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: cs.primary,
+                        letterSpacing: 0.4,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  next?.name ?? 'Nenhuma medicação',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _subtitle(next),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () => context.push('/medications'),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: cs.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Gerenciar',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _subtitle(Medication? med) {
+    if (med == null) return 'Toque para adicionar';
+    if (med.nextDose != null) {
+      return '${_formatNextDose(med.nextDose)} • ${med.dosage}';
+    }
+    if (med.frequency.isNotEmpty) return med.frequency;
+    return med.dosage.isNotEmpty ? med.dosage : 'Sem horário definido';
+  }
+
+  static String _formatNextDose(DateTime? nextDose) {
+    if (nextDose == null) return '';
+    final now = DateTime.now();
+    final diff = nextDose.difference(now);
+    if (diff.isNegative) return 'já passou';
+    if (diff.inMinutes < 1) return 'agora';
+    if (diff.inMinutes < 60) return 'em ${diff.inMinutes} min';
+    if (diff.inHours < 24) {
+      final h = diff.inHours;
+      final m = diff.inMinutes % 60;
+      return 'em ${h}h${m > 0 ? ' $m' : ''}';
+    }
+    final hh = nextDose.hour.toString().padLeft(2, '0');
+    final mm = nextDose.minute.toString().padLeft(2, '0');
+    return 'às $hh:$mm';
   }
 }
