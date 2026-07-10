@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -8,14 +8,8 @@ const List<PermissionDefinition> allPermissions = [
   PermissionDefinition(
     key: 'patients',
     label: 'Ver Pacientes',
-    description: 'Acesso à lista de pacientes',
+    description: 'Acesso a lista de pacientes',
     icon: LucideIcons.users,
-  ),
-  PermissionDefinition(
-    key: 'exams',
-    label: 'Gerenciar Exames',
-    description: 'Adicionar e editar exames',
-    icon: LucideIcons.flaskConical,
   ),
   PermissionDefinition(
     key: 'consultations',
@@ -25,14 +19,14 @@ const List<PermissionDefinition> allPermissions = [
   ),
   PermissionDefinition(
     key: 'medications',
-    label: 'Gerenciar Medicações',
-    description: 'Prescrever e editar medicações',
+    label: 'Gerenciar Medicacoes',
+    description: 'Prescrever e editar medicacoes',
     icon: LucideIcons.pill,
   ),
   PermissionDefinition(
     key: 'reports',
-    label: 'Ver Relatórios',
-    description: 'Acesso a estatísticas e relatórios',
+    label: 'Ver Relatorios',
+    description: 'Acesso a estatisticas e relatorios',
     icon: LucideIcons.barChart,
   ),
 ];

@@ -306,10 +306,8 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
     }
   }
 
-  /// Médico: solicitar exame
   void _showMedicoRequestDialog(
       Professional professional, ProfessionalAvailability slot) {
-    final examTypeCtrl = TextEditingController();
     final notesCtrl = TextEditingController();
 
     showModalBottomSheet(
@@ -335,23 +333,20 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Solicitar Exame',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            Text(
+              'Agendar Consulta',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             Text(
-              'Dr(a). ${professional.name} — ${slot.date.day}/${slot.date.month}/${slot.date.year} às ${slot.startTime}',
+              'Dr(a). ${professional.name} - ${slot.date.day}/${slot.date.month}/${slot.date.year} as ${slot.startTime}',
               style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: examTypeCtrl,
-              decoration: const InputDecoration(labelText: 'Tipo de exame'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
               controller: notesCtrl,
               decoration:
-                  const InputDecoration(labelText: 'Observações (opcional)'),
+                  const InputDecoration(labelText: 'Observacoes (opcional)'),
               maxLines: 3,
             ),
             const SizedBox(height: 20),
@@ -359,8 +354,9 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => _submitMedicoRequest(
-                    ctx, slot, professional, examTypeCtrl.text, notesCtrl.text),
-                child: const Text('Solicitar Exame'),
+                  ctx, slot, professional, notesCtrl.text,
+                ),
+                child: const Text('Agendar'),
               ),
             ),
           ],
@@ -373,31 +369,33 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
     BuildContext ctx,
     ProfessionalAvailability slot,
     Professional professional,
-    String examType,
     String notes,
   ) async {
     Navigator.pop(ctx);
 
     final api = ref.read(apiClientProvider);
-    await ref.read(examRequestsProvider.notifier).request(
-          ExamRequest(
-            id: '',
-            patientId: api.currentPatientId ?? '',
-            professionalId: professional.id,
-            availabilitySlotId: slot.id,
-            examType: examType,
-            notes: notes,
-            status: 'solicitado',
-          ),
+    try {
+      await api.createConsultation({
+        'patient_id': api.currentPatientId ?? '',
+        'doctor_name': professional.name,
+        'specialty': professional.specialty ?? '',
+        'date': slot.date.toIso8601String(),
+        'type': 'in_person',
+        'notes': notes,
+        'status': 'scheduled',
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Consulta agendada com sucesso!')),
         );
-    await ref.read(availabilityProvider.notifier).markBooked(slot.id);
-    ref.invalidate(availabilityProvider);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Solicitação enviada! Aguarde confirmação.')),
-      );
+        ref.invalidate(consultationsProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao agendar: $e')),
+        );
+      }
     }
   }
 
@@ -487,27 +485,31 @@ class _PatientAgendaScreenState extends ConsumerState<PatientAgendaScreen> {
     Navigator.pop(ctx);
 
     final api = ref.read(apiClientProvider);
-    // Psicólogo: usa o mesmo exam_requests mas sem examType
-    // O examType fica como "consulta_psicologia"
-    await ref.read(examRequestsProvider.notifier).request(
-          ExamRequest(
-            id: '',
-            patientId: api.currentPatientId ?? '',
-            professionalId: professional.id,
-            availabilitySlotId: slot.id,
-            examType: 'consulta_psicologia',
-            notes: 'Motivo: $reason\n$notes',
-            status: 'solicitado',
-          ),
-        );
-    await ref.read(availabilityProvider.notifier).markBooked(slot.id);
-    ref.invalidate(availabilityProvider);
+    try {
+      await api.createConsultation({
+        'patient_id': api.currentPatientId ?? '',
+        'doctor_name': professional.name,
+        'specialty': professional.specialty ?? '',
+        'date': slot.date.toIso8601String(),
+        'type': 'in_person',
+        'notes': 'Motivo: $reason\n$notes',
+        'status': 'scheduled',
+      });
+      await ref.read(availabilityProvider.notifier).markBooked(slot.id);
+      ref.invalidate(availabilityProvider);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Consulta agendada! Aguarde confirmação.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Consulta agendada! Aguarde confirmacao.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao agendar: $e')),
+        );
+      }
     }
   }
 }

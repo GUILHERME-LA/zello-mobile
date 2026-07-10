@@ -1,9 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
-import '../widgets/add_exam_dialog.dart';
 import '../widgets/add_consultation_dialog.dart';
 import '../widgets/add_medication_dialog.dart';
 import '../widgets/add_session_note_dialog.dart';
@@ -27,7 +26,6 @@ class PatientDetailScreen extends ConsumerWidget {
     final isPsicologo = auth.isPsicologo;
 
     // Verifica permissões individuais
-    final canExams = ref.watch(canAccessProvider('exams'));
     final canConsultations = ref.watch(canAccessProvider('consultations'));
     final canMedications = ref.watch(canAccessProvider('medications'));
 
@@ -45,10 +43,6 @@ class PatientDetailScreen extends ConsumerWidget {
       tabs.add(const Tab(icon: Icon(LucideIcons.send), text: 'Encaminhamentos'));
       tabWidgets.add((p) => _ReferralsTab(patient: p));
     } else {
-      if (canExams) {
-        tabs.add(const Tab(icon: Icon(LucideIcons.flaskConical), text: 'Exames'));
-        tabWidgets.add((p) => _ExamsTab(patient: p));
-      }
       if (canConsultations) {
         tabs.add(const Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'));
         tabWidgets.add((p) => _ConsultationsTab(patient: p));
@@ -123,154 +117,6 @@ class PatientDetailScreen extends ConsumerWidget {
   }
 }
 
-// ============================================================
-// _ExamsTab (Médico/Admin)
-// ============================================================
-class _ExamsTab extends ConsumerWidget {
-  final Patient patient;
-  const _ExamsTab({required this.patient});
-
-  Color _getStatusColor(ExamStatus status) {
-    switch (status) {
-      case ExamStatus.pending:
-        return ZelloColors.primaryLight;
-      case ExamStatus.available:
-        return ZelloColors.primary;
-      case ExamStatus.reviewed:
-        return ZelloColors.primary;
-    }
-  }
-
-  String _getStatusLabel(ExamStatus status) {
-    switch (status) {
-      case ExamStatus.pending:
-        return 'Pendente';
-      case ExamStatus.available:
-        return 'Disponível';
-      case ExamStatus.reviewed:
-        return 'Revisado';
-    }
-  }
-
-  Future<void> _handleCompleteExam(
-      BuildContext context, WidgetRef ref, String examId) async {
-    try {
-      await ref.read(apiClientProvider).updateExamStatus(examId, 'available');
-      ref.invalidate(patientExamsProvider(patient.id));
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Exame marcado como concluído!')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao atualizar exame: $e')),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final examsAsync = ref.watch(patientExamsProvider(patient.id));
-
-    return Stack(
-      children: [
-        examsAsync.when(
-          data: (exams) => exams.isEmpty
-              ? const EmptyState(
-                  icon: LucideIcons.flaskConical,
-                  title: 'Nenhum exame cadastrado',
-                  subtitle: 'Toque + para adicionar o primeiro exame.',
-                )
-              : RefreshIndicator(
-                  onRefresh: () async =>
-                      ref.invalidate(patientExamsProvider(patient.id)),
-                  child: ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    itemCount: exams.length,
-                    itemBuilder: (_, i) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _ItemCard(
-                        title: exams[i].name,
-                        subtitle: exams[i].date != null
-                            ? Formatters.formatDate(exams[i].date!)
-                            : 'Data não informada',
-                        icon: LucideIcons.fileText,
-                        onTap: () => _showItemDetails(
-                          context,
-                          title: exams[i].name,
-                          subtitle: exams[i].date != null
-                              ? Formatters.formatDate(exams[i].date!)
-                              : 'Data não informada',
-                          status: _getStatusLabel(exams[i].status),
-                          icon: LucideIcons.fileText,
-                        ),
-                        trailingWidget: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: _getStatusColor(exams[i].status)
-                                    .withAlpha(25),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                _getStatusLabel(exams[i].status),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: _getStatusColor(exams[i].status),
-                                ),
-                              ),
-                            ),
-                            if (exams[i].status == ExamStatus.pending) ...[
-                              const SizedBox(width: 8),
-                              IconButton(
-                                constraints: const BoxConstraints(),
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(
-                                    LucideIcons.checkCircle2,
-                                    color: ZelloColors.primary,
-                                    size: 22),
-                                tooltip: 'Concluir Exame',
-                                onPressed: () => _handleCompleteExam(
-                                    context, ref, exams[i].id),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-          loading: () => const LoadingState(linesPerCard: 2),
-          error: (e, _) => ErrorState(
-            message: 'Não foi possível carregar os exames.',
-            technicalDetails: '$e',
-            onRetry: () =>
-                ref.invalidate(patientExamsProvider(patient.id)),
-          ),
-        ),
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: FloatingActionButton(
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => AddExamDialog(patientId: patient.id),
-            ),
-            child: const Icon(LucideIcons.plus),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 // ============================================================
 // _ConsultationsTab (Admin/Médico/Psicólogo)
@@ -424,17 +270,17 @@ class _SessionNotesTab extends ConsumerWidget {
   String _getMoodEmoji(String mood) {
     switch (mood) {
       case 'ansioso':
-        return '😰';
+        return '??';
       case 'triste':
-        return '😢';
+        return '??';
       case 'calmo':
-        return '😌';
+        return '??';
       case 'feliz':
-        return '😊';
+        return '??';
       case 'irritado':
-        return '😠';
+        return '??';
       default:
-        return '😐';
+        return '??';
     }
   }
 

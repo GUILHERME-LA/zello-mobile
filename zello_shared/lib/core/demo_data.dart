@@ -44,48 +44,7 @@ List<Map<String, dynamic>> demoMedications = [
   },
 ];
 
-List<Map<String, dynamic>> demoExams = [
-  {
-    'id': 'exam-1',
-    'name': 'Hemograma Completo',
-    'date': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
-    'requestingPhysician': 'Dra. Beatriz Almeida',
-    'labFacility': 'Lab Saúde Plus',
-    'status': 'available',
-    'resultUrl': '',
-    'notes': 'Resultados dentro da normalidade. Hemoglobina: 14.2 g/dL',
-  },
-  {
-    'id': 'exam-2',
-    'name': 'Glicemia em Jejum',
-    'date': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
-    'requestingPhysician': 'Dra. Beatriz Almeida',
-    'labFacility': 'Lab Saúde Plus',
-    'status': 'available',
-    'resultUrl': '',
-    'notes': 'Glicemia: 92 mg/dL - Normal',
-  },
-  {
-    'id': 'exam-3',
-    'name': 'Colesterol Total',
-    'date': DateTime.now().add(const Duration(days: 15)).toIso8601String(),
-    'requestingPhysician': 'Dr. Carlos Mendes',
-    'labFacility': 'Diagnósticos Brasil',
-    'status': 'pending',
-    'resultUrl': '',
-    'notes': '',
-  },
-  {
-    'id': 'exam-4',
-    'name': 'Ultrassom Abdome',
-    'date': DateTime.now().add(const Duration(days: 30)).toIso8601String(),
-    'requestingPhysician': 'Dr. Carlos Mendes',
-    'labFacility': 'Imagem Center',
-    'status': 'pending',
-    'resultUrl': '',
-    'notes': '',
-  },
-];
+
 
 List<Map<String, dynamic>> demoConsultations = [
   {

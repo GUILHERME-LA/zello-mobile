@@ -19,8 +19,6 @@ class ApiEndpoints {
   static const String medications = '/webhook/medications';
   static String medication(String id) => '/webhook/medications/$id';
 
-  static const String exams = '/webhook/exams';
-  static String exam(String id) => '/webhook/exams/$id';
 
   static const String consultations = '/webhook/consultations';
   static String consultation(String id) => '/webhook/consultations/$id';

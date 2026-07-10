@@ -62,8 +62,7 @@ class ZelloApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<ZelloAuthState>(authProvider, (prev, next) {
       if (next.status == ZelloAuthStatus.authenticated && next.user != null) {
-        NotificationService().subscribeToExamUpdates(next.user!.id);
-      } else if (next.status == ZelloAuthStatus.unauthenticated) {
+          } else if (next.status == ZelloAuthStatus.unauthenticated) {
         NotificationService().dispose();
       }
     });

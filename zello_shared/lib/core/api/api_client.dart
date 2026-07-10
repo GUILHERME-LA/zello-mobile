@@ -394,33 +394,6 @@ class ApiClient {
     );
   }
 
-  // Exams
-  Future<List<dynamic>> getExams() async {
-    await _ensurePatientLoaded();
-    return _tryOrDemoList(
-      () async {
-        dynamic query = _supabase
-            .from('exams')
-            .select('id, name, date, requesting_physician, lab_facility, status, result_url, notes');
-        if (_currentPatientId != null) {
-          query = query.eq('patient_id', _currentPatientId);
-        }
-        final data = await query.order('date', ascending: false);
-        return data.map((row) => {
-          'id': row['id'],
-          'name': row['name'],
-          'date': row['date'],
-          'requestingPhysician': row['requesting_physician'] ?? '',
-          'labFacility': row['lab_facility'] ?? '',
-          'status': row['status'] ?? 'pending',
-          'resultUrl': row['result_url'] ?? '',
-          'notes': row['notes'] ?? '',
-        }).toList();
-      },
-      demoExams,
-    );
-  }
-
   // Consultations
   Future<List<dynamic>> getConsultations() async {
     await _ensurePatientLoaded();
@@ -628,59 +601,6 @@ class ApiClient {
     });
   }
 
-  // Exam Requests
-  Future<List<dynamic>> getExamRequestsByProfessional(String professionalId) async {
-    return _tryOrDemoList(
-      () async {
-        final data = await _supabase
-            .from('exam_requests')
-            .select('*, patients(name, phone)')
-            .eq('professional_id', professionalId)
-            .order('created_at', ascending: false);
-        return data;
-      },
-      [],
-    );
-  }
-
-  Future<List<dynamic>> getExamRequestsByPatient(String patientId) async {
-    return _tryOrDemoList(
-      () async {
-        final data = await _supabase
-            .from('exam_requests')
-            .select()
-            .eq('patient_id', patientId)
-            .order('created_at', ascending: false);
-        return data;
-      },
-      [],
-    );
-  }
-
-  Future<void> createExamRequest(Map<String, dynamic> data) async {
-    await _tryOrDemoVoid(() async {
-      await _supabase.from('exam_requests').insert(data);
-    });
-  }
-
-  Future<void> confirmExamRequest(String requestId) async {
-    await _tryOrDemoVoid(() async {
-      await _supabase.from('exam_requests').update({
-        'status': 'confirmado',
-        'confirmed_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', requestId);
-    });
-  }
-
-  Future<void> refuseExamRequest(String requestId, String reason) async {
-    await _tryOrDemoVoid(() async {
-      await _supabase.from('exam_requests').update({
-        'status': 'recusado',
-        'refused_reason': reason,
-      }).eq('id', requestId);
-    });
-  }
-
   // Insurances
   Future<List<dynamic>> getInsurances(String patientId) async {
     return _tryOrDemoList(
@@ -733,29 +653,6 @@ class ApiClient {
   }
 
   // Patient-scoped queries (admin)
-  Future<List<dynamic>> getPatientExams(String patientId) async {
-    return _tryOrDemoList(
-      () async {
-        final data = await _supabase
-            .from('exams')
-            .select('id, name, date, requesting_physician, lab_facility, status, result_url, notes')
-            .eq('patient_id', patientId)
-            .order('date', ascending: false);
-        return data.map((row) => {
-          'id': row['id'],
-          'name': row['name'],
-          'date': row['date'],  // Supabase returns String, not DateTime
-          'requestingPhysician': row['requesting_physician'] ?? '',
-          'labFacility': row['lab_facility'] ?? '',
-          'status': row['status'] ?? 'pending',
-          'resultUrl': row['result_url'] ?? '',
-          'notes': row['notes'] ?? '',
-        }).toList();
-      },
-      demoExams,
-    );
-  }
-
   Future<List<dynamic>> getPatientConsultations(String patientId) async {
     return _tryOrDemoList(
       () async {
@@ -803,41 +700,8 @@ class ApiClient {
     );
   }
 
-  Future<void> updateExamStatus(String examId, String status) async {
-    await _tryOrDemoVoid(() async {
-      await _supabase.from('exams').update({
-        'status': status,
-      }).eq('id', examId);
-    });
-  }
 
   // Create methods (admin)
-  Future<Map<String, dynamic>> createExam(Map<String, dynamic> data) async {
-    return _tryOrDemo(
-      () async {
-        final res = await _supabase.from('exams').insert({
-          'patient_id': data['patient_id'],
-          'name': data['name'],
-          'date': data['date'],
-          'requesting_physician': data['requesting_physician'],
-          'lab_facility': data['lab_facility'],
-          'status': data['status'] ?? 'pending',
-          'notes': data['notes'] ?? '',
-        }).select().single();
-        return res;
-      },
-      {
-        'id': 'demo-exam-${DateTime.now().millisecondsSinceEpoch}',
-        'patient_id': data['patient_id'],
-        'name': data['name'],
-        'date': data['date'] ?? DateTime.now().toIso8601String(),
-        'requesting_physician': data['requesting_physician'],
-        'lab_facility': data['lab_facility'],
-        'status': data['status'] ?? 'pending',
-        'notes': data['notes'] ?? '',
-      },
-    );
-  }
 
   Future<void> createConsultation(Map<String, dynamic> data) async {
     await _tryOrDemoVoid(() async {

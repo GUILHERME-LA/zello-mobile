@@ -129,22 +129,73 @@ class _ChatInputState extends State<ChatInput> {
               ),
             ),
             const SizedBox(width: 8),
-            Material(
-              color: const Color(0xFF1565C0),
-              shape: const CircleBorder(),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(24),
-                onTap: _send,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.send_rounded,
-                      color: Colors.white, size: 22),
-                ),
-              ),
-            ),
+            _SendButton(onPressed: _send),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SendButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  const _SendButton({required this.onPressed});
+
+  @override
+  State<_SendButton> createState() => _SendButtonState();
+}
+
+class _SendButtonState extends State<_SendButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap(TapDownDetails d) => _controller.forward();
+  void _handleTapUp(TapUpDetails d) {
+    _controller.reverse();
+    widget.onPressed();
+  }
+  void _handleCancel() => _controller.reverse();
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _scale,
+      builder: (context, child) => Transform.scale(
+        scale: _scale.value,
+        child: child,
+      ),
+      child: GestureDetector(
+        onTapDown: _handleTap,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleCancel,
+        child: Material(
+          color: const Color(0xFF1565C0),
+          shape: const CircleBorder(),
+          child: Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
+          ),
         ),
       ),
     );

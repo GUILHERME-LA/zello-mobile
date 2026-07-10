@@ -190,7 +190,6 @@ class DashboardScreen extends ConsumerWidget {
   // ──────────────────────────────────────────────
   Widget _buildManagementList(BuildContext context, WidgetRef ref) {
     final canConsultations = ref.watch(canAccessProvider('consultations'));
-    final canExams = ref.watch(canAccessProvider('exams'));
 
     final tiles = [
       _ManagementTile(
@@ -212,7 +211,7 @@ class DashboardScreen extends ConsumerWidget {
         subtitle: 'Pendências e requisições',
         icon: LucideIcons.inbox,
         color: ZelloColors.primaryLighter,
-        onTap: canExams ? () => context.push('/admin/solicitacoes') : null,
+        onTap: () => context.push('/admin/solicitacoes'),
       ),
     ];
 

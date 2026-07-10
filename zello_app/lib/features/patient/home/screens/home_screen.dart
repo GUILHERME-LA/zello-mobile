@@ -1,20 +1,11 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
 
-// ─────────────────────────────────────────────────────────────
-//  CONSTANTS
-// ─────────────────────────────────────────────────────────────
-
 const _staggerBaseDelay = Duration(milliseconds: 80);
 const _staggerDuration = Duration(milliseconds: 500);
-
-// ─────────────────────────────────────────────────────────────
-//  SCREEN
-// ─────────────────────────────────────────────────────────────
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -29,30 +20,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return name[0].toUpperCase() + name.substring(1);
   }
 
-  // ── Build ─────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
     final userName = _formatName(auth.user?.name ?? '');
     final medsAsync = ref.watch(medicationsProvider);
-    final examsAsync = ref.watch(examsProvider);
     final consultationsAsync = ref.watch(consultationsProvider);
 
     final medCount = medsAsync.valueOrNull?.length ?? 0;
-    final examCount = examsAsync.valueOrNull?.length ?? 0;
     final consultCount = consultationsAsync.valueOrNull?.length ?? 0;
-    final totalItems = medCount + examCount + consultCount;
+    final totalItems = medCount + consultCount;
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(medicationsProvider);
-            ref.invalidate(examsProvider);
             ref.invalidate(consultationsProvider);
             await Future.wait([
               ref.read(medicationsProvider.future),
-              ref.read(examsProvider.future),
               ref.read(consultationsProvider.future),
             ]);
           },
@@ -63,7 +49,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 _Header(userName: userName, consultCount: consultCount),
                 SizedBox(
-                  height: 20,
+                  height: 24,
                   child: Center(
                     child: Container(
                       width: 40,
@@ -72,34 +58,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withAlpha(20),
+                            .withAlpha(30),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                 ),
-                // ── Empty-state welcome ────────────────────────
                 if (totalItems == 0)
                   _StaggerItem(
                     index: 0,
                     child: _EmptyWelcome(userName: userName),
                   ),
-                // ── Health overview ────────────────────────────
                 if (totalItems > 0)
                   _StaggerItem(
                     index: 0,
                     child: _HealthOverview(
                       medCount: medCount,
-                      examCount: examCount,
                       consultCount: consultCount,
                     ),
                   ),
                 const SizedBox(height: 4),
-                // ── Quick actions ──────────────────────────────
                 _StaggerItem(
                   index: totalItems > 0 ? 1 : 1,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 16, top: 4),
+                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
                     child: _buildSectionHeader(context,
                         title: 'Ações Rápidas',
                         subtitle: 'O que você precisa fazer hoje'),
@@ -107,18 +89,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 _StaggerItem(
                   index: totalItems > 0 ? 2 : 2,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _QuickActionsGrid(),
-                  ),
+                  child: _QuickActionsGrid(),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 _StaggerItem(
                   index: totalItems > 0 ? 3 : 3,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _AgentCard(),
-                  ),
+                  child: _AgentCard(),
                 ),
                 const SizedBox(height: 32),
               ],
@@ -134,22 +110,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       children: [
         Container(
-          width: 3,
-          height: 20,
+          width: 4,
+          height: 24,
           decoration: BoxDecoration(
             gradient: ZelloGradients.sectionBar,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
               ),
               if (subtitle != null) ...[
@@ -169,37 +145,118 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
+}
 
-  void _logout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sair da conta'),
-        content: const Text('Tem certeza que deseja sair da sua conta?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('CANCELAR'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ref.read(authProvider.notifier).logout();
-              context.go('/login');
-            },
-            child: const Text('SAIR', style: TextStyle(color: ZelloColors.danger)),
-          ),
-        ],
-      ),
+class _AnimatedCount extends StatefulWidget {
+  final int target;
+  final TextStyle? style;
+  const _AnimatedCount({required this.target, this.style});
+
+  @override
+  State<_AnimatedCount> createState() => _AnimatedCountState();
+}
+
+class _AnimatedCountState extends State<_AnimatedCount>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  int _display = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _controller.addListener(() {
+      final value = (_animation.value * widget.target).round();
+      if (value != _display) {
+        setState(() => _display = value);
+      }
+    });
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedCount oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.target != widget.target) {
+      _display = 0;
+      _controller.reset();
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('$_display', style: widget.style);
+  }
+}
+
+class _PulseDot extends StatefulWidget {
+  final Color color;
+  const _PulseDot({required this.color});
+
+  @override
+  State<_PulseDot> createState() => _PulseDotState();
+}
+
+class _PulseDotState extends State<_PulseDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
 
-  final authProvider = Provider.notifier(authNotifier);
-}
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
-// ─────────────────────────────────────────────────────────────
-//  STAGGER ENTRY ANIMATION
-// ─────────────────────────────────────────────────────────────
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) => Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withAlpha((_pulse.value * 100).round()),
+              blurRadius: 4,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _StaggerItem extends StatelessWidget {
   final int index;
@@ -212,7 +269,6 @@ class _StaggerItem extends StatelessWidget {
       tween: Tween(begin: 0.0, end: 1.0),
       duration: _staggerDuration,
       curve: Curves.easeOutCubic,
-      // stagger delay per item
       builder: (context, value, child) {
         final delay = index * _staggerBaseDelay.inMilliseconds;
         final delayed =
@@ -228,10 +284,6 @@ class _StaggerItem extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  HEADER
-// ─────────────────────────────────────────────────────────────
 
 class _Header extends StatelessWidget {
   final String userName;
@@ -249,7 +301,6 @@ class _Header extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Greeting row ──────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -303,7 +354,6 @@ class _Header extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          // ── Glassmorphism consultation chip ────────────────
           Container(
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
@@ -381,8 +431,7 @@ class _Header extends StatelessWidget {
             _notifItem(context, LucideIcons.pill, 'Hora do Losartana 50mg',
                 'Próxima dose em 30 min'),
             const SizedBox(height: 12),
-            _notifItem(context, LucideIcons.flaskConical, 'Exame disponível',
-                'Hemograma completo'),
+
           ],
         ),
       ),
@@ -451,10 +500,6 @@ class _HeaderIconButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  EMPTY WELCOME
-// ─────────────────────────────────────────────────────────────
-
 class _EmptyWelcome extends StatelessWidget {
   final String userName;
   const _EmptyWelcome({required this.userName});
@@ -510,17 +555,11 @@ class _EmptyWelcome extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  HEALTH OVERVIEW
-// ─────────────────────────────────────────────────────────────
-
 class _HealthOverview extends StatelessWidget {
   final int medCount;
-  final int examCount;
   final int consultCount;
   const _HealthOverview({
     required this.medCount,
-    required this.examCount,
     required this.consultCount,
   });
 
@@ -541,20 +580,6 @@ class _HealthOverview extends StatelessWidget {
                 count: medCount,
                 label: 'Medicação${medCount == 1 ? '' : 'ões'}',
                 sublabel: medCount == 1 ? 'cadastrada' : 'cadastradas',
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: AnimatedCard(
-              onTap: () => context.push('/exams'),
-              child: _IndicatorContent(
-                icon: LucideIcons.flaskConical,
-                iconColor: const Color(0xFF42A5F5),
-                iconBgColor: const Color(0xFF42A5F5).withAlpha(25),
-                count: examCount,
-                label: 'Exame${examCount == 1 ? '' : 'ns'}',
-                sublabel: examCount == 1 ? 'disponível' : 'disponíveis',
               ),
             ),
           ),
@@ -619,8 +644,8 @@ class _IndicatorContent extends StatelessWidget {
                 child: Icon(icon, color: iconColor, size: 20),
               ),
               const SizedBox(width: 8),
-              Text(
-                '$count',
+              _AnimatedCount(
+                target: count,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: numberColor,
@@ -650,10 +675,6 @@ class _IndicatorContent extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  QUICK ACTIONS GRID
-// ─────────────────────────────────────────────────────────────
 
 class _QuickActionsGrid extends StatelessWidget {
   @override
@@ -687,11 +708,11 @@ class _QuickActionsGrid extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
-                  icon: LucideIcons.testTube,
-                  label: 'Status exames',
-                  color: const Color(0xFF42A5F5),
-                  bgColor: const Color(0xFF42A5F5).withAlpha(20),
-                  onTap: () => context.push('/exam-status'),
+                  icon: LucideIcons.heartPulse,
+                  label: 'Analise convenio',
+                  color: const Color(0xFF0D47A1),
+                  bgColor: const Color(0xFF0D47A1).withAlpha(20),
+                  onTap: () => context.push('/convenio'),
                 ),
               ),
             ],
@@ -699,16 +720,6 @@ class _QuickActionsGrid extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(
-                child: _QuickActionButton(
-                  icon: LucideIcons.heartPulse,
-                  label: 'Análise convênio',
-                  color: const Color(0xFF0D47A1),
-                  bgColor: const Color(0xFF0D47A1).withAlpha(20),
-                  onTap: () => context.push('/convenio'),
-                ),
-              ),
-              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.building2,
@@ -722,12 +733,14 @@ class _QuickActionsGrid extends StatelessWidget {
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.folder,
-                  label: 'Prontuário',
+                  label: 'Prontuario',
                   color: const Color(0xFF1976D2),
                   bgColor: const Color(0xFF1976D2).withAlpha(20),
                   onTap: () => context.push('/prontuario'),
                 ),
               ),
+              const SizedBox(width: 10),
+              const Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -735,7 +748,6 @@ class _QuickActionsGrid extends StatelessWidget {
     );
   }
 }
-
 class _QuickActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -785,10 +797,6 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  AGENT CARD
-// ─────────────────────────────────────────────────────────────
-
 class _AgentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -824,8 +832,7 @@ class _AgentCard extends StatelessWidget {
                                 ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(LucideIcons.circle,
-                          size: 8, color: ZelloColors.online),
+                      _PulseDot(color: ZelloColors.online),
                     ],
                   ),
                   const SizedBox(height: 3),

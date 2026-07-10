@@ -15,12 +15,25 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _isMedical = true;
   RealtimeChannel? _realtimeChannel;
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(messagesProvider.notifier).loadMessages('c1'));
     _subscribeRealTime();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   void _subscribeRealTime() {
@@ -43,6 +56,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               timestamp: DateTime.parse(data['created_at'] as String),
             );
             ref.read(messagesProvider.notifier).addMessage(message);
+            _scrollToBottom();
           },
         )
         .subscribe();
@@ -52,11 +66,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void dispose() {
     _realtimeChannel?.unsubscribe();
     _realtimeChannel = null;
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _sendMessage(String content) {
     ref.read(messagesProvider.notifier).sendMessage(content);
+    _scrollToBottom();
   }
 
   @override
@@ -88,10 +104,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             else
               Expanded(
                 child: ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) =>
-                      MessageBubble(message: messages[index]),
+                  itemCount: messages.length + (state.isSending ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == messages.length) {
+                      return const _TypingIndicator();
+                    }
+                    return MessageBubble(message: messages[index]);
+                  },
                 ),
               ),
             ChatInput(onSend: _sendMessage),
@@ -130,8 +151,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 const SizedBox(height: 2),
                 Row(
                   children: [
-                    Container(width: 6, height: 6,
-                        decoration: const BoxDecoration(color: ZelloColors.online, shape: BoxShape.circle)),
+                    _PulseDot(color: ZelloColors.online),
                     const SizedBox(width: 6),
                     Text('Online',
                         style: TextStyle(color: Colors.white.withAlpha(179), fontSize: 12)),
@@ -161,6 +181,140 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PulseDot extends StatefulWidget {
+  final Color color;
+  const _PulseDot({required this.color});
+
+  @override
+  State<_PulseDot> createState() => _PulseDotState();
+}
+
+class _PulseDotState extends State<_PulseDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) => Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withAlpha((_pulse.value * 80).round()),
+              blurRadius: 3,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TypingIndicator extends StatefulWidget {
+  const _TypingIndicator();
+
+  @override
+  State<_TypingIndicator> createState() => _TypingIndicatorState();
+}
+
+class _TypingIndicatorState extends State<_TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE3F2FD),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
+            bottomLeft: Radius.circular(4),
+            bottomRight: Radius.circular(18),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (i) {
+            final tween = Tween<double>(begin: 0.3, end: 1.0).animate(
+              CurvedAnimation(
+                parent: _controller,
+                curve: Interval(
+                  i * 0.2,
+                  i * 0.2 + 0.5,
+                  curve: Curves.easeInOut,
+                ),
+              ),
+            );
+            return AnimatedBuilder(
+              animation: tween,
+              builder: (context, child) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withAlpha(
+                        (255 * tween.value).round(),
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              },
+            );
+          }),
+        ),
       ),
     );
   }
