@@ -30,7 +30,7 @@ class ProfileScreen extends ConsumerWidget {
                     _buildInfoCard(name, email, phone),
                     const SizedBox(height: 24),
                     const SectionHeader(title: 'Opções'),
-                    _buildMenuOptions(context),
+                    _buildMenuOptions(context, ref),
                   ],
                 ),
               ),
@@ -126,7 +126,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  static Widget _buildMenuOptions(BuildContext context) {
+  static Widget _buildMenuOptions(BuildContext context, WidgetRef ref) {
     final options = [
       _MenuOption(Icons.medical_services_outlined, 'Plano de Saúde', 'Unimed - Empresarial'),
       _MenuOption(Icons.notifications_outlined, 'Notificações', 'Ativado'),
@@ -154,7 +154,7 @@ class ProfileScreen extends ConsumerWidget {
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: AnimatedCard(
-          onTap: () => _showLogoutDialog(context),
+          onTap: () => _showLogoutDialog(context, ref),
           child: Row(
             children: [
               Icon(Icons.logout, size: 20, color: const Color(0xFFDC2626)),
@@ -172,7 +172,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  static void _showLogoutDialog(BuildContext context) {
+  static void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -186,7 +186,7 @@ class ProfileScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // Implement logout logic here
+              ref.read(authProvider.notifier).logout();
               context.go('/login');
             },
             child: const Text('SAIR', style: TextStyle(color: const Color(0xFFDC2626))),
