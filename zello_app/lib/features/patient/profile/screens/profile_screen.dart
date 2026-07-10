@@ -187,7 +187,6 @@ class ProfileScreen extends ConsumerWidget {
             onPressed: () {
               Navigator.of(context).pop();
               // Implement logout logic here
-              ref.read(authProvider.notifier).logout();
               context.go('/login');
             },
             child: const Text('SAIR', style: TextStyle(color: const Color(0xFFDC2626))),
@@ -197,7 +196,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  static _AdminNotifier? get ref => null;
 }
 
 class _MenuOption {

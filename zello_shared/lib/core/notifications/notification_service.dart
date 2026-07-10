@@ -22,11 +22,5 @@ class NotificationService {
     _initialized = true;
   }
 
-      }
-    });
-  }
-
-
-  void dispose() {
-  }
+  void dispose() {}
 }
