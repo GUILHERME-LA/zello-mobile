@@ -750,6 +750,40 @@ class _QuickActionsGrid extends StatelessWidget {
               const Expanded(child: SizedBox()),
             ],
           ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionButton(
+                  icon: LucideIcons.activity,
+                  label: 'Terapias',
+                  color: const Color(0xFF1565C0),
+                  bgColor: const Color(0xFF1565C0).withAlpha(20),
+                  onTap: () => context.push('/therapies'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: LucideIcons.heartPulse,
+                  label: 'Tratamentos',
+                  color: const Color(0xFF0D47A1),
+                  bgColor: const Color(0xFF0D47A1).withAlpha(20),
+                  onTap: () => context.push('/treatments'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: LucideIcons.clipboardList,
+                  label: 'Anamnese',
+                  color: const Color(0xFF1976D2),
+                  bgColor: const Color(0xFF1976D2).withAlpha(20),
+                  onTap: () => context.push('/anamnesis'),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

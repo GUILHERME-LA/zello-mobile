@@ -421,6 +421,90 @@ class ApiClient {
     );
   }
 
+  // Therapies
+  Future<List<dynamic>> getTherapies() async {
+    await _ensurePatientLoaded();
+    return _tryOrDemoList(
+      () async {
+        dynamic query = _supabase
+            .from('therapies')
+            .select('id, name, professional, type, frequency, start_date, end_date, status, notes');
+        if (_currentPatientId != null) {
+          query.eq('patient_id', _currentPatientId);
+        }
+        final data = await query.order('name');
+        return data.map((row) => {
+          'id': row['id'],
+          'name': row['name'] ?? '',
+          'professional': row['professional'] ?? '',
+          'type': row['type'] ?? 'outro',
+          'frequency': row['frequency'] ?? '',
+          'startDate': row['start_date'],
+          'endDate': row['end_date'],
+          'status': row['status'] ?? 'ativa',
+          'notes': row['notes'] ?? '',
+        }).toList();
+      },
+      demoTherapies,
+    );
+  }
+
+  // Treatments
+  Future<List<dynamic>> getTreatments() async {
+    await _ensurePatientLoaded();
+    return _tryOrDemoList(
+      () async {
+        dynamic query = _supabase
+            .from('treatments')
+            .select('id, name, description, professional, start_date, end_date, status, notes');
+        if (_currentPatientId != null) {
+          query.eq('patient_id', _currentPatientId);
+        }
+        final data = await query.order('name');
+        return data.map((row) => {
+          'id': row['id'],
+          'name': row['name'] ?? '',
+          'description': row['description'] ?? '',
+          'professional': row['professional'] ?? '',
+          'startDate': row['start_date'],
+          'endDate': row['end_date'],
+          'status': row['status'] ?? 'ativo',
+          'notes': row['notes'] ?? '',
+        }).toList();
+      },
+      demoTreatments,
+    );
+  }
+
+  // Anamneses
+  Future<List<dynamic>> getAnamneses() async {
+    await _ensurePatientLoaded();
+    return _tryOrDemoList(
+      () async {
+        dynamic query = _supabase.from('anamneses').select(
+            'id, date, professional, chief_complaint, history_present_illness, past_history, continuous_medication, allergies, habits, family_history, completed');
+        if (_currentPatientId != null) {
+          query.eq('patient_id', _currentPatientId);
+        }
+        final data = await query.order('date', ascending: false);
+        return data.map((row) => {
+          'id': row['id'],
+          'date': row['date'],
+          'professional': row['professional'] ?? '',
+          'chiefComplaint': row['chief_complaint'] ?? '',
+          'historyOfPresentIllness': row['history_present_illness'] ?? '',
+          'pastHistory': row['past_history'] ?? '',
+          'continuousMedication': row['continuous_medication'] ?? '',
+          'allergies': row['allergies'] ?? '',
+          'habits': row['habits'] ?? '',
+          'familyHistory': row['family_history'] ?? '',
+          'completed': row['completed'] ?? false,
+        }).toList();
+      },
+      demoAnamneses,
+    );
+  }
+
   // Send message
   Future<void> sendMessage(String conversationId, String content) async {
     await _tryOrDemoVoid(

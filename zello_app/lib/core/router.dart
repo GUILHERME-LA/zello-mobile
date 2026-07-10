@@ -23,6 +23,9 @@ import '../features/patient/home/screens/home_screen.dart';
 import '../features/patient/chat/screens/chat_screen.dart';
 import '../features/patient/medications/screens/medications_screen.dart';
 import '../features/patient/consultations/screens/consultations_screen.dart';
+import '../features/patient/therapies/screens/therapies_screen.dart';
+import '../features/patient/treatments/screens/treatments_screen.dart';
+import '../features/patient/anamnesis/screens/anamnesis_screen.dart';
 import '../features/patient/hospitals/screens/hospitals_screen.dart';
 import '../features/patient/profile/screens/profile_screen.dart';
 import '../features/patient/settings/screens/settings_screen.dart';
@@ -210,6 +213,18 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/consultations',
       pageBuilder: (context, state) => _slideFadePage(const ConsultationsScreen()),
+    ),
+    GoRoute(
+      path: '/therapies',
+      pageBuilder: (context, state) => _slideFadePage(const TherapiesScreen()),
+    ),
+    GoRoute(
+      path: '/treatments',
+      pageBuilder: (context, state) => _slideFadePage(const TreatmentsScreen()),
+    ),
+    GoRoute(
+      path: '/anamnesis',
+      pageBuilder: (context, state) => _slideFadePage(const AnamnesisScreen()),
     ),
     GoRoute(
       path: '/hospitals',

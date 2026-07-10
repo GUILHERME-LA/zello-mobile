@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -131,12 +132,21 @@ class ProfileScreen extends ConsumerWidget {
       _MenuOption(Icons.medical_services_outlined, 'Plano de Saúde', 'Unimed - Empresarial'),
       _MenuOption(Icons.notifications_outlined, 'Notificações', 'Ativado'),
       _MenuOption(Icons.shield_outlined, 'Privacidade', 'Dados protegidos'),
+      _MenuOption(LucideIcons.activity, 'Terapias', 'Acompanhamento terapêutico', route: '/therapies'),
+      _MenuOption(LucideIcons.heartPulse, 'Tratamentos', 'Tratamentos em curso', route: '/treatments'),
+      _MenuOption(LucideIcons.clipboardList, 'Anamnese', 'Histórico clínico', route: '/anamnesis'),
     ];
     return Column(
       children: [...options.map((o) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: AnimatedCard(
-          onTap: () => _showMenuOption(context, o.title, o.subtitle),
+          onTap: () {
+            if (o.route != null) {
+              context.push(o.route!);
+            } else {
+              _showMenuOption(context, o.title, o.subtitle);
+            }
+          },
           child: Row(
             children: [
               Icon(o.icon, size: 20, color: const Color(0xFF1565C0)),
@@ -202,5 +212,6 @@ class _MenuOption {
   final IconData icon;
   final String title;
   final String subtitle;
-  const _MenuOption(this.icon, this.title, this.subtitle);
+  final String? route;
+  const _MenuOption(this.icon, this.title, this.subtitle, {this.route});
 }

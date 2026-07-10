@@ -223,3 +223,88 @@ List<Map<String, dynamic>> demoConversationMessages = [
     'timestamp': DateTime.now().subtract(const Duration(minutes: 9)).toIso8601String(),
   },
 ];
+
+List<Map<String, dynamic>> demoTherapies = [
+  {
+    'id': 'ther-1',
+    'name': 'Fisioterapia Respiratória',
+    'professional': 'Dra. Helena Souza',
+    'type': 'fisica',
+    'frequency': '3x por semana',
+    'startDate': DateTime.now().subtract(const Duration(days: 20)).toIso8601String(),
+    'endDate': DateTime.now().add(const Duration(days: 40)).toIso8601String(),
+    'status': 'ativa',
+    'notes': 'Exercícios de expansão pulmonar',
+  },
+  {
+    'id': 'ther-2',
+    'name': 'Terapia Cognitivo-Comportamental',
+    'professional': 'Psicólogo Ricardo Antunes',
+    'type': 'psicologica',
+    'frequency': '1x por semana',
+    'startDate': DateTime.now().subtract(const Duration(days: 60)).toIso8601String(),
+    'endDate': null,
+    'status': 'ativa',
+    'notes': 'Acompanhamento de ansiedade',
+  },
+  {
+    'id': 'ther-3',
+    'name': 'Fonoaudiologia',
+    'professional': 'Dra. Paula Nunes',
+    'type': 'fonoaudiologica',
+    'frequency': '2x por semana',
+    'startDate': DateTime.now().subtract(const Duration(days: 90)).toIso8601String(),
+    'endDate': DateTime.now().subtract(const Duration(days: 10)).toIso8601String(),
+    'status': 'concluida',
+    'notes': 'Tratamento de disfagia encerrado',
+  },
+];
+
+List<Map<String, dynamic>> demoTreatments = [
+  {
+    'id': 'treat-1',
+    'name': 'Controle de Hipertensão',
+    'description': 'Acompanhamento e ajuste de medicação para pressão arterial',
+    'professional': 'Dra. Beatriz Almeida',
+    'startDate': DateTime.now().subtract(const Duration(days: 120)).toIso8601String(),
+    'endDate': null,
+    'status': 'ativo',
+    'notes': 'Reavaliar pressão mensalmente',
+  },
+  {
+    'id': 'treat-2',
+    'name': 'Tratamento de Diabetes Tipo 2',
+    'description': 'Gestão glicêmica e orientação nutricional',
+    'professional': 'Dr. Carlos Mendes',
+    'startDate': DateTime.now().subtract(const Duration(days: 200)).toIso8601String(),
+    'endDate': null,
+    'status': 'ativo',
+    'notes': 'Hemoglobina glicada em acompanhamento',
+  },
+  {
+    'id': 'treat-3',
+    'name': 'Pós-operatório de Apendicectomia',
+    'description': 'Recuperação cirúrgica e cuidados de ferida',
+    'professional': 'Dr. Marcos Lima',
+    'startDate': DateTime.now().subtract(const Duration(days: 30)).toIso8601String(),
+    'endDate': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+    'status': 'concluido',
+    'notes': 'Cicatrização completa',
+  },
+];
+
+List<Map<String, dynamic>> demoAnamneses = [
+  {
+    'id': 'anam-1',
+    'date': DateTime.now().subtract(const Duration(days: 15)).toIso8601String(),
+    'professional': 'Dra. Beatriz Almeida',
+    'chiefComplaint': 'Cefaleia recorrente',
+    'historyOfPresentIllness': 'Episódios de dor de cabeça 3x por semana, intensidade moderada',
+    'pastHistory': 'Hipertensão arterial desde 2020',
+    'continuousMedication': 'Losartana 50mg, Omeprazol 20mg',
+    'allergies': 'Penicilina',
+    'habits': 'Não fumante, etilismo social aos fins de semana',
+    'familyHistory': 'Pai com histórico de hipertensão',
+    'completed': true,
+  },
+];

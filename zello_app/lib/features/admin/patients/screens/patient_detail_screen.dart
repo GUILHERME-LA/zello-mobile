@@ -51,6 +51,12 @@ class PatientDetailScreen extends ConsumerWidget {
         tabs.add(const Tab(icon: Icon(LucideIcons.calendar), text: 'Consultas'));
         tabWidgets.add((p) => _ConsultationsTab(patient: p));
       }
+      tabs.add(const Tab(icon: Icon(LucideIcons.activity), text: 'Terapias'));
+      tabWidgets.add((p) => _TherapiesTab(patient: p));
+      tabs.add(const Tab(icon: Icon(LucideIcons.heartPulse), text: 'Tratamentos'));
+      tabWidgets.add((p) => _TreatmentsTab(patient: p));
+      tabs.add(const Tab(icon: Icon(LucideIcons.clipboardList), text: 'Anamnese'));
+      tabWidgets.add((p) => _AnamnesisTab(patient: p));
     }
 
     final hasTabs = tabs.isNotEmpty;
@@ -256,6 +262,161 @@ class _MedicationsTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ============================================================
+// _TherapiesTab (Médico/Admin)
+// ============================================================
+class _TherapiesTab extends ConsumerWidget {
+  final Patient patient;
+  const _TherapiesTab({required this.patient});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(therapiesProvider);
+    return async.when(
+      data: (items) => items.isEmpty
+          ? const EmptyState(
+              icon: LucideIcons.activity,
+              title: 'Nenhuma terapia cadastrada',
+              subtitle: 'Toque + para registrar a primeira terapia.',
+            )
+          : RefreshIndicator(
+              onRefresh: () async => ref.invalidate(therapiesProvider),
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                itemBuilder: (_, i) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _ItemCard(
+                    title: items[i].name,
+                    subtitle: '${items[i].frequency} • ${items[i].professional}',
+                    trailing: items[i].status.name,
+                    icon: LucideIcons.activity,
+                    onTap: () => _showItemDetails(
+                      context,
+                      title: items[i].name,
+                      subtitle: items[i].frequency,
+                      status: items[i].status.name,
+                      icon: LucideIcons.activity,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+      loading: () => const LoadingState(linesPerCard: 2),
+      error: (e, _) => ErrorState(
+        message: 'Não foi possível carregar as terapias.',
+        technicalDetails: '$e',
+        onRetry: () => ref.invalidate(therapiesProvider),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _TreatmentsTab (Médico/Admin)
+// ============================================================
+class _TreatmentsTab extends ConsumerWidget {
+  final Patient patient;
+  const _TreatmentsTab({required this.patient});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(treatmentsProvider);
+    return async.when(
+      data: (items) => items.isEmpty
+          ? const EmptyState(
+              icon: LucideIcons.heartPulse,
+              title: 'Nenhum tratamento cadastrado',
+              subtitle: 'Toque + para registrar o primeiro tratamento.',
+            )
+          : RefreshIndicator(
+              onRefresh: () async => ref.invalidate(treatmentsProvider),
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                itemBuilder: (_, i) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _ItemCard(
+                    title: items[i].name,
+                    subtitle: items[i].description,
+                    trailing: items[i].status.name,
+                    icon: LucideIcons.heartPulse,
+                    onTap: () => _showItemDetails(
+                      context,
+                      title: items[i].name,
+                      subtitle: items[i].description,
+                      status: items[i].status.name,
+                      icon: LucideIcons.heartPulse,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+      loading: () => const LoadingState(linesPerCard: 2),
+      error: (e, _) => ErrorState(
+        message: 'Não foi possível carregar os tratamentos.',
+        technicalDetails: '$e',
+        onRetry: () => ref.invalidate(treatmentsProvider),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _AnamnesisTab (Médico/Admin)
+// ============================================================
+class _AnamnesisTab extends ConsumerWidget {
+  final Patient patient;
+  const _AnamnesisTab({required this.patient});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(anamnesesProvider);
+    return async.when(
+      data: (items) => items.isEmpty
+          ? const EmptyState(
+              icon: LucideIcons.clipboardList,
+              title: 'Nenhuma anamnese cadastrada',
+              subtitle: 'Toque + para registrar a anamnese.',
+            )
+          : RefreshIndicator(
+              onRefresh: () async => ref.invalidate(anamnesesProvider),
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                itemBuilder: (_, i) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _ItemCard(
+                    title: items[i].chiefComplaint.isEmpty
+                        ? 'Anamnese'
+                        : items[i].chiefComplaint,
+                    subtitle: items[i].professional,
+                    trailing: items[i].completed ? 'Concluída' : 'Em aberto',
+                    icon: LucideIcons.clipboardList,
+                    onTap: () => _showItemDetails(
+                      context,
+                      title: items[i].chiefComplaint,
+                      subtitle: items[i].professional,
+                      status: items[i].completed ? 'Concluída' : 'Em aberto',
+                      icon: LucideIcons.clipboardList,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+      loading: () => const LoadingState(linesPerCard: 2),
+      error: (e, _) => ErrorState(
+        message: 'Não foi possível carregar a anamnese.',
+        technicalDetails: '$e',
+        onRetry: () => ref.invalidate(anamnesesProvider),
+      ),
     );
   }
 }
