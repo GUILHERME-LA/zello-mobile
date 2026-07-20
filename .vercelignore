@@ -1,0 +1,17 @@
+.git/
+.gitignore
+.gitattributes
+**/build/
+**/.dart_tool/
+**/.packages
+**/.pub/
+node_modules/
+*.txt
+*.html
+DOCUMENTACAO*
+.codemagic.yaml
+.fvm/
+.fvm/flutter_sdk
+README.md
+.vscode/
+.idea/
