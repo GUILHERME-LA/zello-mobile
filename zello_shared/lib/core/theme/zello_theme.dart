@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'zello_text_styles.dart';
 import 'zello_shadows.dart';
 
@@ -301,7 +301,7 @@ class ZelloTheme {
       ),
 
       // ── Card ────────────────────────────────────────────
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: ZelloColors.surface,
         elevation: 0,
         shadowColor: ZelloColors.primary.withAlpha(13),
@@ -462,7 +462,7 @@ class ZelloTheme {
       ),
 
       // ── Dialog ──────────────────────────────────────────
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: ZelloColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -568,7 +568,7 @@ class ZelloTheme {
       ),
 
       // ── TabBar ──────────────────────────────────────────
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: ZelloColors.primary,
         unselectedLabelColor: ZelloColors.textTertiary,
         labelStyle: textTheme.labelLarge,
@@ -624,7 +624,7 @@ class ZelloTheme {
         titleTextStyle: textTheme.headlineMedium,
       ),
 
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: ZelloColors.darkSurface,
         elevation: 0,
         shadowColor: Colors.black.withAlpha(40),
@@ -767,7 +767,7 @@ class ZelloTheme {
         dragHandleSize: Size(40, 4),
       ),
 
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: ZelloColors.darkSurface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -863,7 +863,7 @@ class ZelloTheme {
         ),
       ),
 
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: ZelloColors.primaryLighter,
         unselectedLabelColor: ZelloColors.textOnDarkSecondary,
         labelStyle: textTheme.labelLarge,

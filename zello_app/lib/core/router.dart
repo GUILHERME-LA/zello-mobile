@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
 import 'admin_shell.dart';
+import 'patient_shell.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/sign_up_screen.dart';
 import '../features/admin/dashboard/screens/dashboard_screen.dart';
@@ -10,6 +11,7 @@ import '../features/admin/patients/screens/patients_screen.dart';
 import '../features/admin/patients/screens/patient_detail_screen.dart';
 import '../features/admin/patients/screens/unassigned_patients_screen.dart';
 import '../features/admin/conversations/screens/conversations_screen.dart';
+import '../features/admin/conversations/screens/conversation_detail_screen.dart';
 import '../features/admin/agents/screens/agents_screen.dart';
 import '../features/admin/hospitals/screens/hospitals_screen.dart';
 import '../features/admin/settings/screens/settings_screen.dart';
@@ -18,9 +20,7 @@ import '../features/admin/professionals/screens/professional_detail_screen.dart'
 import '../features/admin/professionals/screens/create_professional_screen.dart';
 import '../features/admin/professionals/screens/professional_permissions_screen.dart';
 import '../features/admin/agenda/screens/agenda_screen.dart';
-import '../features/admin/solicitacoes/screens/solicitacoes_screen.dart';
 import '../features/patient/home/screens/home_screen.dart';
-import '../features/patient/chat/screens/chat_screen.dart';
 import '../features/patient/medications/screens/medications_screen.dart';
 import '../features/patient/consultations/screens/consultations_screen.dart';
 import '../features/patient/therapies/screens/therapies_screen.dart';
@@ -31,8 +31,10 @@ import '../features/patient/profile/screens/profile_screen.dart';
 import '../features/patient/settings/screens/settings_screen.dart';
 import '../features/patient/agenda/screens/agenda_screen.dart';
 import '../features/patient/convenio/screens/convenio_screen.dart';
+import '../features/patient/exams/screens/exams_screen.dart';
 import '../features/patient/convenio/screens/convenio_result_screen.dart';
 import '../features/patient/prontuario/screens/prontuario_screen.dart';
+import '../features/ai_hub/screens/ai_hub_screen.dart';
 
 Page<void> _slideFadePage(Widget child) {
   return CustomTransitionPage<void>(
@@ -143,6 +145,11 @@ final appRouter = GoRouter(
               builder: (context, state) => const ConversationsScreen(),
             ),
             GoRoute(
+              path: '/admin/conversations/:id',
+              builder: (context, state) =>
+                  ConversationDetailScreen(convKey: state.pathParameters['id']!),
+            ),
+            GoRoute(
               path: '/admin/agents',
               builder: (context, state) => const AgentsScreen(),
             ),
@@ -153,6 +160,10 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/admin/settings',
               builder: (context, state) => const AdminSettingsScreen(),
+            ),
+            GoRoute(
+              path: '/admin/ai',
+              builder: (context, state) => const AiHubScreen(),
             ),
           ],
         ),
@@ -186,73 +197,105 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+      ],
+    ),
+
+    // === Patient Shell ===
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          PatientShell(navigationShell: navigationShell),
+      branches: [
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/admin/solicitacoes',
-              builder: (context, state) => const SolicitacoesScreen(),
+              path: '/home',
+              pageBuilder: (context, state) => _slideFadePage(const HomeScreen()),
+            ),
+            GoRoute(
+              path: '/medications',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const MedicationsScreen()),
+            ),
+            GoRoute(
+              path: '/consultations',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const ConsultationsScreen()),
+            ),
+            GoRoute(
+              path: '/therapies',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const TherapiesScreen()),
+            ),
+            GoRoute(
+              path: '/treatments',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const TreatmentsScreen()),
+            ),
+            GoRoute(
+              path: '/anamnesis',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const AnamnesisScreen()),
+            ),
+            GoRoute(
+              path: '/hospitals',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const HospitalsScreen()),
+            ),
+            GoRoute(
+              path: '/convenio',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const ConvenioScreen()),
+            ),
+            GoRoute(
+              path: '/convenio/resultado',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const ConvenioResultScreen()),
+            ),
+            GoRoute(
+              path: '/exams',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const ExamsScreen()),
+            ),
+            GoRoute(
+              path: '/settings',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const SettingsScreen()),
+            ),
+            GoRoute(
+              path: '/ai',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const AiHubScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/agenda',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const PatientAgendaScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/prontuario',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const ProntuarioScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              pageBuilder: (context, state) =>
+                  _slideFadePage(const ProfileScreen()),
             ),
           ],
         ),
       ],
-    ),
-
-    // === Patient Routes ===
-    GoRoute(
-      path: '/home',
-      pageBuilder: (context, state) => _slideFadePage(const HomeScreen()),
-    ),
-    GoRoute(
-      path: '/chat',
-      pageBuilder: (context, state) => _slideFadePage(const ChatScreen()),
-    ),
-    GoRoute(
-      path: '/medications',
-      pageBuilder: (context, state) => _slideFadePage(const MedicationsScreen()),
-    ),
-    GoRoute(
-      path: '/consultations',
-      pageBuilder: (context, state) => _slideFadePage(const ConsultationsScreen()),
-    ),
-    GoRoute(
-      path: '/therapies',
-      pageBuilder: (context, state) => _slideFadePage(const TherapiesScreen()),
-    ),
-    GoRoute(
-      path: '/treatments',
-      pageBuilder: (context, state) => _slideFadePage(const TreatmentsScreen()),
-    ),
-    GoRoute(
-      path: '/anamnesis',
-      pageBuilder: (context, state) => _slideFadePage(const AnamnesisScreen()),
-    ),
-    GoRoute(
-      path: '/hospitals',
-      pageBuilder: (context, state) => _slideFadePage(const HospitalsScreen()),
-    ),
-    GoRoute(
-      path: '/profile',
-      pageBuilder: (context, state) => _slideFadePage(const ProfileScreen()),
-    ),
-    GoRoute(
-      path: '/settings',
-      pageBuilder: (context, state) => _slideFadePage(const SettingsScreen()),
-    ),
-    GoRoute(
-      path: '/agenda',
-      pageBuilder: (context, state) => _slideFadePage(const PatientAgendaScreen()),
-    ),
-    GoRoute(
-      path: '/convenio',
-      pageBuilder: (context, state) => _slideFadePage(const ConvenioScreen()),
-    ),
-    GoRoute(
-      path: '/convenio/resultado',
-      pageBuilder: (context, state) => _slideFadePage(const ConvenioResultScreen()),
-    ),
-    GoRoute(
-      path: '/prontuario',
-      pageBuilder: (context, state) => _slideFadePage(const ProntuarioScreen()),
     ),
   ],
 );

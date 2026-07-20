@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/api_endpoints.dart';
 import '../demo_data.dart';
@@ -169,13 +169,32 @@ class ApiClient {
           };
         }
 
+        final convKeys = data.map((row) => row['conv_key'] as String).toList();
+        final Map<String, String> lastMsgs = {};
+        final Map<String, String> lastTimes = {};
+        if (convKeys.isNotEmpty) {
+          final msgs = await _supabase
+              .from('inbound_messages')
+              .select('conv_key, text, received_at')
+              .filter('conv_key', 'in',
+                  '(${convKeys.map((k) => "\"$k\"").join(",")})')
+              .order('received_at', ascending: false);
+          for (final m in msgs) {
+            final key = m['conv_key'] as String;
+            if (!lastMsgs.containsKey(key)) {
+              lastMsgs[key] = (m['text'] as String?) ?? '';
+              lastTimes[key] = m['received_at'] as String;
+            }
+          }
+        }
+
         return data.map((row) => {
           'id': row['conv_key'],
           'userId': row['user_id'],
           'userName': nameMap[row['user_id'] as String?] ?? '',
           'userPhone': row['phone'] ?? '',
-          'lastMessage': '',
-          'lastMessageTime': row['last_message_at'],
+          'lastMessage': lastMsgs[row['conv_key']] ?? '',
+          'lastMessageTime': lastTimes[row['conv_key']] ?? row['last_message_at'],
           'status': row['status'] == 'ongoing' ? 'active' : row['status'],
           'unreadCount': 0,
         }).toList();
@@ -392,6 +411,47 @@ class ApiClient {
       },
       demoMedications,
     );
+  }
+
+
+  // Exams
+  Future<List<dynamic>> getExams() async {
+    await _ensurePatientLoaded();
+    return _tryOrDemoList(
+      () async {
+        dynamic query = _supabase.from('exams').select(
+            'id, patient_id, title, exam_type, status, result_url, requested_by, requested_at, notes');
+        if (_currentPatientId != null) {
+          query = query.eq('patient_id', _currentPatientId);
+        }
+        final data = await query.order('requested_at', ascending: false);
+        return data.map((row) => {
+              'id': row['id'],
+              'patient_id': row['patient_id'],
+              'title': row['title'] ?? '',
+              'exam_type': row['exam_type'] ?? '',
+              'status': row['status'] ?? 'solicitado',
+              'result_url': row['result_url'],
+              'requested_by': row['requested_by'],
+              'requested_at': row['requested_at'],
+              'notes': row['notes'],
+            }).toList();
+      },
+      demoExams,
+    );
+  }
+
+  Future<void> createExam(Map<String, dynamic> data) async {
+    await _tryOrDemoVoid(() async {
+      await _supabase.from('exams').insert({
+        'patient_id': data['patient_id'],
+        'title': data['title'],
+        'exam_type': data['exam_type'] ?? '',
+        'status': data['status'] ?? 'solicitado',
+        'notes': data['notes'] ?? '',
+        'requested_at': DateTime.now().toUtc().toIso8601String(),
+      });
+    });
   }
 
   // Consultations

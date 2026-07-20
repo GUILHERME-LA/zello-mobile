@@ -129,9 +129,7 @@ class ProfileScreen extends ConsumerWidget {
 
   static Widget _buildMenuOptions(BuildContext context, WidgetRef ref) {
     final options = [
-      _MenuOption(Icons.medical_services_outlined, 'Plano de Saúde', 'Unimed - Empresarial'),
-      _MenuOption(Icons.notifications_outlined, 'Notificações', 'Ativado'),
-      _MenuOption(Icons.shield_outlined, 'Privacidade', 'Dados protegidos'),
+      _MenuOption(LucideIcons.settings, 'Configurações', 'Preferências do app', route: '/settings'),
       _MenuOption(LucideIcons.activity, 'Terapias', 'Acompanhamento terapêutico', route: '/therapies'),
       _MenuOption(LucideIcons.heartPulse, 'Tratamentos', 'Tratamentos em curso', route: '/treatments'),
       _MenuOption(LucideIcons.clipboardList, 'Anamnese', 'Histórico clínico', route: '/anamnesis'),

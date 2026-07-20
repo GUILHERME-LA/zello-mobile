@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zello Saúde — Documentação do Projeto</title>
+    <style>
+        :root {
+            --primary: #0F3460;
+            --primary-light: #16537E;
+            --accent: #0EA5E9;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --code-bg: #F1F5F9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--primary);
+            color: white;
+            overflow-y: auto;
+            z-index: 100;
+            padding: 24px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 10px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .sidebar nav a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar nav a.section-title {
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 16px;
+            padding-bottom: 4px;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: 280px;
+            padding: 48px 64px;
+            max-width: 1100px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 56px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        p { margin-bottom: 12px; color: var(--text-secondary); }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-blue { background: #DBEAFE; color: #1E40AF; }
+        .badge-green { background: #DCFCE7; color: #166534; }
+        .badge-yellow { background: #FEF3C7; color: #92400E; }
+        .badge-red { background: #FEE2E2; color: #991B1B; }
+        .badge-purple { background: #F3E8FF; color: #6B21A8; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px;
+            font-size: 14px;
+        }
+
+        thead th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        tbody td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        tbody tr:hover { background: #F8FAFC; }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+        }
+
+        pre {
+            background: #1E293B;
+            color: #E2E8F0;
+            padding: 16px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0 20px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        pre code { background: none; padding: 0; color: inherit; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .card-header {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        ul { padding-left: 20px; margin: 8px 0 16px; }
+        li { margin-bottom: 4px; color: var(--text-secondary); font-size: 14px; }
+
+        .flow-diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .flow-step {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .flow-arrow {
+            display: inline-block;
+            color: var(--accent);
+            font-size: 20px;
+            margin: 0 8px;
+            vertical-align: middle;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .alert-info { background: #EFF6FF; border-left: 4px solid var(--accent); }
+        .alert-warning { background: #FFFBEB; border-left: 4px solid var(--warning); }
+        .alert-danger { background: #FEF2F2; border-left: 4px solid var(--danger); }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 40px 0;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 24px; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h1>Zello Saúde</h1>
+        <p>Documentação do Projeto v1.0</p>
+    </div>
+    <nav>
+        <a href="#visao-geral" class="section-title">Visão Geral</a>
+        <a href="#visao-geral">O que é o Zello</a>
+        <a href="#arquitetura">Arquitetura</a>
+        <a href="#stack-tecnologica">Stack Tecnológica</a>
+
+        <a href="#telas" class="section-title">Telas do App</a>
+        <a href="#tela-auth">Autenticação</a>
+        <a href="#tela-admin">Shell Admin</a>
+        <a href="#tela-paciente">Shell Paciente</a>
+
+        <a href="#backend" class="section-title">Backend</a>
+        <a href="#banco-dados">Banco de Dados</a>
+        <a href="#edge-functions">Edge Functions (IA)</a>
+        <a href="#rls">Row-Level Security</a>
+
+        <a href="#ia" class="section-title">Inteligência Artificial</a>
+        <a href="#ia-fluxo">Fluxo de IA</a>
+        <a href="#ia-funcoes">Funções disponíveis</a>
+
+        <a href="#codigo" class="section-title">Código</a>
+        <a href="#estrutura-pasta">Estrutura de Pastas</a>
+        <a href="#models">Models</a>
+        <a href="#providers">Providers</a>
+        <a href="#widgets">Widgets Compartilhados</a>
+        <a href="#tema">Tema e Design System</a>
+
+        <a href="#deploy" class="section-title">Deploy</a>
+        <a href="#variaveis-ambiente">Variáveis de Ambiente</a>
+        <a href="#build">Build e CI/CD</a>
+
+        <a href="#guia-dev" class="section-title">Guia para Devs</a>
+        <a href="#como-comecar">Como Começar</a>
+        <a href="#convencoes">Convenções</a>
+        <a href="#checklist">Checklist</a>
+    </nav>
+</aside>
+
+<!-- Main Content -->
+<main class="main">
+
+    <!-- VISÃO GERAL -->
+    <section id="visao-geral">
+        <h1>Zello Saúde</h1>
+        <p class="subtitle">Plataforma unificada de gestão de saúde — prontuário digital, consultas, exames, convênios e assistente de IA.</p>
+
+        <div class="grid-3">
+            <div class="stat-card">
+                <div class="number">27</div>
+                <div class="label">Tabelas no banco</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">34</div>
+                <div class="label">Telas no app</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">4</div>
+                <div class="label">Edge Functions de IA</div>
+            </div>
+        </div>
+
+        <h3>O que é o Zello</h3>
+        <p>O <strong>Zello Saúde</strong> é um aplicativo mobile (Flutter) que conecta <strong>pacientes</strong>, <strong>profissionais de saúde</strong> e <strong>administradores</strong> em uma única plataforma. Ele permite:</p>
+        <ul>
+            <li><strong>Pacientes:</strong> Acessar prontuário completo, gerenciar medicações, consultas, exames, terapias, convênios, e interagir com um assistente de IA.</li>
+            <li><strong>Profissionais:</strong> Gerenciar agenda, ver prontuários de pacientes atribuídos, registrar notas de sessão, encaminhamentos.</li>
+            <li><strong>Administradores:</strong> Gerenciar profissionais, permissões, hospitais, visualizar dashboard com KPIs, e monitorar conversas de chat.</li>
+        </ul>
+
+        <h3>Arquitetura</h3>
+        <div class="flow-diagram">
+            <div class="flow-step">Flutter App</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Supabase (PostgREST)</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">PostgreSQL (zello schema)</div>
+            <br><br>
+            <div class="flow-step">Flutter App</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Supabase Edge Functions</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Anthropic Claude API</div>
+        </div>
+        <p>O app é um <strong>monorepo</strong> com dois pacotes:</p>
+        <ul>
+            <li><code>zello_app</code> — Aplicação Flutter principal (telas, routing, providers locais)</li>
+            <li><code>zello_shared</code> — Biblioteca compartilhada (models, providers, API client, tema, widgets)</li>
+        </ul>
+
+        <h3>Stack Tecnológica</h3>
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">Frontend</div>
+                <ul>
+                    <li>Flutter 3.32.0 (Dart 3.8.0)</li>
+                    <li>GoRouter (navegação)</li>
+                    <li>Riverpod (estado)</li>
+                    <li>Supabase Flutter SDK</li>
+                    <li>Lucide Icons</li>
+                    <li>Syncfusion Charts</li>
+                    <li>Google Maps / Geolocator</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">Backend</div>
+                <ul>
+                    <li>Supabase (PostgreSQL 17)</li>
+                    <li>PostgREST (API REST automática)</li>
+                    <li>Supabase Auth (autenticação)</li>
+                    <li>Supabase Edge Functions (Deno)</li>
+                    <li>Anthropic Claude API (IA)</li>
+                    <li>n8n (webhooks legados)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- TELAS -->
+    <section id="telas">
+        <h2>Telas do Aplicativo</h2>
+
+        <h3 id="tela-auth">1. Autenticação</h3>
+        <table>
+            <thead>
+                <tr><th>Rota</th><th>Tela</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/login</code></td>
+                    <td>LoginScreen</td>
+                    <td>Tela unificada de login. Após autenticação, redireciona automaticamente para <code>/admin/dashboard</code> (admin/profissional) ou <code>/home</code> (paciente).</td>
+                </tr>
+                <tr>
+                    <td><code>/signup</code></td>
+                    <td>SignUpScreen</td>
+                    <td>Cadastro de novo paciente. Cria conta no Supabase Auth + perfil na tabela <code>profiles</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>/forgot-password</code></td>
+                    <td>ForgotPasswordScreen</td>
+                    <td>Recuperação de senha via email (Supabase Auth).</td>
+                </tr>
+                <tr>
+                    <td><code>/change-password</code></td>
+                    <td>ChangePasswordScreen</td>
+                    <td>Alterar senha do usuário logado.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="tela-admin">2. Shell Admin (3 abas: Dashboard / Profissionais / Agenda)</h3>
+        <table>
+            <thead>
+                <tr><th>Rota</th><th>Tela</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/admin/dashboard</code></td>
+                    <td>DashboardScreen</td>
+                    <td>Painel administrativo com KPIs: total de pacientes, profissionais ativos, consultas do mês, conversas ativas. Gráficos de evolução.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/patients</code></td>
+                    <td>PatientsScreen</td>
+                    <td>Lista de todos os pacientes. Busca, filtros. Clique vai para detalhe.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/patients/unassigned</code></td>
+                    <td>UnassignedPatientsScreen</td>
+                    <td>Pacientes ainda não atribuídos a nenhum profissional. Permite atribuição.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/patients/:id</code></td>
+                    <td>PatientDetailScreen</td>
+                    <td>Detalhe completo do paciente: dados pessoais, medicações, consultas, exames, prontuário. Ações: adicionar consulta, medicação, encaminhamento, nota de sessão.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/conversations</code></td>
+                    <td>ConversationsScreen</td>
+                    <td>Lista de conversas de chat. Mostra última mensagem e status.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/conversations/:id</code></td>
+                    <td>ConversationDetailScreen</td>
+                    <td>Histórico de mensagens da conversa + botão "Gerar resposta com IA" + campo para editar e enviar resposta.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/agents</code></td>
+                    <td>AgentsScreen</td>
+                    <td>Gerenciamento de agentes de IA (médico/psicólogo). Status online/busy/offline. Estatísticas de atendimento.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/hospitals</code></td>
+                    <td>AdminHospitalsScreen</td>
+                    <td>CRUD de hospitais. Dados do CNES: nome, endereço, especialidades, plano aceito.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/professionals</code></td>
+                    <td>ProfessionalsScreen</td>
+                    <td>Lista de profissionais de saúde. Botão para criar novo.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/professionals/create</code></td>
+                    <td>CreateProfessionalScreen</td>
+                    <td>Cadastro de novo profissional (médico/psicólogo).</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/professionals/:id</code></td>
+                    <td>ProfessionalDetailScreen</td>
+                    <td>Detalhe do profissional. Acesso a permissões e agenda.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/professionals/:id/permissions</code></td>
+                    <td>ProfessionalPermissionsScreen</td>
+                    <td>Gerenciamento de permissões RBAC do profissional (pacientes, consultas, exames, config, etc.).</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/agenda</code></td>
+                    <td>AgendaScreen</td>
+                    <td>Agenda do profissional. Calendário mensal + slots de disponibilidade. Criar/gerenciar horários.</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/settings</code></td>
+                    <td>AdminSettingsScreen</td>
+                    <td>Configurações do sistema (apenas admin).</td>
+                </tr>
+                <tr>
+                    <td><code>/admin/ai</code></td>
+                    <td>AiHubScreen</td>
+                    <td>Hub de IA compartilhado. Chat com Claude Haiku, análise de exames (PDF/imagem), análise de convênio.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="tela-paciente">3. Shell Paciente (4 abas: Início / Agenda / Prontuário / Perfil)</h3>
+        <table>
+            <thead>
+                <tr><th>Rota</th><th>Tela</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/home</code></td>
+                    <td>HomeScreen</td>
+                    <td>Home do paciente. Visão geral: próximas consultas, medicações ativas, exames pendentes. Ações rápidas: exames, convênio, hospitais próximos, IA.</td>
+                </tr>
+                <tr>
+                    <td><code>/medications</code></td>
+                    <td>MedicationsScreen</td>
+                    <td>Lista de medicações do paciente. Indica próxima dose, status ativo/inativo.</td>
+                </tr>
+                <tr>
+                    <td><code>/consultations</code></td>
+                    <td>ConsultationsScreen</td>
+                    <td>Histórico de consultas do paciente. Tipo (presencial/tele), médico, data, prescrições.</td>
+                </tr>
+                <tr>
+                    <td><code>/therapies</code></td>
+                    <td>TherapiesScreen</td>
+                    <td>Terapias do paciente (física, ocupacional, fonoaudiológica, psicológica). Status: ativa/concluída/pausada.</td>
+                </tr>
+                <tr>
+                    <td><code>/treatments</code></td>
+                    <td>TreatmentsScreen</td>
+                    <td>Planos de tratamento do paciente. Status: ativo/concluído/suspenso.</td>
+                </tr>
+                <tr>
+                    <td><code>/anamnesis</code></td>
+                    <td>AnamnesisScreen</td>
+                    <td>Registros de anamnese do paciente. Queixa principal, histórico, medicações contínuas, alergias, hábitos.</td>
+                </tr>
+                <tr>
+                    <td><code>/exams</code></td>
+                    <td>ExamsScreen</td>
+                    <td>Exames do paciente. Filtro por status (solicitado, confirmado, concluído, etc.). Detalhe com resultado.</td>
+                </tr>
+                <tr>
+                    <td><code>/hospitals</code></td>
+                    <td>HospitalsScreen</td>
+                    <td>Hospitais próximos com mapa (Google Maps). Dados CNES: endereço, telefone, especialidades, planos aceitos.</td>
+                </tr>
+                <tr>
+                    <td><code>/convenio</code></td>
+                    <td>ConvenioScreen</td>
+                    <td>Input do plano de saúde do paciente (nome, operadora, carência, coberturas). Envia para IA analisar.</td>
+                </tr>
+                <tr>
+                    <td><code>/convenio/resultado</code></td>
+                    <td>ConvenioResultScreen</td>
+                    <td>Resultado da análise de IA: recomendação de hospitais compatíveis, análise do plano (manter/atualizar/rebaixar).</td>
+                </tr>
+                <tr>
+                    <td><code>/agenda</code></td>
+                    <td>PatientAgendaScreen</td>
+                    <td>Agenda do paciente. Lista de profissionais disponíveis com calendário. Solicitar agendamento em slot livre.</td>
+                </tr>
+                <tr>
+                    <td><code>/prontuario</code></td>
+                    <td>ProntuarioScreen</td>
+                    <td>Prontuário completo: perfil de saúde, cirurgias, internações, sintomas, alergias, vacinas, terapias, tratamentos, anamneses. Botão para importar prontuário via IA.</td>
+                </tr>
+                <tr>
+                    <td><code>/ai</code></td>
+                    <td>AiHubScreen</td>
+                    <td>Hub de IA: perguntas gerais sobre o app, análise de exames (upload de PDF/imagem), análise de plano de saúde.</td>
+                </tr>
+                <tr>
+                    <td><code>/profile</code></td>
+                    <td>ProfileScreen</td>
+                    <td>Perfil do paciente. Dados pessoais, consentimento LGPD, opção de exclusão de conta.</td>
+                </tr>
+                <tr>
+                    <td><code>/settings</code></td>
+                    <td>SettingsScreen</td>
+                    <td>Configurações do paciente.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- BACKEND -->
+    <section id="backend">
+        <h2>Backend</h2>
+
+        <h3 id="banco-dados">Banco de Dados (PostgreSQL — Schema: zello)</h3>
+        <p>Todas as tabelas vivem no schema <code>zello</code> dentro do projeto Supabase. O PostgREST expõe automaticamente uma API REST para cada tabela.</p>
+
+        <table>
+            <thead>
+                <tr><th>#</th><th>Tabela</th><th>Descrição</th><th>Relacionamento</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><code>profiles</code></td><td>Perfis unificados (admin/profissional/paciente)</td><td>FK → auth.users</td></tr>
+                <tr><td>2</td><td><code>patients</code></td><td>Registros de pacientes</td><td>FK → profiles, professionals</td></tr>
+                <tr><td>3</td><td><code>professionals</code></td><td>Profissionais de saúde (médico/psicólogo)</td><td>FK → profiles</td></tr>
+                <tr><td>4</td><td><code>medications</code></td><td>Medicamentos do paciente</td><td>FK → patients, professionals</td></tr>
+                <tr><td>5</td><td><code>consultations</code></td><td>Consultas médicas</td><td>FK → patients</td></tr>
+                <tr><td>6</td><td><code>exams</code></td><td>Exames com workflow de status</td><td>FK → patients, professionals</td></tr>
+                <tr><td>7</td><td><code>hospitals</code></td><td>Diretório de hospitais (CNES)</td><td>—</td></tr>
+                <tr><td>8</td><td><code>agents</code></td><td>Agentes de IA (médico/psicólogo)</td><td>—</td></tr>
+                <tr><td>9</td><td><code>conversations</code></td><td>Conversas de chat</td><td>FK → auth.users</td></tr>
+                <tr><td>10</td><td><code>inbound_messages</code></td><td>Mensagens dentro das conversas</td><td>FK → conversations</td></tr>
+                <tr><td>11</td><td><code>professional_availability</code></td><td>Slots de agenda dos profissionais</td><td>FK → professionals</td></tr>
+                <tr><td>12</td><td><code>insurances</code></td><td>Convênios do paciente</td><td>FK → patients</td></tr>
+                <tr><td>13</td><td><code>ai_recommendations</code></td><td>Log de recomendações de IA</td><td>FK → patients</td></tr>
+                <tr><td>14</td><td><code>health_profiles</code></td><td>Perfil de saúde (peso, altura, tipo sanguíneo)</td><td>FK → patients (UNIQUE)</td></tr>
+                <tr><td>15</td><td><code>surgeries</code></td><td>Registros de cirurgias</td><td>FK → patients</td></tr>
+                <tr><td>16</td><td><code>hospitalizations</code></td><td>Registros de internação</td><td>FK → patients</td></tr>
+                <tr><td>17</td><td><code>symptoms</code></td><td>Sintomas recorrentes</td><td>FK → patients</td></tr>
+                <tr><td>18</td><td><code>allergies</code></td><td>Registros de alergias</td><td>FK → patients</td></tr>
+                <tr><td>19</td><td><code>vaccines</code></td><td>Registros de vacinas</td><td>FK → patients</td></tr>
+                <tr><td>20</td><td><code>session_notes</code></td><td>Notas de sessão psicológica</td><td>FK → patients, professionals</td></tr>
+                <tr><td>21</td><td><code>referrals</code></td><td>Encaminhamentos para especialistas</td><td>FK → patients, professionals</td></tr>
+                <tr><td>22</td><td><code>permissions</code></td><td>Permissões RBAC por profissional</td><td>FK → professionals</td></tr>
+                <tr><td>23</td><td><code>therapies</code></td><td>Registros de terapia</td><td>FK → patients</td></tr>
+                <tr><td>24</td><td><code>treatments</code></td><td>Planos de tratamento</td><td>FK → patients</td></tr>
+                <tr><td>25</td><td><code>anamneses</code></td><td>Registros de anamnese</td><td>FK → patients</td></tr>
+                <tr><td>26</td><td><code>ai_hub</code></td><td>Histórico de interações com IA</td><td>FK → auth.users</td></tr>
+                <tr><td>27</td><td><code>exam_requests</code></td><td>Pedidos de exame</td><td>FK → patients, professionals</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Funções auxiliares (PL/pgSQL)</h4>
+        <ul>
+            <li><code>zello._touch_updated_at()</code> — Trigger: atualiza <code>updated_at</code> automaticamente</li>
+            <li><code>zello.user_profile_id()</code> — Retorna o UUID do perfil do usuário logado</li>
+            <li><code>zello.user_role()</code> — Retorna a role (admin/professional/patient) do usuário logado</li>
+            <li><code>zello.user_professional_id()</code> — Retorna o UUID profissional do usuário logado</li>
+            <li><code>zello.conversation_belongs_to_user(p_conv_key)</code> — Verifica se conversa pertence ao usuário</li>
+            <li><code>zello.handle_new_user()</code> — Trigger: cria perfil automaticamente ao registrar usuário</li>
+        </ul>
+
+        <h3 id="rls">Row-Level Security (RLS)</h3>
+        <p>Cada tabela tem políticas RLS que controlam quem pode ler/escrever. Três níveis de acesso:</p>
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-header">Admin</div>
+                <p>Acesso total a todas as tabelas. Define permissões de outros profissionais.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">Profissional</div>
+                <p>Acessa apenas dados de pacientes atribuídos. Suas permissões são controladas pela tabela <code>permissions</code>.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">Paciente</div>
+                <p>Acessa apenas seus próprios dados. Pode ler, mas não editar dados clínicos.</p>
+            </div>
+        </div>
+
+        <h3 id="edge-functions">Edge Functions (Supabase + Deno)</h3>
+        <p>Funções server-side que rodam no Supabase e chamam a API da Anthropic Claude. A chave de API (<code>ANTHROPIC_API_KEY</code>) fica APENAS no servidor.</p>
+
+        <table>
+            <thead>
+                <tr><th>Função</th><th>Modelo</th><th>Entrada</th><th>Saída</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>chat-qa</code></td>
+                    <td>Claude Haiku 4.5</td>
+                    <td>Mensagens + kind (qa/exam/plan) + arquivo opcional</td>
+                    <td>Resposta em texto. Modos: Q&A geral, análise de exame (PDF/imagem), análise de plano</td>
+                </tr>
+                <tr>
+                    <td><code>analyze-convenio</code></td>
+                    <td>Claude Sonnet 4</td>
+                    <td>Dados do plano do paciente + lista de hospitais</td>
+                    <td>Recomendação: hospitais compatíveis + análise do plano (manter/atualizar/rebaixar)</td>
+                </tr>
+                <tr>
+                    <td><code>analyze-prontuario</code></td>
+                    <td>Claude Sonnet 4</td>
+                    <td>Perfil, cirurgias, internações, sintomas, alergias, vacinas</td>
+                    <td>Resumo, pontos de atenção, sugestões, cuidados preventivos, risco geral</td>
+                </tr>
+                <tr>
+                    <td><code>import-prontuario</code></td>
+                    <td>Claude Sonnet 4</td>
+                    <td>Texto extraído (PDF/imagem/TXT)</td>
+                    <td>JSON estruturado: cirurgias, internações, sintomas, alergias, vacinas, medicações</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- IA -->
+    <section id="ia">
+        <h2>Inteligência Artificial</h2>
+
+        <h3 id="ia-fluxo">Fluxo de Chamada</h3>
+        <div class="flow-diagram">
+            <div class="flow-step">Flutter App</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Supabase.functions.invoke()</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Edge Function (Deno)</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Anthropic API</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Claude (Haiku/Sonnet)</div>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>Segurança:</strong> A chave da API Anthropic nunca sai do servidor. O app Flutter só chama a Edge Function, que faz a chamada à API internamente. A chave é armazenada como segredo do Supabase (<code>ANTHROPIC_API_KEY</code>).
+        </div>
+
+        <h3 id="ia-funcoes">Funções Disponíveis</h3>
+
+        <h4>1. Chat QA (chat-qa)</h4>
+        <p>Assistente de IA genérico com 3 modos:</p>
+        <ul>
+            <li><strong>qa:</strong> Perguntas sobre o app (como usar, recursos disponíveis)</li>
+            <li><strong>exam:</strong> Análise de exame médico (upload de PDF ou imagem via base64)</li>
+            <li><strong>plan:</strong> Análise de plano de saúde do paciente</li>
+        </ul>
+<pre><code>// Exemplo de chamada (Flutter)
+final response = await Supabase.instance.client.functions.invoke(
+  'chat-qa',
+  body: {
+    'messages': [{'role': 'user', 'content': 'O que posso fazer no app?'}],
+    'kind': 'qa',
+  },
+);</code></pre>
+
+        <h4>2. Análise de Convênio (analyze-convenio)</h4>
+        <p>Analisa o plano de saúde do paciente e recomenda hospitais da rede credenciada. Retorna: lista de hospitais compatíveis, análise do plano, sugestão de ação.</p>
+
+        <h4>3. Análise de Prontuário (analyze-prontuario)</h4>
+        <p>Analisa todo o histórico clínico do paciente e retorna: resumo, pontos de atenção, sugestões de melhoria, cuidados preventivos, recomendações de estilo de vida, nível de risco geral.</p>
+
+        <h4>4. Importação de Prontuário (import-prontuario)</h4>
+        <p>Recebe texto extraído de um documento (PDF, imagem, TXT) e usa Claude para estruturar os dados em JSON: cirurgias, internações, sintomas, alergias, vacinas, medicações.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- CÓDIGO -->
+    <section id="codigo">
+        <h2>Estrutura do Código</h2>
+
+        <h3 id="estrutura-pasta">Estrutura de Pastas</h3>
+<pre><code>Zello/
+├── zello_app/                    # App Flutter principal
+│   └── lib/
+│       ├── main.dart             # Entry point
+│       ├── core/
+│       │   ├── router.dart       # GoRouter (34 rotas)
+│       │   ├── admin_shell.dart  # Shell admin (bottom nav)
+│       │   └── patient_shell.dart# Shell paciente (bottom nav)
+│       └── features/
+│           ├── admin/            # Telas admin (dashboard, patients, etc.)
+│           ├── ai_hub/           # Hub de IA
+│           ├── auth/             # Login, signup, forgot password
+│           └── patient/          # Telas do paciente
+├── zello_shared/                 # Biblioteca compartilhada
+│   └── lib/
+│       ├── core/
+│       │   ├── api/              # API client (Dio + Supabase)
+│       │   ├── supabase/         # Config do Supabase
+│       │   ├── theme/            # Tema (light/dark)
+│       │   └── utils/            # Formatadores
+│       ├── models/               # 29 model classes
+│       ├── providers/            # 29 Riverpod providers
+│       ├── screens/              # Telas compartilhadas
+│       └── widgets/              # 11 widgets reutilizáveis
+├── supabase/
+│   ├── functions/                # 4 Edge Functions
+│   └── migrations/               # SQL migrations
+├── migrations/                   # Migrations na raiz (legado)
+└── .fvmrc                        # Flutter 3.32.0</code></pre>
+
+        <h3 id="models">Models (29 classes)</h3>
+        <p>Cada model está em <code>zello_shared/lib/models/</code> e implementa:</p>
+        <ul>
+            <li>Construtor <code>const</code> com campos required/optional</li>
+            <li>Factory <code>fromJson(Map&lt;String, dynamic&gt;)</code> — deserialização do Supabase</li>
+            <li>Método <code>toJson()</code> — serialização para envio ao banco</li>
+            <li>Método <code>copyWith()</code> — imutabilidade</li>
+            <li>Override de <code>==</code> e <code>hashCode</code> (baseado no <code>id</code>)</li>
+        </ul>
+
+        <table>
+            <thead>
+                <tr><th>Model</th><th>Tabela</th><th>Campos Principais</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Patient</td><td>patients</td><td>id, userId, name, phone, email, cpf, professionalId</td></tr>
+                <tr><td>Professional</td><td>professionals</td><td>id, profileId, type (medico/psicologo), status</td></tr>
+                <tr><td>Medication</td><td>medications</td><td>id, patientId, name, dosage, frequency, isActive</td></tr>
+                <tr><td>Consultation</td><td>consultations</td><td>id, patientId, doctorName, specialty, date, type</td></tr>
+                <tr><td>Exam</td><td>exams</td><td>id, patientId, title, examType, status, resultUrl</td></tr>
+                <tr><td>Conversation</td><td>conversations</td><td>convKey, userId, phone, status, lastMessageAt</td></tr>
+                <tr><td>ProfessionalAvailability</td><td>professional_availability</td><td>id, professionalId, date, startTime, endTime, isBooked</td></tr>
+                <tr><td>HealthProfile</td><td>health_profiles</td><td>patientId, weight, height, bloodType, chronicConditions</td></tr>
+                <tr><td>Therapy</td><td>therapies</td><td>patientId, name, type, frequency, status</td></tr>
+                <tr><td>Treatment</td><td>treatments</td><td>patientId, name, description, status</td></tr>
+                <tr><td>Anamnesis</td><td>anamneses</td><td>patientId, chiefComplaint, historyPresentIllness</td></tr>
+            </tbody>
+        </table>
+
+        <h3 id="providers">Providers (Riverpod)</h3>
+        <p>Cada provider está em <code>zello_shared/lib/providers/</code>. Padrões usados:</p>
+        <ul>
+            <li><code>StateNotifierProvider</code> — para CRUD com estado mutável (listas + loading/error)</li>
+            <li><code>FutureProvider.family</code> — para dados dependentes de um ID (ex: medicações de um paciente)</li>
+            <li><code>Provider</code> — para serviços/injeção de dependência</li>
+        </ul>
+
+        <h3 id="widgets">Widgets Compartilhados</h3>
+        <p>11 widgets reutilizáveis em <code>zello_shared/lib/widgets/</code>:</p>
+        <div class="grid-3">
+            <div class="card"><strong>GradientHeader</strong><br>Cabeçalho com gradiente azul (usado em todas as telas)</div>
+            <div class="card"><strong>ZelloCard</strong><br>Card padrão com sombra e borda arredondada</div>
+            <div class="card"><strong>GlassCard</strong><br>Card com efeito glassmorphism</div>
+            <div class="card"><strong>EmptyState</strong><br>Estado vazio com ícone e mensagem</div>
+            <div class="card"><strong>ErrorState</strong><br>Tela de erro com botão "Tentar novamente"</div>
+            <div class="card"><strong>LoadingState</strong><br>Spinner de carregamento centralizado</div>
+            <div class="card"><strong>SkeletonLoader</strong><br>Placeholder animado durante carregamento</div>
+            <div class="card"><strong>ZelloAvatar</strong><br>Avatar com iniciais ou imagem</div>
+            <div class="card"><strong>ZelloBadge</strong><br>Badge de status (online/offline, etc.)</div>
+            <div class="card"><strong>SectionHeader</strong><br>Cabeçalho de seção com título</div>
+            <div class="card"><strong>AnimatedCard</strong><br>Card com animação de entrada</div>
+        </div>
+
+        <h3 id="tema">Tema e Design System</h3>
+        <p>O tema está em <code>zello_shared/lib/core/theme/zello_theme.dart</code> e suporta light/dark mode:</p>
+        <ul>
+            <li><strong>Cor primária:</strong> Azul escuro (#0F3460)</li>
+            <li><strong>Cor de destaque:</strong> Azul claro (#0EA5E9)</li>
+            <li><strong>Fonte:</strong> Google Fonts (definido em runtime)</li>
+            <li><strong>Estilos de texto:</strong> Definidos em <code>zello_text_styles.dart</code></li>
+            <li><strong>Sombras:</strong> Definidas em <code>zello_shadows.dart</code></li>
+        </ul>
+    </section>
+
+    <hr class="divider">
+
+    <!-- DEPLOY -->
+    <section id="deploy">
+        <h2>Deploy e Configuração</h2>
+
+        <h3 id="variaveis-ambiente">Variáveis de Ambiente</h3>
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">Supabase (remoto)</div>
+                <ul>
+                    <li><code>ANTHROPIC_API_KEY</code> — Chave da API Anthropic (segredo do projeto)</li>
+                    <li><code>CLAUDE_HAIKU_API_KEY</code> — Alternativa para chat-qa</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">App Flutter</div>
+                <ul>
+                    <li><code>supabase_config.dart</code> — URL e anon key do Supabase</li>
+                    <li><code>.fvmrc</code> — Versão do Flutter (3.32.0)</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 id="build">Build e CI/CD</h3>
+        <p>O projeto usa <strong>Codemagic</strong> para CI/CD com dois workflows:</p>
+        <table>
+            <thead>
+                <tr><th>Workflow</th><th>Package ID</th><th>Target</th><th>Flutter</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>zello-app</td>
+                    <td><code>com.zellosaude.patient</code></td>
+                    <td>Pacientes (iOS/Android)</td>
+                    <td>3.29.2</td>
+                </tr>
+                <tr>
+                    <td>admin-app</td>
+                    <td><code>com.zellosaude.admin</code></td>
+                    <td>Admin/Profissionais (iOS/Android)</td>
+                    <td>3.29.2</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+            <strong>Importante:</strong> O Flutter global instalado é 3.44.6, que é incompatível com o <code>lucide_icons</code>. SEMPRE use FVM para rodar o app: <code>fvm flutter run -d chrome</code>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- GUIA PARA DEVS -->
+    <section id="guia-dev">
+        <h2>Guia para Desenvolvedores</h2>
+
+        <h3 id="como-comecar">Como Começar</h3>
+        <pre><code># 1. Clonar o repositório
+git clone https://github.com/SEU-ORG/zello.git
+cd Zello
+
+# 2. Instalar FVM (se não tiver)
+dart pub global activate fvm
+
+# 3. Instalar Flutter 3.32.0
+fvm install 3.32.0
+
+# 4. Instalar dependências
+cd zello_app
+fvm flutter pub get
+cd ../zello_shared
+fvm flutter pub get
+
+# 5. Rodar o app
+cd ../zello_app
+fvm flutter run -d chrome</code></pre>
+
+        <h3 id="convencoes">Convenções do Projeto</h3>
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">Arquitetura</div>
+                <ul>
+                    <li>Um provider por entidade (ex: <code>patients_provider.dart</code>)</li>
+                    <li>Um model por entidade (ex: <code>patient.dart</code>)</li>
+                    <li>Uma tela por arquivo (ex: <code>home_screen.dart</code>)</li>
+                    <li>Widgets reutilizáveis ficam em <code>zello_shared/widgets/</code></li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">Padrões de Código</div>
+                <ul>
+                    <li>Todas as queries Supabase usam <code>schema: 'zello'</code></li>
+                    <li>Providers usam <code>AsyncValue</code> para loading/error/data</li>
+                    <li>Models usam <code>fromJson</code>/<code>toJson</code> para serialização</li>
+                    <li>RLS garante isolamento de dados por role</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 id="checklist">Checklist ao Adicionar Nova Feature</h3>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Tarefa</th><th>Onde</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Criar migration SQL (idempotente: CREATE TABLE IF NOT EXISTS)</td><td><code>supabase/migrations/</code></td></tr>
+                <tr><td>2</td><td>Criar model com fromJson/toJson</td><td><code>zello_shared/lib/models/</code></td></tr>
+                <tr><td>3</td><td>Criar provider com StateNotifier ou FutureProvider</td><td><code>zello_shared/lib/providers/</code></td></tr>
+                <tr><td>4</td><td>Criar tela</td><td><code>zello_app/lib/features/</code></td></tr>
+                <tr><td>5</td><td>Adicionar rota no router.dart</td><td><code>zello_app/lib/core/router.dart</code></td></tr>
+                <tr><td>6</td><td>Adicionar RLS policies (admin/professional/patient)</td><td>Na migration SQL</td></tr>
+                <tr><td>7</td><td>Adicionar GRANTs para roles</td><td>Na migration SQL</td></tr>
+                <tr><td>8</td><td>Ligar tabela no dashboard (Exposed tables)</td><td>Supabase Dashboard → Settings → API</td></tr>
+                <tr><td>9</td><td>Exportar model/provider no barrel file</td><td><code>zello_shared/lib/zello_shared.dart</code></td></tr>
+                <tr><td>10</td><td>Testar com flutter analyze + flutter run</td><td>Terminal</td></tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-danger">
+            <strong>Erros comuns no Flutter Web:</strong><br>
+            • <code>List&lt;dynamic&gt; is not subtype of List&lt;Model&gt;</code> — Adicione <code>List&lt;Map&lt;String, dynamic&gt;&gt;.from(data as List)</code> antes do <code>.map()</code><br>
+            • <code>IconData is final class</code> — Use FVM com Flutter 3.32.0 (não a versão global)<br>
+            • Tabela 404 no PostgREST — Verifique se está ligada em Exposed Tables no dashboard<br>
+            • Migration falha com "already exists" — Adicione <code>IF NOT EXISTS</code> e <code>DROP POLICY IF EXISTS</code>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: 40px;">
+        Zello Saúde — Documentação gerada automaticamente em Julho 2026
+    </p>
+
+</main>
+
+</body>
+</html>

@@ -127,6 +127,13 @@ class DashboardScreen extends ConsumerWidget {
         alert: stats.agentsOnline == 0,
       ),
       _MetricTile(
+        title: 'Central de IA',
+        value: 'Perguntas',
+        icon: LucideIcons.sparkles,
+        color: ZelloColors.primaryLight,
+        onTap: () => context.push('/admin/ai'),
+      ),
+      _MetricTile(
         title: 'Tempo Médio',
         value: '${stats.avgResponseTime.toStringAsFixed(1)}min',
         icon: LucideIcons.clock,
@@ -205,13 +212,6 @@ class DashboardScreen extends ConsumerWidget {
         icon: LucideIcons.calendar,
         color: ZelloColors.primaryLight,
         onTap: canConsultations ? () => context.push('/admin/agenda') : null,
-      ),
-      _ManagementTile(
-        title: 'Solicitações',
-        subtitle: 'Pendências e requisições',
-        icon: LucideIcons.inbox,
-        color: ZelloColors.primaryLighter,
-        onTap: () => context.push('/admin/solicitacoes'),
       ),
     ];
 

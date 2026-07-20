@@ -18,7 +18,8 @@ class AvailabilityNotifier extends StateNotifier<AsyncValue<List<ProfessionalAva
         query = query.eq('date', date.toIso8601String().split('T')[0]);
       }
       final data = await query.order('date').order('start_time');
-      final list = data.map((row) => ProfessionalAvailability.fromJson(row)).toList();
+      final rows = List<Map<String, dynamic>>.from(data as List);
+      final list = rows.map((row) => ProfessionalAvailability.fromJson(row)).toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -36,7 +37,8 @@ class AvailabilityNotifier extends StateNotifier<AsyncValue<List<ProfessionalAva
           .gte('date', DateTime.now().toIso8601String().split('T')[0])
           .order('date')
           .order('start_time');
-      final list = data.map((row) => ProfessionalAvailability.fromJson(row)).toList();
+      final rows = List<Map<String, dynamic>>.from(data as List);
+      final list = rows.map((row) => ProfessionalAvailability.fromJson(row)).toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

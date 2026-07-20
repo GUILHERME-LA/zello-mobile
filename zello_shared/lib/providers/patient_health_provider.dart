@@ -71,7 +71,8 @@ final patientSurgeriesProvider =
       .select()
       .eq('patient_id', patientId)
       .order('date', ascending: false);
-  return data.map((row) => Surgery.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => Surgery.fromJson(row)).toList();
 });
 
 final patientHospitalizationsProvider =
@@ -83,7 +84,8 @@ final patientHospitalizationsProvider =
       .select()
       .eq('patient_id', patientId)
       .order('start_date', ascending: false);
-  return data.map((row) => Hospitalization.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => Hospitalization.fromJson(row)).toList();
 });
 
 final patientSymptomsProvider =
@@ -94,7 +96,8 @@ final patientSymptomsProvider =
       .select()
       .eq('patient_id', patientId)
       .order('created_at', ascending: false);
-  return data.map((row) => Symptom.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => Symptom.fromJson(row)).toList();
 });
 
 final patientAllergiesProvider =
@@ -105,7 +108,8 @@ final patientAllergiesProvider =
       .select()
       .eq('patient_id', patientId)
       .order('name');
-  return data.map((row) => Allergy.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => Allergy.fromJson(row)).toList();
 });
 
 final patientVaccinesProvider =
@@ -116,7 +120,8 @@ final patientVaccinesProvider =
       .select()
       .eq('patient_id', patientId)
       .order('date', ascending: false);
-  return data.map((row) => Vaccine.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => Vaccine.fromJson(row)).toList();
 });
 
 final patientHealthProfileProvider =

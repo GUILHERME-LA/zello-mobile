@@ -35,6 +35,7 @@ Thumbs.db
 
 # Temp / scratch
 test_app/
+supabase/.temp/
 
 # Secrets and environment files
 .env

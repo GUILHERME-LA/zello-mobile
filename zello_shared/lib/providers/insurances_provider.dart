@@ -16,7 +16,8 @@ class InsurancesNotifier extends StateNotifier<AsyncValue<List<Insurance>>> {
           .eq('patient_id', patientId)
           .eq('is_active', true)
           .order('created_at', ascending: false);
-      final list = data.map((row) => Insurance.fromJson(row)).toList();
+      final rows = List<Map<String, dynamic>>.from(data as List);
+      final list = rows.map((row) => Insurance.fromJson(row)).toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

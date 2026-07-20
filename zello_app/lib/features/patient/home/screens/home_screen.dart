@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -97,11 +97,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _StaggerItem(
                   index: 3,
                   child: _QuickActionsGrid(),
-                ),
-                const SizedBox(height: 8),
-                _StaggerItem(
-                  index: 4,
-                  child: _AgentCard(),
                 ),
                 const SizedBox(height: 32),
               ],
@@ -208,60 +203,6 @@ class _AnimatedCountState extends State<_AnimatedCount>
   @override
   Widget build(BuildContext context) {
     return Text('$_display', style: widget.style);
-  }
-}
-
-class _PulseDot extends StatefulWidget {
-  final Color color;
-  const _PulseDot({required this.color});
-
-  @override
-  State<_PulseDot> createState() => _PulseDotState();
-}
-
-class _PulseDotState extends State<_PulseDot>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _pulse;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.6, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _pulse,
-      builder: (context, child) => Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(
-          color: widget.color,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: widget.color.withAlpha((_pulse.value * 100).round()),
-              blurRadius: 4,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -692,18 +633,7 @@ class _QuickActionsGrid extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: _QuickActionButton(
-                  icon: LucideIcons.messageCircle,
-                  label: 'Chat com agente',
-                  color: Theme.of(context).colorScheme.primary,
-                  bgColor:
-                      Theme.of(context).colorScheme.primary.withAlpha(20),
-                  onTap: () => context.push('/chat'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
+                Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.calendarCheck,
                   label: 'Agenda',
@@ -716,7 +646,7 @@ class _QuickActionsGrid extends StatelessWidget {
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.heartPulse,
-                  label: 'Analise convenio',
+                  label: 'Análise de convênio',
                   color: const Color(0xFF0D47A1),
                   bgColor: const Color(0xFF0D47A1).withAlpha(20),
                   onTap: () => context.push('/convenio'),
@@ -747,7 +677,15 @@ class _QuickActionsGrid extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              const Expanded(child: SizedBox()),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: LucideIcons.sparkles,
+                  label: 'Perguntas IA',
+                  color: const Color(0xFF7C3AED),
+                  bgColor: const Color(0xFF7C3AED).withAlpha(20),
+                  onTap: () => context.push('/ai'),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -780,6 +718,16 @@ class _QuickActionsGrid extends StatelessWidget {
                   color: const Color(0xFF1976D2),
                   bgColor: const Color(0xFF1976D2).withAlpha(20),
                   onTap: () => context.push('/anamnesis'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: LucideIcons.flaskConical,
+                  label: 'Exames',
+                  color: const Color(0xFF1565C0),
+                  bgColor: const Color(0xFF1565C0).withAlpha(20),
+                  onTap: () => context.push('/exams'),
                 ),
               ),
             ],
@@ -833,63 +781,6 @@ class _QuickActionButton extends StatelessWidget {
                 ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AgentCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: AnimatedCard(
-        onTap: () => context.push('/chat'),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                gradient: ZelloGradients.avatar,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(LucideIcons.bot,
-                  color: Colors.white, size: 26),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Agente de Saúde',
-                        style:
-                            Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                      ),
-                      const SizedBox(width: 8),
-                      _PulseDot(color: ZelloColors.online),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Assistente online. Clique para conversar.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(LucideIcons.chevronRight,
-                color: cs.onSurfaceVariant.withAlpha(120)),
-          ],
-        ),
       ),
     );
   }

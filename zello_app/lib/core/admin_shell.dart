@@ -19,9 +19,9 @@ class AdminShell extends ConsumerWidget {
         : 'A';
 
     // Mapeia índices do bottom nav para branches reais do GoRouter
-    // Admin:   0→Dashboard, 1→Profissionais, 2→Agenda,      3→Solicitações
-    // Prof.:   0→Dashboard,                  1→Agenda,      2→Solicitações
-    final branchMap = isProfessional ? [0, 2, 3] : [0, 1, 2, 3];
+    // Admin:   0→Dashboard, 1→Profissionais, 2→Agenda
+    // Prof.:   0→Dashboard,                  1→Agenda
+    final branchMap = isProfessional ? [0, 1] : [0, 1, 2];
 
     final destinations = isProfessional
         ? const [
@@ -34,11 +34,6 @@ class AdminShell extends ConsumerWidget {
               icon: Icon(LucideIcons.calendar),
               selectedIcon: Icon(LucideIcons.calendar),
               label: 'Agenda',
-            ),
-            NavigationDestination(
-              icon: Icon(LucideIcons.inbox),
-              selectedIcon: Icon(LucideIcons.inbox),
-              label: 'Solicitações',
             ),
           ]
         : const [
@@ -56,11 +51,6 @@ class AdminShell extends ConsumerWidget {
               icon: Icon(LucideIcons.calendar),
               selectedIcon: Icon(LucideIcons.calendar),
               label: 'Agenda',
-            ),
-            NavigationDestination(
-              icon: Icon(LucideIcons.inbox),
-              selectedIcon: Icon(LucideIcons.inbox),
-              label: 'Solicitações',
             ),
           ];
 

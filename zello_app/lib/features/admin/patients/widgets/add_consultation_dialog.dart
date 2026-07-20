@@ -14,17 +14,16 @@ class AddConsultationDialog extends ConsumerStatefulWidget {
 
 class _AddConsultationDialogState extends ConsumerState<AddConsultationDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _doctorCtrl = TextEditingController();
   final _specialtyCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
   final _prescriptionsCtrl = TextEditingController();
   DateTime? _date;
+  String? _doctorName;
   String _type = 'in_person';
   bool _saving = false;
 
   @override
   void dispose() {
-    _doctorCtrl.dispose();
     _specialtyCtrl.dispose();
     _notesCtrl.dispose();
     _prescriptionsCtrl.dispose();
@@ -33,6 +32,16 @@ class _AddConsultationDialogState extends ConsumerState<AddConsultationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final professionalsAsync = ref.watch(professionalsProvider);
+    final doctorItems = professionalsAsync.when(
+      data: (list) => list
+          .where((p) => p.name.isNotEmpty)
+          .map((p) => DropdownMenuItem<String>(
+              value: p.name, child: Text(p.name)))
+          .toList(),
+      loading: () => <DropdownMenuItem<String>>[],
+      error: (_, __) => <DropdownMenuItem<String>>[],
+    );
     return AlertDialog(
       title: const Text('Adicionar Consulta'),
       content: Form(
@@ -41,12 +50,14 @@ class _AddConsultationDialogState extends ConsumerState<AddConsultationDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _doctorCtrl,
+              DropdownButtonFormField<String>(
+                value: _doctorName,
                 decoration: const InputDecoration(
-                    labelText: 'Nome do Médico', hintText: 'Dr(a). ...'),
+                    labelText: 'Nome do Médico', hintText: 'Selecione'),
                 validator: (v) =>
                     v == null || v.trim().isEmpty ? 'Campo obrigatório' : null,
+                items: doctorItems,
+                onChanged: (v) => setState(() => _doctorName = v),
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -128,7 +139,7 @@ class _AddConsultationDialogState extends ConsumerState<AddConsultationDialog> {
           .toList();
       await ref.read(apiClientProvider).createConsultation({
         'patient_id': widget.patientId,
-        'doctor_name': _doctorCtrl.text.trim(),
+        'doctor_name': _doctorName ?? '',
         'specialty': _specialtyCtrl.text.trim(),
         'date': _date?.toIso8601String(),
         'type': _type,

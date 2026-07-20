@@ -55,11 +55,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         .login(_emailController.text.trim(), _passwordController.text);
   }
 
-  Future<void> _demoLogin() async {
-    await ref.read(authProvider.notifier).demoLogin();
-    if (mounted) context.go('/home');
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -246,29 +241,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 44,
-                          child: OutlinedButton.icon(
-                            onPressed: isLoading ? null : _demoLogin,
-                            icon: const Icon(Icons.play_circle_outline, size: 18),
-                            label: const Text(
-                              'Modo Demonstração',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF1565C0),
-                              side: const BorderSide(color: Color(0xFF1565C0)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

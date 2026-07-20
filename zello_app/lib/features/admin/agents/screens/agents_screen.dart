@@ -55,74 +55,6 @@ class AgentsScreen extends ConsumerWidget {
     );
   }
 
-  void _showAddAgent(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text('Novo Agente',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1A1A2E))),
-            const SizedBox(height: 20),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Nome do agente',
-                prefixIcon: Icon(LucideIcons.user),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Tipo',
-                prefixIcon: Icon(LucideIcons.grid),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Agente adicionado com sucesso!'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(12))),
-                    ),
-                  );
-                },
-                child: const Text('Salvar'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showAgentDetail(BuildContext context, Agent agent) {
     final statusColor = switch (agent.status) {
       AgentStatus.online => ZelloColors.primaryLight,
@@ -260,16 +192,6 @@ class AgentsScreen extends ConsumerWidget {
                 Text('Gerenciar agentes',
                     style: TextStyle(color: Colors.white70, fontSize: 13)),
               ],
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(LucideIcons.plus, color: Colors.white),
-              onPressed: () => _showAddAgent(context),
             ),
           ),
         ],

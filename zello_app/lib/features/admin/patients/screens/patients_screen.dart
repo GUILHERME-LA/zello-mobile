@@ -152,23 +152,6 @@ class PatientsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Buscar pacientes...',
-              hintStyle: TextStyle(color: Colors.white.withAlpha(128)),
-              prefixIcon: Icon(LucideIcons.search,
-                  color: Colors.white.withAlpha(179), size: 22),
-              filled: true,
-              fillColor: Colors.white.withAlpha(30),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
         ],
       ),
     );

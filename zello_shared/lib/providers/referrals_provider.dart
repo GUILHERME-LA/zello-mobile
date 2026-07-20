@@ -11,7 +11,8 @@ final patientReferralsProvider =
       .select()
       .eq('patient_id', patientId)
       .order('created_at', ascending: false);
-  return data.map((row) => Referral.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => Referral.fromJson(row)).toList();
 });
 
 class ReferralsNotifier {

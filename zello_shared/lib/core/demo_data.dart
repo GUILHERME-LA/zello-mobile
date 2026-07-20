@@ -1,4 +1,4 @@
-import '../models/user.dart';
+﻿import '../models/user.dart';
 
 User demoUser = const User(
   id: 'demo-user-1',
@@ -306,5 +306,29 @@ List<Map<String, dynamic>> demoAnamneses = [
     'habits': 'Não fumante, etilismo social aos fins de semana',
     'familyHistory': 'Pai com histórico de hipertensão',
     'completed': true,
+  },
+];
+final List<dynamic> demoExams = [
+  {
+    'id': 'exam-1',
+    'patient_id': 'demo-patient-1',
+    'title': 'Hemograma completo',
+    'exam_type': 'Sangue',
+    'status': 'concluido',
+    'result_url': null,
+    'requested_by': null,
+    'requested_at': '2026-06-20T10:00:00.000Z',
+    'notes': 'Resultado dentro da normalidade.',
+  },
+  {
+    'id': 'exam-2',
+    'patient_id': 'demo-patient-1',
+    'title': 'Raio-X de torax',
+    'exam_type': 'Imagem',
+    'status': 'solicitado',
+    'result_url': null,
+    'requested_by': null,
+    'requested_at': '2026-07-01T14:30:00.000Z',
+    'notes': '',
   },
 ];

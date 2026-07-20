@@ -16,7 +16,8 @@ class ProfessionalsNotifier extends StateNotifier<AsyncValue<List<Professional>>
           .from('professionals')
           .select('*, profiles!inner(name, phone)')
           .order('created_at', ascending: false);
-      final list = data.map((row) => Professional.fromJson(row)).toList();
+      final rows = List<Map<String, dynamic>>.from(data as List);
+      final list = rows.map((row) => Professional.fromJson(row)).toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

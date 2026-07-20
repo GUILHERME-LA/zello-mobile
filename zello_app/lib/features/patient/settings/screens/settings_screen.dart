@@ -11,14 +11,11 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _notifications = true;
-  bool _medicationReminders = true;
-  bool _shareData = false;
-
   void _showInfo(String title, String content) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
         child: Column(
@@ -46,25 +43,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: 8),
-              const SectionHeader(title: 'Preferências'),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: AnimatedCard(
-                  child: Column(
-                    children: [
-                      _buildSwitchTile(Icons.notifications_outlined, 'Notificações', 'Alertas de medicamentos e consultas',
-                          _notifications, (v) => setState(() => _notifications = v)),
-                      const Divider(height: 1),
-                      _buildSwitchTile(Icons.medication_outlined, 'Lembretes', 'Alertas para horários de medicação',
-                          _medicationReminders, (v) => setState(() => _medicationReminders = v)),
-                      const Divider(height: 1),
-                      _buildSwitchTile(Icons.share_outlined, 'Compartilhar Dados', 'Permitir uso anônimo para melhoria',
-                          _shareData, (v) => setState(() => _shareData = v)),
-                    ],
-                  ),
-                ),
-              ),
               const SizedBox(height: 8),
               const SectionHeader(title: 'Informações'),
               Padding(
@@ -115,33 +93,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1565C0), Color(0xFF0D47A1)]),
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
       ),
       child: Row(
         children: [
-          Container(width: 44, height: 44,
-            decoration: BoxDecoration(color: Colors.white.withAlpha(38), borderRadius: BorderRadius.circular(14)),
-            child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => context.pop())),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(38),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => context.pop(),
+            ),
+          ),
           const SizedBox(width: 14),
-          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Configurações', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
-            SizedBox(height: 2),
-            Text('Personalize sua experiência', style: TextStyle(color: Colors.white70, fontSize: 12)),
-          ]),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Configurações',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+              SizedBox(height: 2),
+              Text('Personalize sua experiência', style: TextStyle(color: Colors.white70, fontSize: 12)),
+            ],
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile(IconData icon, String title, String subtitle, bool value, ValueChanged<bool> onChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: SwitchListTile(
-        secondary: Icon(icon, size: 22, color: const Color(0xFF1565C0)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF1A1A2E))),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
-        value: value, onChanged: onChanged, activeColor: const Color(0xFF1565C0),
       ),
     );
   }

@@ -15,7 +15,8 @@ class AIRecommendationsNotifier extends StateNotifier<AsyncValue<List<AIRecommen
           .select()
           .eq('patient_id', patientId)
           .order('created_at', ascending: false);
-      final list = data.map((row) => AIRecommendation.fromJson(row)).toList();
+      final rows = List<Map<String, dynamic>>.from(data as List);
+      final list = rows.map((row) => AIRecommendation.fromJson(row)).toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

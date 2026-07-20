@@ -18,8 +18,8 @@ class _AddMedicationDialogState extends ConsumerState<AddMedicationDialog> {
   final _nameCtrl = TextEditingController();
   final _dosageCtrl = TextEditingController();
   final _frequencyCtrl = TextEditingController();
-  final _doctorCtrl = TextEditingController();
   final _observationsCtrl = TextEditingController();
+  String? _doctorName;
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isActive = true;
@@ -30,13 +30,22 @@ class _AddMedicationDialogState extends ConsumerState<AddMedicationDialog> {
     _nameCtrl.dispose();
     _dosageCtrl.dispose();
     _frequencyCtrl.dispose();
-    _doctorCtrl.dispose();
     _observationsCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final professionalsAsync = ref.watch(professionalsProvider);
+    final doctorItems = professionalsAsync.when(
+      data: (list) => list
+          .where((p) => p.name.isNotEmpty)
+          .map((p) => DropdownMenuItem<String>(
+              value: p.name, child: Text(p.name)))
+          .toList(),
+      loading: () => <DropdownMenuItem<String>>[],
+      error: (_, __) => <DropdownMenuItem<String>>[],
+    );
     return AlertDialog(
       title: const Text('Adicionar Medicação'),
       content: Form(
@@ -66,11 +75,12 @@ class _AddMedicationDialogState extends ConsumerState<AddMedicationDialog> {
                     labelText: 'Frequência', hintText: 'Ex: 8/8h'),
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _doctorCtrl,
+              DropdownButtonFormField<String>(
+                value: _doctorName,
                 decoration: const InputDecoration(
-                    labelText: 'Médico Prescritor',
-                    hintText: 'Dr(a). ...'),
+                    labelText: 'Médico Prescritor', hintText: 'Selecione'),
+                items: doctorItems,
+                onChanged: (v) => setState(() => _doctorName = v),
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -151,7 +161,7 @@ class _AddMedicationDialogState extends ConsumerState<AddMedicationDialog> {
         'name': _nameCtrl.text.trim(),
         'dosage': _dosageCtrl.text.trim(),
         'frequency': _frequencyCtrl.text.trim(),
-        'prescribing_doctor': _doctorCtrl.text.trim(),
+        'prescribing_doctor': _doctorName ?? '',
         'prescribed_by': widget.prescribedBy,
         'start_date': _startDate?.toIso8601String(),
         'end_date': _endDate?.toIso8601String(),

@@ -11,7 +11,8 @@ final patientSessionNotesProvider =
       .select()
       .eq('patient_id', patientId)
       .order('date', ascending: false);
-  return data.map((row) => SessionNote.fromJson(row)).toList();
+  final rows = List<Map<String, dynamic>>.from(data as List);
+  return rows.map((row) => SessionNote.fromJson(row)).toList();
 });
 
 class SessionNotesNotifier {

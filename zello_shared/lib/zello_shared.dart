@@ -1,4 +1,4 @@
-// Models
+﻿// Models
 export 'models/permission.dart';
 export 'models/user.dart';
 export 'models/patient.dart';
@@ -6,6 +6,7 @@ export 'models/conversation.dart';
 export 'models/message.dart';
 export 'models/medication.dart';
 export 'models/consultation.dart';
+export 'models/exam.dart';
 export 'models/therapy.dart';
 export 'models/treatment.dart';
 export 'models/anamnesis.dart';
@@ -31,7 +32,6 @@ export 'models/prontuario_import_result.dart';
 // Core
 export 'core/api/api_client.dart';
 export 'core/demo_data.dart';
-export 'core/ollama/ollama_service.dart';
 export 'core/supabase/supabase_config.dart';
 export 'core/theme/zello_theme.dart';
 export 'core/theme/zello_shadows.dart';
@@ -46,7 +46,8 @@ export 'providers/api_client_provider.dart';
 export 'providers/auth_provider.dart';
 export 'providers/supabase_client_provider.dart';
 export 'providers/conversations_provider.dart';
-export 'providers/messages_provider.dart';
+export 'providers/exams_provider.dart';
+export 'providers/conversation_messages_provider.dart';
 export 'providers/patients_provider.dart';
 export 'providers/medications_provider.dart';
 export 'providers/consultations_provider.dart';
@@ -58,7 +59,6 @@ export 'providers/agents_provider.dart';
 export 'providers/dashboard_provider.dart';
 export 'providers/patient_consultations_provider.dart';
 export 'providers/patient_medications_provider.dart';
-export 'providers/ollama_provider.dart';
 export 'providers/professionals_provider.dart';
 export 'providers/professional_availability_provider.dart';
 export 'providers/insurances_provider.dart';
