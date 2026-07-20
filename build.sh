@@ -12,8 +12,10 @@ if [ ! -d "$FLUTTER_DIR" ]; then
 fi
 export PATH="$FLUTTER_DIR/bin:$PATH"
 
+git config --global --add safe.directory /vercel/flutter
+git config --global --add safe.directory "$FLUTTER_DIR"
+
 flutter --version
-flutter pub global activate fvm || true
 
 echo "==> Build do zello_app (web release)"
 cd zello_app
