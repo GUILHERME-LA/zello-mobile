@@ -12,6 +12,7 @@ final anamnesisSaveProvider = FutureProvider.family<void, Map<String, dynamic>>(
   final api = ref.read(apiClientProvider);
   await api.saveAnamnesis(data);
   ref.invalidate(anamnesesProvider);
+  ref.invalidate(currentAnamnesisProvider);
 });
 
 final currentAnamnesisProvider = FutureProvider<Anamnesis?>((ref) async {
