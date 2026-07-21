@@ -132,7 +132,6 @@ class _InitialAnamnesisScreenState
           _alturaController.text.trim().replaceAll(',', '.'));
       await ref.read(anamnesisSaveProvider(
         {
-          'name': _nameController.text.trim(),
           'rg': _rgController.text.trim(),
           'cpf': _cpfController.text.trim(),
           'altura': altura,
