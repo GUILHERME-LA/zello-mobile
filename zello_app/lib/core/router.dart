@@ -14,7 +14,6 @@ import '../features/patient/treatments/screens/treatments_screen.dart';
 import '../features/patient/anamnesis/screens/initial_anamnesis_screen.dart';
 import '../features/patient/hospitals/screens/hospitals_screen.dart';
 import '../features/patient/profile/screens/profile_screen.dart';
-import '../features/patient/agenda/screens/agenda_screen.dart';
 import '../features/patient/convenio/screens/convenio_screen.dart';
 import '../features/patient/exams/screens/exams_screen.dart';
 import '../features/patient/convenio/screens/convenio_result_screen.dart';
@@ -57,10 +56,11 @@ final appRouter = GoRouter(
 
     if (location == '/anamnesis') return null;
 
-    final anamnesis = ProviderScope.containerOf(context).read(currentAnamnesisProvider);
-    final anamnesisValue = anamnesis.valueOrNull;
+    final anamnesisAsync = ProviderScope.containerOf(context).read(currentAnamnesisProvider);
+    if (!anamnesisAsync.hasValue) return null;
+    final anamnesisValue = anamnesisAsync.valueOrNull;
     if (anamnesisValue == null || !anamnesisValue.completed) {
-      if (location != '/anamnesis') return '/anamnesis';
+      return '/anamnesis';
     }
 
     return null;
@@ -130,10 +130,6 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/settings',
               pageBuilder: (context, state) => _slideFadePage(const SettingsScreen()),
-            ),
-            GoRoute(
-              path: '/agenda',
-              pageBuilder: (context, state) => _slideFadePage(const PatientAgendaScreen()),
             ),
           ],
         ),
