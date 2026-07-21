@@ -542,7 +542,7 @@ class ApiClient {
     return _tryOrDemoList(
       () async {
         dynamic query = _supabase.from('anamneses').select(
-            'id, date, professional, chief_complaint, history_present_illness, past_history, continuous_medication, allergies, habits, family_history, completed');
+            'id, date, professional, chief_complaint, history_present_illness, past_history, continuous_medication, allergies, habits, family_history, completed, rg, altura, has_depression, has_suicide_attempts, has_self_harm, mental_health_notes, allergies_details, surgeries_description, has_insurance, insurance_provider, insurance_plan, address_street, address_number, address_neighborhood, address_city, address_state, address_zip');
         if (_currentPatientId != null) {
           query.eq('patient_id', _currentPatientId);
         }
@@ -559,10 +559,49 @@ class ApiClient {
           'habits': row['habits'] ?? '',
           'familyHistory': row['family_history'] ?? '',
           'completed': row['completed'] ?? false,
+          'rg': row['rg'] ?? '',
+          'altura': row['altura'],
+          'has_depression': row['has_depression'] ?? false,
+          'has_suicide_attempts': row['has_suicide_attempts'] ?? false,
+          'has_self_harm': row['has_self_harm'] ?? false,
+          'mental_health_notes': row['mental_health_notes'] ?? '',
+          'allergies_details': row['allergies_details'] ?? '',
+          'surgeries_description': row['surgeries_description'] ?? '',
+          'has_insurance': row['has_insurance'] ?? false,
+          'insurance_provider': row['insurance_provider'] ?? '',
+          'insurance_plan': row['insurance_plan'] ?? '',
+          'address_street': row['address_street'] ?? '',
+          'address_number': row['address_number'] ?? '',
+          'address_neighborhood': row['address_neighborhood'] ?? '',
+          'address_city': row['address_city'] ?? '',
+          'address_state': row['address_state'] ?? '',
+          'address_zip': row['address_zip'] ?? '',
         }).toList();
       },
       demoAnamneses,
     );
+  }
+
+  Future<void> saveAnamnesis(Map<String, dynamic> data) async {
+    await _ensurePatientLoaded();
+    if (_currentPatientId == null) return;
+    final existing = await _supabase
+        .from('anamneses')
+        .select('id')
+        .eq('patient_id', _currentPatientId!)
+        .maybeSingle();
+    if (existing != null) {
+      await _supabase
+          .from('anamneses')
+          .update(data)
+          .eq('id', existing['id']);
+    } else {
+      await _supabase.from('anamneses').insert({
+        ...data,
+        'patient_id': _currentPatientId,
+        'date': DateTime.now().toIso8601String().split('T')[0],
+      });
+    }
   }
 
   // Send message

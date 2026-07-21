@@ -17,14 +17,14 @@ class PatientShell extends ConsumerWidget {
         label: 'Início',
       ),
       NavigationDestination(
-        icon: Icon(LucideIcons.calendar),
-        selectedIcon: Icon(LucideIcons.calendar),
-        label: 'Agenda',
-      ),
-      NavigationDestination(
         icon: Icon(LucideIcons.fileText),
         selectedIcon: Icon(LucideIcons.fileText),
         label: 'Prontuário',
+      ),
+      NavigationDestination(
+        icon: Icon(LucideIcons.bot),
+        selectedIcon: Icon(LucideIcons.bot),
+        label: 'Olga',
       ),
       NavigationDestination(
         icon: Icon(LucideIcons.user),

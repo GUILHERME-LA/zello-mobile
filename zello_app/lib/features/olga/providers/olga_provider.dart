@@ -1,18 +1,16 @@
 import 'dart:convert';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:zello_shared/zello_shared.dart';
 
-/// Mensagem do chat local (não persiste; o resultado é salvo em ai_hub).
-class AiMessage {
+class OlgaMessage {
   final String id;
   final bool isUser;
   final String content;
   final DateTime timestamp;
 
-  AiMessage({
+  OlgaMessage({
     required this.id,
     required this.isUser,
     required this.content,
@@ -20,8 +18,7 @@ class AiMessage {
   });
 }
 
-/// Registro persistido no banco (ai_hub) para visualização posterior.
-class AiHubRecord {
+class OlgaRecord {
   final String id;
   final String kind;
   final String inputText;
@@ -29,7 +26,7 @@ class AiHubRecord {
   final String aiReply;
   final DateTime createdAt;
 
-  AiHubRecord({
+  OlgaRecord({
     required this.id,
     required this.kind,
     required this.inputText,
@@ -38,8 +35,8 @@ class AiHubRecord {
     required this.createdAt,
   });
 
-  factory AiHubRecord.fromJson(Map<String, dynamic> json) {
-    return AiHubRecord(
+  factory OlgaRecord.fromJson(Map<String, dynamic> json) {
+    return OlgaRecord(
       id: json['id'] as String? ?? '',
       kind: json['kind'] as String? ?? 'qa',
       inputText: json['input_text'] as String? ?? '',
@@ -55,34 +52,34 @@ class AiHubRecord {
     switch (kind) {
       case 'exam':
         return 'Análise de exame';
-      case 'plan':
-        return 'Análise de plano';
+      case 'doctor':
+        return 'Recomendação médica';
       default:
         return 'Pergunta';
     }
   }
 }
 
-class AiHubState {
+class OlgaState {
   final bool isLoading;
-  final List<AiMessage> messages;
-  final List<AiHubRecord> history;
+  final List<OlgaMessage> messages;
+  final List<OlgaRecord> history;
   final String? error;
 
-  const AiHubState({
+  const OlgaState({
     this.isLoading = false,
     this.messages = const [],
     this.history = const [],
     this.error,
   });
 
-  AiHubState copyWith({
+  OlgaState copyWith({
     bool? isLoading,
-    List<AiMessage>? messages,
-    List<AiHubRecord>? history,
+    List<OlgaMessage>? messages,
+    List<OlgaRecord>? history,
     String? error,
   }) {
-    return AiHubState(
+    return OlgaState(
       isLoading: isLoading ?? this.isLoading,
       messages: messages ?? this.messages,
       history: history ?? this.history,
@@ -91,26 +88,20 @@ class AiHubState {
   }
 }
 
-class AiHubNotifier extends StateNotifier<AiHubState> {
+class OlgaNotifier extends StateNotifier<OlgaState> {
   final SupabaseClient _supabase;
-  final String _role;
+  final Ref _ref;
 
-  AiHubNotifier(this._supabase, this._role) : super(const AiHubState());
+  OlgaNotifier(this._supabase, this._ref) : super(const OlgaState());
 
   String _mimeFromName(String name) {
     final ext = name.split('.').last.toLowerCase();
     switch (ext) {
-      case 'png':
-        return 'image/png';
-      case 'jpg':
-      case 'jpeg':
-        return 'image/jpeg';
-      case 'webp':
-        return 'image/webp';
-      case 'pdf':
-        return 'application/pdf';
-      default:
-        return 'application/octet-stream';
+      case 'png': return 'image/png';
+      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'webp': return 'image/webp';
+      case 'pdf': return 'application/pdf';
+      default: return 'application/octet-stream';
     }
   }
 
@@ -125,27 +116,68 @@ class AiHubNotifier extends StateNotifier<AiHubState> {
     return data?['id'] as String?;
   }
 
-  /// Envia uma mensagem (texto e/ou arquivo) para a Edge Function chat-qa.
+  Future<String> _buildPatientContext() async {
+    final patientId = await _currentPatientId();
+    if (patientId == null) return '';
+
+    final buf = StringBuffer();
+
+    final anamnese = await _supabase
+        .from('anamneses')
+        .select()
+        .eq('patient_id', patientId)
+        .order('date', ascending: false)
+        .limit(1)
+        .maybeSingle();
+    if (anamnese != null) {
+      buf.writeln('DADOS DO PACIENTE:');
+      if (anamnese['rg'] != null) buf.writeln('RG: ${anamnese['rg']}');
+      if (anamnese['altura'] != null) buf.writeln('Altura: ${anamnese['altura']}m');
+      if (anamnese['surgeries_description'] != null && (anamnese['surgeries_description'] as String).isNotEmpty) {
+        buf.writeln('Cirurgias: ${anamnese['surgeries_description']}');
+      }
+      if (anamnese['allergies_details'] != null && (anamnese['allergies_details'] as String).isNotEmpty) {
+        buf.writeln('Alergias: ${anamnese['allergies_details']}');
+      }
+      if (anamnese['has_depression'] == true) buf.writeln('Diagnóstico de depressão: Sim');
+      if (anamnese['has_suicide_attempts'] == true) buf.writeln('Tentativas de suicídio: Sim');
+      if (anamnese['has_self_harm'] == true) buf.writeln('Automutilação: Sim');
+      if (anamnese['has_insurance'] == true) {
+        buf.writeln('Plano de saúde: ${anamnese['insurance_provider']} / ${anamnese['insurance_plan']}');
+      } else {
+        buf.writeln('Sem plano de saúde.');
+        if (anamnese['address_city'] != null) {
+          buf.writeln('Endereço: ${anamnese['address_street']}, ${anamnese['address_number']} - ${anamnese['address_neighborhood']}, ${anamnese['address_city']}/${anamnese['address_state']} - CEP: ${anamnese['address_zip']}');
+        }
+      }
+    }
+
+    final medications = await _supabase
+        .from('medications')
+        .select('name, dosage, frequency')
+        .eq('patient_id', patientId);
+    if (medications.isNotEmpty) {
+      buf.writeln('MEDICAÇÕES:');
+      for (final m in medications) {
+        buf.writeln('- ${m['name']} ${m['dosage'] ?? ''} ${m['frequency'] ?? ''}');
+      }
+    }
+
+    return buf.toString();
+  }
+
   Future<void> sendMessage({
     required String text,
     PlatformFile? file,
-    required String kind,
-    Map<String, dynamic>? planContext,
   }) async {
-    final userMsg = AiMessage(
+    final userMsg = OlgaMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       isUser: true,
-      content: text.isNotEmpty
-          ? text
-          : (file != null ? '📎 ${file.name}' : ''),
+      content: text.isNotEmpty ? text : (file != null ? '📎 ${file.name}' : ''),
       timestamp: DateTime.now(),
     );
 
-    state = state.copyWith(
-      isLoading: true,
-      error: null,
-      messages: [...state.messages, userMsg],
-    );
+    state = state.copyWith(isLoading: true, error: null, messages: [...state.messages, userMsg]);
 
     try {
       String? fileData;
@@ -156,6 +188,8 @@ class AiHubNotifier extends StateNotifier<AiHubState> {
         fileMime = _mimeFromName(file.name);
         fileMeta = {'name': file.name, 'mime': fileMime};
       }
+
+      final patientContext = await _buildPatientContext();
 
       final history = state.messages
           .where((m) => m.id != userMsg.id)
@@ -172,8 +206,8 @@ class AiHubNotifier extends StateNotifier<AiHubState> {
             ...history,
             {'role': 'user', 'content': text},
           ],
-          'kind': kind,
-          if (planContext != null) 'planContext': planContext,
+          'kind': 'olga',
+          'patientContext': patientContext,
           if (fileData != null)
             'file': {'name': file?.name, 'mime': fileMime, 'data': fileData},
         },
@@ -185,66 +219,22 @@ class AiHubNotifier extends StateNotifier<AiHubState> {
       }
 
       final reply = data['reply'] as String? ?? '';
-      final assistantMsg = AiMessage(
+      final assistantMsg = OlgaMessage(
         id: '${DateTime.now().millisecondsSinceEpoch}-a',
         isUser: false,
         content: reply,
         timestamp: DateTime.now(),
       );
 
-      state = state.copyWith(
-        isLoading: false,
-        messages: [...state.messages, assistantMsg],
-      );
+      state = state.copyWith(isLoading: false, messages: [...state.messages, assistantMsg]);
 
-      await _saveToHistory(
-        kind: kind,
-        inputText: userMsg.content,
-        fileMeta: fileMeta,
-        aiReply: reply,
-      );
+      await _saveToHistory(inputText: userMsg.content, fileMeta: fileMeta, aiReply: reply);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Erro ao falar com a IA: ${e.toString()}',
-      );
+      state = state.copyWith(isLoading: false, error: 'Erro ao falar com a Olga: ${e.toString()}');
     }
-  }
-
-  /// Atalho: analisa o convênio (plano de saúde) do paciente logado.
-  Future<void> analyzePlan() async {
-    final patientId = await _currentPatientId();
-    List<Map<String, dynamic>> plans = [];
-    if (patientId != null) {
-      final rows = await _supabase
-          .from('insurances')
-          .select('provider, plan_name, plan_type, card_number, is_active')
-          .eq('patient_id', patientId);
-      plans = (rows as List)
-          .map((r) => {
-                'operadora': r['provider'],
-                'plano': r['plan_name'],
-                'tipo': r['plan_type'],
-                'carteirinha': r['card_number'],
-                'ativo': r['is_active'],
-              })
-          .toList();
-    }
-
-    final contextText = plans.isNotEmpty
-        ? 'Planos de saúde do usuário:\n${plans.map((p) => '- ${p['operadora']} / ${p['plano']} (${p['tipo']})').join('\n')}'
-        : 'O usuário ainda não cadastrou um convênio no app.';
-
-    await sendMessage(
-      text: 'Por favor, analise o meu plano de saúde e me explique a cobertura, '
-          'a rede credenciada e como aproveitá-lo melhor.\n\n$contextText',
-      kind: 'plan',
-      planContext: {'plans': plans},
-    );
   }
 
   Future<void> _saveToHistory({
-    required String kind,
     required String inputText,
     Map<String, dynamic>? fileMeta,
     required String aiReply,
@@ -254,15 +244,13 @@ class AiHubNotifier extends StateNotifier<AiHubState> {
       if (userId == null) return;
       await _supabase.from('ai_hub').insert({
         'owner_id': userId,
-        'role': _role,
-        'kind': kind,
+        'role': 'patient',
+        'kind': 'olga',
         'input_text': inputText,
         if (fileMeta != null) 'file_meta': fileMeta,
         'ai_reply': aiReply,
       });
-    } catch (_) {
-      // Falha ao salvar não deve bloquear a exibição da resposta.
-    }
+    } catch (_) {}
   }
 
   Future<void> loadHistory() async {
@@ -274,19 +262,14 @@ class AiHubNotifier extends StateNotifier<AiHubState> {
           .select()
           .eq('owner_id', userId)
           .order('created_at', ascending: false);
-      final records =
-          (rows as List).map((r) => AiHubRecord.fromJson(r)).toList();
+      final records = (rows as List).map((r) => OlgaRecord.fromJson(r)).toList();
       state = state.copyWith(history: records);
-    } catch (_) {
-      // ignora erros de histórico
-    }
+    } catch (_) {}
   }
 
   void clearError() => state = state.copyWith(error: null);
 }
 
-final aiHubProvider =
-    StateNotifierProvider<AiHubNotifier, AiHubState>((ref) {
-  final role = ref.read(authProvider).user?.role.name ?? 'patient';
-  return AiHubNotifier(Supabase.instance.client, role);
+final olgaProvider = StateNotifierProvider<OlgaNotifier, OlgaState>((ref) {
+  return OlgaNotifier(Supabase.instance.client, ref);
 });

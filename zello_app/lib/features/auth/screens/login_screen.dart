@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
 
-enum LoginRole { patient, professional }
-
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,7 +16,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  LoginRole _selectedRole = LoginRole.patient;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
@@ -62,15 +59,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isLoading = authState.status == ZelloAuthStatus.loading;
-    final isProfessional = _selectedRole == LoginRole.professional;
 
     ref.listen<ZelloAuthState>(authProvider, (prev, next) {
       if (next.status == ZelloAuthStatus.authenticated) {
-        final isAdminOrProf =
-            next.user?.isAdmin == true || next.user?.isProfessional == true;
-        if (mounted) {
-          context.go(isAdminOrProf ? '/admin/dashboard' : '/home');
-        }
+        if (mounted) context.go('/home');
       } else if (next.status == ZelloAuthStatus.error && next.error != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +96,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Avatar
                         Container(
                           width: 88,
                           height: 88,
@@ -113,10 +104,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             shape: BoxShape.circle,
                             boxShadow: ZelloShadows.accent(ZelloColors.primary),
                           ),
-                          child: Icon(
-                            isProfessional
-                                ? Icons.admin_panel_settings
-                                : Icons.local_hospital,
+                          child: const Icon(
+                            Icons.local_hospital,
                             color: Colors.white,
                             size: 44,
                           ),
@@ -132,123 +121,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          isProfessional
-                              ? 'Painel Administrativo'
-                              : 'Acesse sua conta',
+                        const Text(
+                          'Acesse sua conta',
                           style: TextStyle(
                             fontSize: 14,
                             color: ZelloColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 24),
-
-                        // Role toggle
-                        Container(
-                          decoration: BoxDecoration(
-                            color: ZelloColors.surfaceLighter,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.all(4),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setState(
-                                      () => _selectedRole = LoginRole.patient),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 250),
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: !isProfessional
-                                          ? Colors.white
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(28),
-                                      boxShadow: !isProfessional
-                                          ? ZelloShadows.xs
-                                          : null,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.person,
-                                          size: 18,
-                                          color: !isProfessional
-                                              ? ZelloColors.primary
-                                              : ZelloColors.textTertiary,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Paciente',
-                                          style: TextStyle(
-                                            fontWeight: !isProfessional
-                                                ? FontWeight.w600
-                                                : FontWeight.w400,
-                                            color: !isProfessional
-                                                ? ZelloColors.primary
-                                                : ZelloColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setState(() =>
-                                      _selectedRole = LoginRole.professional),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 250),
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: isProfessional
-                                          ? Colors.white
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(28),
-                                      boxShadow: isProfessional
-                                          ? ZelloShadows.xs
-                                          : null,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.medical_services,
-                                          size: 18,
-                                          color: isProfessional
-                                              ? ZelloColors.primary
-                                              : ZelloColors.textTertiary,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Profissional',
-                                          style: TextStyle(
-                                            fontWeight: isProfessional
-                                                ? FontWeight.w600
-                                                : FontWeight.w400,
-                                            color: isProfessional
-                                                ? ZelloColors.primary
-                                                : ZelloColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        // Email field
+                        const SizedBox(height: 32),
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -265,8 +145,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Password field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
@@ -285,8 +163,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               v == null || v.isEmpty ? 'Informe sua senha' : null,
                         ),
                         const SizedBox(height: 4),
-
-                        // Forgot password
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -301,26 +177,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             ),
                           ),
                         ),
-
-                        // Sign up link (only for patient)
-                        if (!isProfessional) ...[
-                          const SizedBox(height: 4),
-                          Center(
-                            child: TextButton(
-                              onPressed: () => context.go('/signup'),
-                              child: const Text(
-                                'Criar conta',
-                                style: TextStyle(
-                                  color: ZelloColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
+                        const SizedBox(height: 4),
+                        Center(
+                          child: TextButton(
+                            onPressed: () => context.go('/signup'),
+                            child: const Text(
+                              'Criar conta',
+                              style: TextStyle(
+                                color: ZelloColors.primary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
                               ),
                             ),
                           ),
-                        ],
-
-                        // Error message
+                        ),
                         if (authState.status == ZelloAuthStatus.error)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
@@ -333,10 +203,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               textAlign: TextAlign.center,
                             ),
                           ),
-
                         const SizedBox(height: 8),
-
-                        // Login button
                         SizedBox(
                           width: double.infinity,
                           height: 52,
@@ -368,16 +235,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   ),
                           ),
                         ),
-
                         const SizedBox(height: 16),
                         Text(
                           'Ao entrar, você concorda com nossos Termos de Uso.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: ZelloColors.textTertiary,
-                            ),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: ZelloColors.textTertiary,
                           ),
+                        ),
                       ],
                     ),
                   ),

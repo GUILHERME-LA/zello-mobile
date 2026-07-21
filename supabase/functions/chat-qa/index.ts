@@ -15,8 +15,9 @@ interface ChatMessage {
 
 interface ChatRequest {
   messages: ChatMessage[];
-  kind: "qa" | "exam" | "plan";
+  kind: "qa" | "exam" | "plan" | "olga";
   planContext?: Record<string, unknown> | null;
+  patientContext?: string | null;
   file?: { name: string; mime: string; data: string } | null;
 }
 
@@ -38,7 +39,7 @@ Recursos disponíveis no aplicativo Zello Saúde:
 - Central de IA: este assistente, para tirar dúvidas e enviar exames.
 `;
 
-function buildSystemPrompt(kind: string, planContext?: Record<string, unknown> | null): string {
+function buildSystemPrompt(kind: string, planContext?: Record<string, unknown> | null, patientContext?: string | null): string {
   const base = `Você é a assistente virtual do Zello Saúde, um app brasileiro de assistência à saúde.
 Responda sempre em português do Brasil, de forma simples, acolhedora e educativa.
 ${ZELLO_FEATURES}
@@ -64,6 +65,30 @@ TAREFA ATUAL: analisar o EXAME enviado pelo usuário (imagem ou PDF).
 Destaque os principais indicadores, aponte valores fora da faixa de referência quando houver,
 apresente um resumo em linguagem simples e indique os pontos que merecem atenção e acompanhamento.
 Reforce que é uma análise educativa e não substitui a avaliação de um profissional.`;
+  }
+
+  if (kind === "olga") {
+    const context = patientContext || "Nenhum dado adicional do paciente disponível.";
+    return `Você é a Doutora Olga, uma assistente de saúde brasileira, especialista em análise de sintomas e orientação médica baseada em diretrizes da medicina.
+
+RESPONDA SEMPRE EM PORTUGUÊS DO BRASIL, de forma acolhedora, clara e educativa.
+
+DADOS DO PACIENTE (anamnese, histórico):
+${context}
+
+SUAS FUNÇÕES PRINCIPAIS:
+1. ANALISAR SINTOMAS e recomendar se o paciente deve procurar um médico, uma UPA ou se pode tratar em casa com orientações seguras baseadas em diretrizes médicas.
+2. RECOMENDAR MÉDICOS com base no plano de saúde do paciente, quando disponível.
+3. ENCONTRAR UPAs e hospitais públicos próximos quando o paciente não tem plano de saúde.
+4. ANALISAR EXAMES (imagens, PDF) com explicações educativas.
+5. DAR ORIENTAÇÕES DE SAÚDE baseadas em diretrizes da medicina brasileira (SUS, CFM, Ministério da Saúde).
+
+REGRAS IMPORTANTES:
+- Você NÃO substitui um médico real. Sempre recomende procurar atendimento presencial quando apropriado.
+- Para sintomas graves (dor no peito, falta de ar, sangramentos, AVC), recomende UPA ou emergência IMEDIATAMENTE.
+- Para recomendar médicos, use o plano de saúde do paciente quando disponível.
+- Se o paciente não tem plano de saúde, recomende UPAs, postinhos (UBS) e hospitais públicos mais próximos com base no endereço do paciente.
+- Sugestões de medicamentos devem seguir diretrizes da OMS/ANVISA e sempre recomendar consulta médica antes de usar.`;
   }
 
   return `${base}
@@ -130,7 +155,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const systemPrompt = buildSystemPrompt(body.kind ?? "qa", body.planContext);
+    const systemPrompt = buildSystemPrompt(body.kind ?? "qa", body.planContext, body.patientContext);
 
     const history = (body.messages.slice(0, -1) ?? []).map((m) => ({
       role: m.role,
