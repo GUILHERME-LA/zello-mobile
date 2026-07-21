@@ -36,6 +36,11 @@ Thumbs.db
 # Temp / scratch
 test_app/
 supabase/.temp/
+analyze*.txt
+build_web*.txt
+run_web.txt
+DOCUMENTACAO.html
+DOCUMENTACAO_COMPLETA.md
 
 # Secrets and environment files
 .env
@@ -49,3 +54,5 @@ supabase/.temp/
 .flutter_tool_state
 **/.flutter/
 **/.flutter_tool_state/
+.vercel
+.env*
