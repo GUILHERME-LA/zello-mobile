@@ -170,7 +170,7 @@ class _OlgaScreenState extends ConsumerState<OlgaScreen> {
                 },
               ),
               _Chip(
-                icon: LucideIcons.hospital,
+                icon: LucideIcons.mapPin,
                 label: 'Hospitais próximos',
                 onTap: () {
                   _controller.text = 'Encontre hospitais ou UPAs próximos a mim.';

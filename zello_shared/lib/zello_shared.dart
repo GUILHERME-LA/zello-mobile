@@ -9,12 +9,15 @@ export 'models/treatment.dart';
 export 'models/anamnesis.dart';
 export 'models/hospital.dart';
 export 'models/insurance.dart';
+export 'models/professional.dart';
+export 'models/professional_availability.dart';
 export 'models/surgery.dart';
 export 'models/hospitalization.dart';
 export 'models/symptom.dart';
 export 'models/allergy.dart';
 export 'models/vaccine.dart';
 export 'models/health_profile.dart';
+export 'models/ai_analysis_result.dart';
 export 'models/prontuario_analysis_result.dart';
 export 'models/prontuario_import_result.dart';
 
@@ -42,6 +45,11 @@ export 'providers/treatments_provider.dart';
 export 'providers/anamneses_provider.dart';
 export 'providers/hospitals_provider.dart';
 export 'providers/insurances_provider.dart';
+export 'providers/ai_analysis_provider.dart';
+export 'providers/professionals_provider.dart';
+export 'providers/professional_availability_provider.dart';
+export 'providers/filtered_professionals_provider.dart';
+export 'providers/patient_health_provider.dart';
 export 'providers/prontuario_analysis_provider.dart';
 export 'providers/prontuario_import_provider.dart';
 

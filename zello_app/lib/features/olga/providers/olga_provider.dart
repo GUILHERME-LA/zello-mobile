@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:zello_shared/zello_shared.dart';
 
 class OlgaMessage {
   final String id;
