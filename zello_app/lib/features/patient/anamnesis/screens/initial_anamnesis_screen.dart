@@ -40,6 +40,9 @@ class _InitialAnamnesisScreenState
   bool _hasSelfHarm = false;
   bool _hasInsurance = false;
   bool _isSaving = false;
+  bool _isEditing = false;
+
+  Anamnesis? _existingAnamnesis;
 
   final _steps = [
     'Dados Pessoais',
@@ -52,12 +55,45 @@ class _InitialAnamnesisScreenState
   @override
   void initState() {
     super.initState();
-    _prefillData();
+    _loadExistingData();
   }
 
-  void _prefillData() {
-    final auth = ref.read(authProvider);
-    _nameController.text = auth.user?.name ?? '';
+  Future<void> _loadExistingData() async {
+    final anamneses = await ref.read(anamnesesProvider.future);
+    if (anamneses.isNotEmpty) {
+      final anamnesis = anamneses.first;
+      if (anamnesis.completed) {
+        setState(() {
+          _existingAnamnesis = anamnesis;
+          _isEditing = false;
+        });
+        _prefillFromAnamnesis(anamnesis);
+      }
+    }
+  }
+
+  void _prefillFromAnamnesis(Anamnesis a) {
+    _nameController.text = a.professional.isNotEmpty ? a.professional : (ref.read(authProvider).user?.name ?? '');
+    _rgController.text = a.rg;
+    _cpfController.text = a.cpf;
+    _alturaController.text = a.altura != null ? a.altura!.toStringAsFixed(2).replaceAll('.', ',') : '';
+    _hasSurgeries = a.surgeriesDescription.isNotEmpty;
+    _surgeriesController.text = a.surgeriesDescription;
+    _hasAllergies = a.allergiesDetails.isNotEmpty;
+    _allergiesController.text = a.allergiesDetails;
+    _hasDepression = a.hasDepression;
+    _hasSuicideAttempts = a.hasSuicideAttempts;
+    _hasSelfHarm = a.hasSelfHarm;
+    _mentalNotesController.text = a.mentalHealthNotes;
+    _hasInsurance = a.hasInsurance;
+    _insuranceProviderController.text = a.insuranceProvider;
+    _insurancePlanController.text = a.insurancePlan;
+    _streetController.text = a.addressStreet;
+    _numberController.text = a.addressNumber;
+    _neighborhoodController.text = a.addressNeighborhood;
+    _cityController.text = a.addressCity;
+    _stateController.text = a.addressState;
+    _zipController.text = a.addressZip;
   }
 
   @override
@@ -176,6 +212,203 @@ class _InitialAnamnesisScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (_existingAnamnesis != null && !_isEditing) {
+      return _buildSummaryView();
+    }
+    return _buildFormView();
+  }
+
+  Widget _buildSummaryView() {
+    final a = _existingAnamnesis!;
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildSummaryHeader(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    _SummarySection(
+                      icon: LucideIcons.user,
+                      title: 'Dados Pessoais',
+                      children: [
+                        _SummaryRow(label: 'Nome', value: _nameController.text.isNotEmpty ? _nameController.text : a.professional),
+                        _SummaryRow(label: 'RG', value: a.rg.isNotEmpty ? a.rg : '—'),
+                        _SummaryRow(label: 'CPF', value: a.cpf.isNotEmpty ? a.cpf : '—'),
+                        _SummaryRow(label: 'Altura', value: a.altura != null ? '${a.altura!.toStringAsFixed(2)} m' : '—'),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _SummarySection(
+                      icon: LucideIcons.scissors,
+                      title: 'Cirurgias',
+                      children: [
+                        _SummaryRow(
+                          label: 'Já realizou cirurgias?',
+                          value: a.surgeriesDescription.isNotEmpty ? 'Sim' : 'Não',
+                        ),
+                        if (a.surgeriesDescription.isNotEmpty)
+                          _SummaryRow(label: 'Detalhes', value: a.surgeriesDescription),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _SummarySection(
+                      icon: LucideIcons.shieldAlert,
+                      title: 'Alergias',
+                      children: [
+                        _SummaryRow(
+                          label: 'Possui alergias?',
+                          value: a.allergiesDetails.isNotEmpty ? 'Sim' : 'Não',
+                        ),
+                        if (a.allergiesDetails.isNotEmpty)
+                          _SummaryRow(label: 'Detalhes', value: a.allergiesDetails),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _SummarySection(
+                      icon: LucideIcons.brain,
+                      title: 'Saúde Mental',
+                      children: [
+                        _SummaryRow(label: 'Depressão', value: a.hasDepression ? 'Sim' : 'Não'),
+                        _SummaryRow(label: 'Tentativa de suicídio', value: a.hasSuicideAttempts ? 'Sim' : 'Não'),
+                        _SummaryRow(label: 'Automutilação', value: a.hasSelfHarm ? 'Sim' : 'Não'),
+                        if (a.mentalHealthNotes.isNotEmpty)
+                          _SummaryRow(label: 'Observações', value: a.mentalHealthNotes),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _SummarySection(
+                      icon: LucideIcons.heart,
+                      title: 'Plano de Saúde',
+                      children: [
+                        _SummaryRow(
+                          label: 'Tipo',
+                          value: a.hasInsurance ? 'Plano de saúde' : 'Sem plano',
+                        ),
+                        if (a.hasInsurance) ...[
+                          _SummaryRow(label: 'Operadora', value: a.insuranceProvider.isNotEmpty ? a.insuranceProvider : '—'),
+                          _SummaryRow(label: 'Plano', value: a.insurancePlan.isNotEmpty ? a.insurancePlan : '—'),
+                        ] else ...[
+                          if (a.addressStreet.isNotEmpty)
+                            _SummaryRow(label: 'Endereço', value: '${a.addressStreet}${a.addressNumber.isNotEmpty ? ', ${a.addressNumber}' : ''}'),
+                          if (a.addressNeighborhood.isNotEmpty)
+                            _SummaryRow(label: 'Bairro', value: a.addressNeighborhood),
+                          if (a.addressCity.isNotEmpty)
+                            _SummaryRow(label: 'Cidade', value: '${a.addressCity}${a.addressState.isNotEmpty ? ' - ${a.addressState}' : ''}'),
+                          if (a.addressZip.isNotEmpty)
+                            _SummaryRow(label: 'CEP', value: a.addressZip),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryHeader() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(30),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LucideIcons.clipboardList,
+                    color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Minha Anamnese',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20)),
+                    Text('Dados preenchidos com sucesso',
+                        style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withAlpha(40),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(LucideIcons.checkCircle,
+                    color: Colors.greenAccent, size: 22),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.go('/home'),
+                  icon: const Icon(LucideIcons.arrowLeft, size: 18),
+                  label: const Text('Voltar'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white38),
+                    minimumSize: const Size(0, 44),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() => _isEditing = true);
+                    _pageController.jumpToPage(0);
+                  },
+                  icon: const Icon(LucideIcons.pencil, size: 18),
+                  label: const Text('Editar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF1565C0),
+                    minimumSize: const Size(0, 44),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormView() {
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -221,6 +454,13 @@ class _InitialAnamnesisScreenState
           const SizedBox(height: 8),
           Row(
             children: [
+              if (_existingAnamnesis != null)
+                IconButton(
+                  onPressed: () {
+                    setState(() => _isEditing = false);
+                  },
+                  icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+                ),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -231,16 +471,18 @@ class _InitialAnamnesisScreenState
                     color: Colors.white, size: 24),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Bem-vindo ao Zello',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 20)),
-                    Text('Preencha seus dados para começar',
+                    Text(
+                      _existingAnamnesis != null ? 'Editar Anamnese' : 'Bem-vindo ao Zello',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20),
+                    ),
+                    const Text('Preencha seus dados para começar',
                         style: TextStyle(color: Colors.white70, fontSize: 13)),
                   ],
                 ),
@@ -619,6 +861,94 @@ class _InitialAnamnesisScreenState
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SummarySection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final List<Widget> children;
+
+  const _SummarySection({
+    required this.icon,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1565C0).withAlpha(20),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: const Color(0xFF1565C0), size: 18),
+              ),
+              const SizedBox(width: 12),
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 15)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _SummaryRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(label,
+                style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500)),
+          ),
+          Expanded(
+            child: Text(value,
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600)),
+          ),
         ],
       ),
     );

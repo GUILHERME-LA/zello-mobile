@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
+import 'package:zello_shared/providers/dose_history_provider.dart';
 
 class MedicationsScreen extends ConsumerStatefulWidget {
   const MedicationsScreen({super.key});
@@ -11,78 +13,80 @@ class MedicationsScreen extends ConsumerStatefulWidget {
 }
 
 class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
-  final Set<String> _takenIds = {};
   bool _showActive = true;
-
-  void _toggleTaken(String id) {
-    setState(() {
-      if (_takenIds.contains(id)) {
-        _takenIds.remove(id);
-      } else {
-        _takenIds.add(id);
-      }
-    });
-  }
 
   void _showMedicationDetail(Medication med) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, scrollCtrl) => SingleChildScrollView(
+          controller: scrollCtrl,
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  width: 48, height: 48,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Container(
+                    width: 48, height: 48,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(14)),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    child: const Icon(LucideIcons.pill, color: Colors.white, size: 24),
                   ),
-                  child: const Icon(Icons.medication, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(med.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A1A2E))),
-                      Text(med.dosage, style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
-                    ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(med.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A1A2E))),
+                        Text(med.dosage, style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _detailRow('Frequência', med.frequency),
-            const SizedBox(height: 12),
-            _detailRow('Médico', med.prescribingDoctor),
-            const SizedBox(height: 12),
-            _detailRow('Início', med.startDate != null ? Formatters.formatDate(med.startDate!) : 'Data não informada'),
-            if (med.endDate != null) ...[
+                ],
+              ),
+              const SizedBox(height: 24),
+              _detailRow('Frequência', med.frequency),
               const SizedBox(height: 12),
-              _detailRow('Término', Formatters.formatDate(med.endDate!)),
+              _detailRow('Médico', med.prescribingDoctor),
+              const SizedBox(height: 12),
+              _detailRow('Início', med.startDate != null ? Formatters.formatDate(med.startDate!) : 'Data não informada'),
+              if (med.endDate != null) ...[
+                const SizedBox(height: 12),
+                _detailRow('Término', Formatters.formatDate(med.endDate!)),
+              ],
+              const SizedBox(height: 12),
+              _detailRow('Status', med.isActive ? 'Ativo' : 'Inativo'),
+              if (med.isActive) ...[
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                _DoseSection(medication: med),
+              ],
             ],
-            const SizedBox(height: 12),
-            _detailRow('Status', med.isActive ? 'Ativo' : 'Inativo'),
-          ],
+          ),
         ),
       ),
     );
@@ -161,12 +165,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                               children: displayedMeds.map((m) => Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: _MedicationCard(
-                                  name: m.name,
-                                  dosage: m.dosage,
-                                  doctor: m.prescribingDoctor,
-                                  isActive: m.isActive,
-                                  isTaken: _takenIds.contains(m.id),
-                                  onToggle: m.isActive ? () => _toggleTaken(m.id) : null,
+                                  medication: m,
                                   onTap: () => _showMedicationDetail(m),
                                 ),
                               )).toList(),
@@ -226,7 +225,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
               onPressed: () => context.pop(),
             ),
           ),
@@ -246,73 +245,265 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
 }
 
 class _MedicationCard extends StatelessWidget {
-  final String name;
-  final String dosage;
-  final String doctor;
-  final bool isActive;
-  final bool isTaken;
-  final VoidCallback? onToggle;
+  final Medication medication;
   final VoidCallback? onTap;
 
   const _MedicationCard({
-    required this.name, required this.dosage,
-    this.doctor = '',
-    required this.isActive, required this.isTaken,
-    this.onToggle, this.onTap,
+    required this.medication,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = isTaken ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final isActive = medication.isActive;
     return AnimatedCard(
       onTap: onTap,
       child: Row(
         children: [
           Container(
             width: 52, height: 52,
-            decoration: BoxDecoration(color: color.withAlpha(25), borderRadius: BorderRadius.circular(14)),
-            child: Icon(Icons.medication, color: color, size: 26),
+            decoration: BoxDecoration(
+              color: (isActive ? const Color(0xFF1565C0) : const Color(0xFF6B7280)).withAlpha(25),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(LucideIcons.pill,
+                color: isActive ? const Color(0xFF1565C0) : const Color(0xFF6B7280),
+                size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF1A1A2E))),
+                Text(medication.name,
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF1A1A2E))),
                 const SizedBox(height: 2),
-                Text(dosage, style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
-                if (doctor.isNotEmpty) ...[
+                Text(medication.dosage,
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                if (medication.prescribingDoctor.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text('Dr(a). $doctor', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                  Text('Dr(a). ${medication.prescribingDoctor}',
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                 ],
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(isTaken ? Icons.check_circle : Icons.access_time, size: 14, color: color),
+                    Icon(isActive ? LucideIcons.clock : LucideIcons.checkCircle,
+                        size: 14,
+                        color: isActive ? const Color(0xFFF59E0B) : const Color(0xFF6B7280)),
                     const SizedBox(width: 4),
-                    Text(isTaken ? 'Tomado' : isActive ? 'Pendente' : 'Inativo',
-                        style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+                    Text(isActive ? 'Ativo' : 'Inativo',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: isActive ? const Color(0xFFF59E0B) : const Color(0xFF6B7280),
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],
             ),
           ),
-          if (onToggle != null && isActive)
-            GestureDetector(
-              onTap: onToggle,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isTaken ? const Color(0xFF10B981) : const Color(0xFF1565C0),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(isTaken ? 'Tomado' : 'Confirmar',
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-              ),
-            ),
+          Icon(LucideIcons.chevronRight, color: Colors.grey.shade400, size: 20),
         ],
       ),
     );
+  }
+}
+
+class _DoseSection extends ConsumerStatefulWidget {
+  final Medication medication;
+
+  const _DoseSection({required this.medication});
+
+  @override
+  ConsumerState<_DoseSection> createState() => _DoseSectionState();
+}
+
+class _DoseSectionState extends ConsumerState<_DoseSection> {
+  final _dosageController = TextEditingController();
+  final _notesController = TextEditingController();
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _dosageController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveDose() async {
+    setState(() => _isSaving = true);
+    try {
+      final api = ref.read(apiClientProvider);
+      final patientId = ref.read(currentPatientIdProvider).valueOrNull;
+      if (patientId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erro: paciente não identificado'),
+                behavior: SnackBarBehavior.floating),
+          );
+        }
+        return;
+      }
+
+      await api.saveDose({
+        'medication_id': widget.medication.id,
+        'patient_id': patientId,
+        'taken_at': DateTime.now().toUtc().toIso8601String(),
+        'dosage': _dosageController.text.trim(),
+        'notes': _notesController.text.trim(),
+      });
+
+      // Invalidate providers
+      ref.invalidate(doseHistoryProvider(widget.medication.id));
+
+      if (mounted) {
+        _dosageController.clear();
+        _notesController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Dose registrada com sucesso!'),
+            backgroundColor: Color(0xFF10B981),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar: $e'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dosesAsync = ref.watch(doseHistoryProvider(widget.medication.id));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Registrar Dose',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _dosageController,
+          decoration: InputDecoration(
+            labelText: 'Dosagem tomada (opcional)',
+            hintText: 'Ex: 1 comprimido, 5ml',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _notesController,
+          decoration: InputDecoration(
+            labelText: 'Observações (opcional)',
+            hintText: 'Ex: Tomado com almoço',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          maxLines: 2,
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _isSaving ? null : _saveDose,
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 18, height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(LucideIcons.check, size: 18),
+            label: Text(_isSaving ? 'Salvando...' : 'Registrar Tomada'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              minimumSize: const Size(0, 48),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        dosesAsync.when(
+          data: (doses) {
+            if (doses.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text('Nenhuma dose registrada ainda.',
+                    style: TextStyle(color: Color(0xFF6B7280), fontStyle: FontStyle.italic)),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Histórico de Doses (${doses.length})',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                ...doses.take(10).map((dose) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8, height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _formatDateTime(dose.takenAt),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
+                            if (dose.dosage.isNotEmpty)
+                              Text(dose.dosage,
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                            if (dose.notes.isNotEmpty)
+                              Text(dose.notes,
+                                  style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            );
+          },
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          error: (e, _) => Text('Erro ao carregar histórico: $e',
+              style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ),
+      ],
+    );
+  }
+
+  static String _formatDateTime(DateTime dt) {
+    final day = dt.day.toString().padLeft(2, '0');
+    final month = dt.month.toString().padLeft(2, '0');
+    final year = dt.year;
+    final hour = dt.hour.toString().padLeft(2, '0');
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '$day/$month/$year às $hour:$minute';
   }
 }
 

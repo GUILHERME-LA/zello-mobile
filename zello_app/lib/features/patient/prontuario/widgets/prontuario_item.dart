@@ -46,7 +46,7 @@ class ProntuarioItem extends StatelessWidget {
                       child: Text(
                         title,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: isUrgent ? ZelloColors.danger : ZelloColors.textPrimary,
                         ),
@@ -55,19 +55,19 @@ class ProntuarioItem extends StatelessWidget {
                     ),
                     if (trailing != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: isPending
-                              ? ZelloColors.warning.withAlpha(25)
+                              ? ZelloColors.warning.withAlpha(20)
                               : isUrgent
                                   ? ZelloColors.danger.withAlpha(15)
                                   : ZelloColors.textTertiary.withAlpha(15),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           trailing!,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: isPending
                                 ? ZelloColors.warning
@@ -80,12 +80,21 @@ class ProntuarioItem extends StatelessWidget {
                   ],
                 ),
                 if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: TextStyle(fontSize: 11, color: ZelloColors.textSecondary), overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(subtitle,
+                      style: TextStyle(
+                          fontSize: 12, color: ZelloColors.textSecondary),
+                      overflow: TextOverflow.ellipsis),
                 ],
                 if (notes.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(notes, style: TextStyle(fontSize: 11, color: ZelloColors.textTertiary, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(notes,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: ZelloColors.textTertiary,
+                          fontStyle: FontStyle.italic),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
                 ],
               ],
             ),

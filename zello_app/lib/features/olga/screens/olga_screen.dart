@@ -315,7 +315,7 @@ class _Chip extends StatelessWidget {
       onPressed: onTap,
       avatar: Icon(icon, size: 16, color: Colors.white),
       label: Text(label, style: const TextStyle(color: Colors.white)),
-      backgroundColor: Colors.white.withAlpha(30),
+      backgroundColor: Colors.white.withAlpha(80),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     );
   }

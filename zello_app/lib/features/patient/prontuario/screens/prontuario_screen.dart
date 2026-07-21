@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:printing/printing.dart';
 import 'package:zello_shared/zello_shared.dart';
 import '../utils/prontuario_pdf.dart';
@@ -8,15 +9,15 @@ import '../widgets/typed_list_section.dart';
 import '../widgets/prontuario_item.dart';
 import '../widgets/prontuario_helpers.dart';
 import 'add_dialogs.dart';
-import 'import_dialog.dart';
 
-enum ProntuarioFilter { todos, perfil, cirurgias, internacoes, sintomas, alergias, vacinas }
+enum ProntuarioFilter { todos, perfil, anamnese, cirurgias, internacoes, sintomas, alergias, vacinas }
 
 extension ProntuarioFilterX on ProntuarioFilter {
   String get label {
     switch (this) {
       case ProntuarioFilter.todos: return 'Todos';
       case ProntuarioFilter.perfil: return 'Perfil';
+      case ProntuarioFilter.anamnese: return 'Anamnese';
       case ProntuarioFilter.cirurgias: return 'Cirurgias';
       case ProntuarioFilter.internacoes: return 'Internações';
       case ProntuarioFilter.sintomas: return 'Sintomas';
@@ -29,6 +30,7 @@ extension ProntuarioFilterX on ProntuarioFilter {
     switch (this) {
       case ProntuarioFilter.todos: return Icons.dashboard;
       case ProntuarioFilter.perfil: return Icons.person;
+      case ProntuarioFilter.anamnese: return LucideIcons.clipboardList;
       case ProntuarioFilter.cirurgias: return Icons.content_cut;
       case ProntuarioFilter.internacoes: return Icons.local_hospital;
       case ProntuarioFilter.sintomas: return Icons.monitor_heart_outlined;
@@ -69,6 +71,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
       userName = auth.user?.name ?? 'Paciente';
     }
 
+    final anamnesisAsync = ref.watch(currentAnamnesisProvider);
     final profileAsync = patientId != null
         ? ref.watch(patientHealthProfileProvider(patientId))
         : const AsyncLoading<HealthProfile?>();
@@ -92,29 +95,74 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
     final isAnalyzing = analysisState.status == ProntuarioAnalysisStatus.loading;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Prontuário'),
-        actions: patientId != null
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.file_upload_outlined),
-                  tooltip: 'Importar arquivo',
-                  onPressed: () => showImportProntuarioDialog(context, ref, patientId!),
-                ),
-                IconButton(
-                  icon: Icon(_showFilters ? Icons.filter_list_off : Icons.filter_list),
-                  tooltip: 'Filtrar',
-                  onPressed: () => setState(() => _showFilters = !_showFilters),
-                ),
-              ]
-            : null,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: _buildBody(context, patientId, isDemo, userName,
+                  anamnesisAsync, profileAsync, surgeriesAsync, hospitalizationsAsync,
+                  symptomsAsync, allergiesAsync, vaccinesAsync, analysisState, isAnalyzing),
+            ),
+            if (patientId != null)
+              _buildBottomBar(isAnalyzing, patientId, userName),
+          ],
+        ),
       ),
-      body: _buildBody(context, patientId, isDemo, userName,
-          profileAsync, surgeriesAsync, hospitalizationsAsync,
-          symptomsAsync, allergiesAsync, vaccinesAsync, analysisState, isAnalyzing),
-      bottomNavigationBar: patientId != null
-          ? _buildBottomBar(isAnalyzing, patientId, userName)
-          : null,
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(30),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LucideIcons.folderOpen,
+                    color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Meu Prontuário',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20)),
+                    Text('Histórico completo de saúde',
+                        style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -123,6 +171,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
     String? patientId,
     bool isDemo,
     String userName,
+    AsyncValue<Anamnesis?> anamnesisAsync,
     AsyncValue<HealthProfile?> profileAsync,
     AsyncValue<List<Surgery>> surgeriesAsync,
     AsyncValue<List<Hospitalization>> hospitalizationsAsync,
@@ -140,7 +189,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
+                color: Colors.orange.withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.info_outline, size: 48, color: Colors.orange.shade300),
@@ -168,6 +217,8 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
 
     return RefreshIndicator(
       onRefresh: () async {
+        ref.invalidate(anamnesesProvider);
+        ref.invalidate(currentAnamnesisProvider);
         ref.invalidate(patientHealthProfileProvider(patientId));
         ref.invalidate(patientSurgeriesProvider(patientId));
         ref.invalidate(patientHospitalizationsProvider(patientId));
@@ -182,16 +233,24 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
           children: [
             if (_showFilters) _buildFilterChips(),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Anamnese Section
+                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.anamnese)
+                    _AnamnesisSection(anamnesisAsync: anamnesisAsync),
+
+                  // Perfil de Saúde
+                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.perfil)
+                    const SizedBox(height: 16),
                   if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.perfil)
                     PerfilSection(profileAsync: profileAsync, patientId: patientId),
 
+                  // Cirurgias
                   if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.cirurgias)
                     TypedListSection<Surgery>(
-                      title: 'Cirurgias', icon: Icons.content_cut, iconColor: ZelloColors.primary,
+                      title: 'Cirurgias', icon: LucideIcons.scissors, iconColor: ZelloColors.primary,
                       async: surgeriesAsync, emptyText: 'Nenhuma cirurgia cadastrada.',
                       onAdd: () => showAddSurgeryDialog(context, ref, patientId),
                       itemBuilder: (s) => ProntuarioItem(
@@ -202,9 +261,10 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                       ),
                     ),
 
+                  // Internações
                   if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.internacoes)
                     TypedListSection<Hospitalization>(
-                      title: 'Internações', icon: Icons.local_hospital, iconColor: ZelloColors.danger,
+                      title: 'Internações', icon: LucideIcons.building2, iconColor: ZelloColors.danger,
                       async: hospitalizationsAsync, emptyText: 'Nenhuma internação registrada.',
                       onAdd: () => showAddHospitalizationDialog(context, ref, patientId),
                       itemBuilder: (h) => ProntuarioItem(
@@ -215,9 +275,10 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                       ),
                     ),
 
+                  // Sintomas
                   if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.sintomas)
                     TypedListSection<Symptom>(
-                      title: 'Sintomas Recorrentes', icon: Icons.monitor_heart_outlined, iconColor: ZelloColors.warning,
+                      title: 'Sintomas Recorrentes', icon: LucideIcons.activity, iconColor: ZelloColors.warning,
                       async: symptomsAsync, emptyText: 'Nenhum sintoma registrado.',
                       onAdd: () => showAddSymptomDialog(context, ref, patientId),
                       itemBuilder: (s) => ProntuarioItem(
@@ -230,9 +291,10 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                       ),
                     ),
 
+                  // Alergias
                   if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.alergias)
                     TypedListSection<Allergy>(
-                      title: 'Alergias', icon: Icons.warning_amber, iconColor: ZelloColors.danger,
+                      title: 'Alergias', icon: LucideIcons.shieldAlert, iconColor: ZelloColors.danger,
                       async: allergiesAsync, emptyText: 'Nenhuma alergia cadastrada.',
                       isUrgent: true,
                       onAdd: () => showAddAllergyDialog(context, ref, patientId),
@@ -244,9 +306,10 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                       ),
                     ),
 
+                  // Vacinas
                   if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.vacinas)
                     TypedListSection<Vaccine>(
-                      title: 'Vacinas', icon: Icons.vaccines_outlined, iconColor: ZelloColors.success,
+                      title: 'Vacinas', icon: LucideIcons.syringe, iconColor: ZelloColors.success,
                       async: vaccinesAsync, emptyText: 'Nenhuma vacina cadastrada.',
                       onAdd: () => showAddVaccineDialog(context, ref, patientId),
                       itemBuilder: (v) => ProntuarioItem(
@@ -284,7 +347,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
             children: [
               Expanded(
                 child: _bottomAction(
-                  icon: Icons.picture_as_pdf,
+                  icon: LucideIcons.fileDown,
                   label: 'Exportar PDF',
                   color: ZelloColors.primary,
                   onTap: () => _exportPdf(context, patientId: patientId, userName: userName),
@@ -293,7 +356,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _bottomAction(
-                  icon: isAnalyzing ? Icons.hourglass_top : Icons.auto_awesome,
+                  icon: isAnalyzing ? LucideIcons.hourglass : LucideIcons.sparkles,
                   label: isAnalyzing ? 'Analisando...' : 'Análise IA',
                   color: ZelloColors.psychology,
                   isLoading: isAnalyzing,
@@ -468,7 +531,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                       gradient: const LinearGradient(colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)]),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 22),
+                    child: const Icon(LucideIcons.sparkles, color: Colors.white, size: 22),
                   ),
                   const SizedBox(width: 14),
                   const Expanded(
@@ -477,7 +540,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                       children: [
                         Text('Análise do Prontuário', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A1A2E))),
                         SizedBox(height: 2),
-                        Text('Gerado por IA • Claude Sonnet 4', style: TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+                        Text('Gerado por IA', style: TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
                       ],
                     ),
                   ),
@@ -494,7 +557,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 18),
+                    Icon(LucideIcons.alertTriangle, color: Colors.orange.shade700, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -568,7 +631,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {},
-                  icon: const Icon(Icons.share, size: 18),
+                  icon: const Icon(LucideIcons.share2, size: 18),
                   label: const Text('Compartilhar Análise'),
                 ),
               ),
@@ -576,6 +639,122 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AnamnesisSection extends StatelessWidget {
+  final AsyncValue<Anamnesis?> anamnesisAsync;
+
+  const _AnamnesisSection({required this.anamnesisAsync});
+
+  @override
+  Widget build(BuildContext context) {
+    return anamnesisAsync.when(
+      data: (anamnesis) {
+        if (anamnesis == null || !anamnesis.completed) {
+          return const SizedBox.shrink();
+        }
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(10),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1565C0).withAlpha(20),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(LucideIcons.clipboardList,
+                        color: Color(0xFF1565C0), size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text('Anamnese',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 15)),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text('Preenchido',
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              _AnamnesisRow(label: 'CPF', value: anamnesis.cpf.isNotEmpty ? anamnesis.cpf : '—'),
+              _AnamnesisRow(label: 'RG', value: anamnesis.rg.isNotEmpty ? anamnesis.rg : '—'),
+              _AnamnesisRow(label: 'Altura', value: anamnesis.altura != null ? '${anamnesis.altura!.toStringAsFixed(2)} m' : '—'),
+              _AnamnesisRow(label: 'Cirurgias', value: anamnesis.surgeriesDescription.isNotEmpty ? 'Sim' : 'Não'),
+              _AnamnesisRow(label: 'Alergias', value: anamnesis.allergiesDetails.isNotEmpty ? 'Sim' : 'Não'),
+              _AnamnesisRow(label: 'Depressão', value: anamnesis.hasDepression ? 'Sim' : 'Não'),
+              _AnamnesisRow(label: 'Plano de saúde', value: anamnesis.hasInsurance ? anamnesis.insuranceProvider : 'Sem plano'),
+              if (anamnesis.hasInsurance)
+                _AnamnesisRow(label: 'Plano', value: anamnesis.insurancePlan.isNotEmpty ? anamnesis.insurancePlan : '—'),
+              if (!anamnesis.hasInsurance && anamnesis.addressCity.isNotEmpty)
+                _AnamnesisRow(label: 'Cidade', value: '${anamnesis.addressCity}${anamnesis.addressState.isNotEmpty ? ' - ${anamnesis.addressState}' : ''}'),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _AnamnesisRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _AnamnesisRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(label,
+                style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500)),
+          ),
+          Expanded(
+            child: Text(value,
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600)),
+          ),
+        ],
       ),
     );
   }

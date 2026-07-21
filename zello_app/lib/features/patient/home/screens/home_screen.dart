@@ -25,31 +25,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final auth = ref.watch(authProvider);
     final userName = _formatName(auth.user?.name ?? '');
     final medsAsync = ref.watch(medicationsProvider);
-    final consultationsAsync = ref.watch(consultationsProvider);
 
     final allMeds = medsAsync.valueOrNull ?? [];
     final activeMeds = allMeds.where((m) => m.isActive).toList();
     final medCount = allMeds.length;
-    final consultCount = consultationsAsync.valueOrNull?.length ?? 0;
-    final totalItems = medCount + consultCount;
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(medicationsProvider);
-            ref.invalidate(consultationsProvider);
-            await Future.wait([
-              ref.read(medicationsProvider.future),
-              ref.read(consultationsProvider.future),
-            ]);
+            await ref.read(medicationsProvider.future);
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Header(userName: userName, consultCount: consultCount),
+                _Header(userName: userName),
                 SizedBox(
                   height: 24,
                   child: Center(
@@ -71,18 +64,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     index: 0,
                     child: _MedicationHeroCard(meds: activeMeds),
                   ),
-                if (totalItems == 0)
+                if (medCount == 0)
                   _StaggerItem(
                     index: 1,
                     child: _EmptyWelcome(userName: userName),
-                  ),
-                if (totalItems > 0)
-                  _StaggerItem(
-                    index: 1,
-                    child: _HealthOverview(
-                      medCount: medCount,
-                      consultCount: consultCount,
-                    ),
                   ),
                 const SizedBox(height: 4),
                 _StaggerItem(
@@ -235,8 +220,7 @@ class _StaggerItem extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final String userName;
-  final int consultCount;
-  const _Header({required this.userName, required this.consultCount});
+  const _Header({required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -300,35 +284,6 @@ class _Header extends StatelessWidget {
                 ],
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.white.withAlpha(20),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(LucideIcons.brain,
-                    color: Colors.white.withAlpha(179), size: 20),
-                const SizedBox(width: 10),
-                Text(
-                  consultCount > 0
-                      ? 'Consultas hoje: $consultCount'
-                      : 'Nenhuma consulta hoje',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withAlpha(230),
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -503,127 +458,6 @@ class _EmptyWelcome extends StatelessWidget {
   }
 }
 
-class _HealthOverview extends StatelessWidget {
-  final int medCount;
-  final int consultCount;
-  const _HealthOverview({
-    required this.medCount,
-    required this.consultCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: AnimatedCard(
-              onTap: () => context.push('/medications'),
-              child: _IndicatorContent(
-                icon: LucideIcons.pill,
-                iconColor: Theme.of(context).colorScheme.primary,
-                iconBgColor:
-                    Theme.of(context).colorScheme.primary.withAlpha(25),
-                count: medCount,
-                label: 'Medicação${medCount == 1 ? '' : 'ões'}',
-                sublabel: medCount == 1 ? 'cadastrada' : 'cadastradas',
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: AnimatedCard(
-              onTap: () => context.push('/consultations'),
-              child: _IndicatorContent(
-                icon: LucideIcons.calendar,
-                iconColor: const Color(0xFF0D47A1),
-                iconBgColor: const Color(0xFF0D47A1).withAlpha(25),
-                count: consultCount,
-                label: 'Consulta${consultCount == 1 ? '' : 's'}',
-                sublabel: consultCount == 1 ? 'agendada' : 'agendadas',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _IndicatorContent extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBgColor;
-  final int count;
-  final String label;
-  final String sublabel;
-
-  const _IndicatorContent({
-    required this.icon,
-    required this.iconColor,
-    required this.iconBgColor,
-    required this.count,
-    required this.label,
-    required this.sublabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isEmpty = count == 0;
-    final cs = Theme.of(context).colorScheme;
-    final numberColor =
-        isEmpty ? cs.onSurfaceVariant.withAlpha(120) : cs.onSurface;
-
-    return Padding(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-              const SizedBox(width: 8),
-              _AnimatedCount(
-                target: count,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: numberColor,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurface,
-                ),
-          ),
-          const SizedBox(height: 1),
-          Text(
-            sublabel,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isEmpty
-                      ? cs.onSurfaceVariant.withAlpha(80)
-                      : cs.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -633,16 +467,6 @@ class _QuickActionsGrid extends StatelessWidget {
         children: [
           Row(
             children: [
-                Expanded(
-                child: _QuickActionButton(
-                  icon: LucideIcons.calendarCheck,
-                  label: 'Consultas',
-                  color: const Color(0xFF1E88E5),
-                  bgColor: const Color(0xFF1E88E5).withAlpha(20),
-                  onTap: () => context.push('/consultations'),
-                ),
-              ),
-              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.heartPulse,
@@ -652,11 +476,7 @@ class _QuickActionsGrid extends StatelessWidget {
                   onTap: () => context.push('/convenio'),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
+              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.building2,
@@ -670,13 +490,17 @@ class _QuickActionsGrid extends StatelessWidget {
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.folder,
-                  label: 'Prontuario',
+                  label: 'Prontuário',
                   color: const Color(0xFF1976D2),
                   bgColor: const Color(0xFF1976D2).withAlpha(20),
                   onTap: () => context.push('/prontuario'),
                 ),
               ),
-              const SizedBox(width: 10),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.sparkles,
@@ -686,11 +510,7 @@ class _QuickActionsGrid extends StatelessWidget {
                   onTap: () => context.push('/olga'),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
+              const SizedBox(width: 10),
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.activity,
@@ -710,7 +530,11 @@ class _QuickActionsGrid extends StatelessWidget {
                   onTap: () => context.push('/treatments'),
                 ),
               ),
-              const SizedBox(width: 10),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.clipboardList,

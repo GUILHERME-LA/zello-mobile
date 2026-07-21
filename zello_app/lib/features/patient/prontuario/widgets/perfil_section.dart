@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
 import 'section_card.dart';
 import 'prontuario_helpers.dart';
@@ -18,17 +19,18 @@ class PerfilSection extends ConsumerWidget {
         final p = profile ?? const HealthProfile(id: '', patientId: '');
         final imc = p.imc;
         return SectionCard(
-          icon: Icons.person,
+          icon: LucideIcons.user,
           iconColor: ZelloColors.primary,
           title: 'Perfil de Saúde',
-          trailing: OutlinedButton(
+          trailing: OutlinedButton.icon(
             onPressed: () => showEditProfileDialog(context, ref, patientId, p),
+            icon: const Icon(LucideIcons.pencil, size: 14),
+            label: const Text('Editar'),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               minimumSize: Size.zero,
               textStyle: const TextStyle(fontSize: 11),
             ),
-            child: const Text('Editar'),
           ),
           child: Column(
             children: [
@@ -51,16 +53,17 @@ class PerfilSection extends ConsumerWidget {
         );
       },
       loading: () => const SectionCard(
-        icon: Icons.person,
+        icon: LucideIcons.user,
         iconColor: ZelloColors.primary,
         title: 'Perfil de Saúde',
         child: LinearProgressIndicator(),
       ),
       error: (e, _) => SectionCard(
-        icon: Icons.person,
+        icon: LucideIcons.user,
         iconColor: ZelloColors.primary,
         title: 'Perfil de Saúde',
-        child: Text('Erro ao carregar: $e', style: TextStyle(fontSize: 12, color: ZelloColors.danger)),
+        child: Text('Erro ao carregar: $e',
+            style: TextStyle(fontSize: 12, color: ZelloColors.danger)),
       ),
     );
   }

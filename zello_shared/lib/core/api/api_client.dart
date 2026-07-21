@@ -919,6 +919,62 @@ class ApiClient {
     });
   }
 
+  // Medication Doses (dose history)
+  Future<List<dynamic>> getDoseHistory(String medicationId) async {
+    await _ensurePatientLoaded();
+    return _tryOrDemoList(
+      () async {
+        final data = await _supabase
+            .from('medication_doses')
+            .select('id, medication_id, patient_id, taken_at, dosage, notes')
+            .eq('medication_id', medicationId)
+            .order('taken_at', ascending: false);
+        return data.map((row) => {
+          'id': row['id'],
+          'medicationId': row['medication_id'],
+          'patientId': row['patient_id'],
+          'takenAt': row['taken_at'],
+          'dosage': row['dosage'] ?? '',
+          'notes': row['notes'] ?? '',
+        }).toList();
+      },
+      <dynamic>[],
+    );
+  }
+
+  Future<List<dynamic>> getPatientDoseHistory(String patientId) async {
+    return _tryOrDemoList(
+      () async {
+        final data = await _supabase
+            .from('medication_doses')
+            .select('id, medication_id, patient_id, taken_at, dosage, notes')
+            .eq('patient_id', patientId)
+            .order('taken_at', ascending: false);
+        return data.map((row) => {
+          'id': row['id'],
+          'medicationId': row['medication_id'],
+          'patientId': row['patient_id'],
+          'takenAt': row['taken_at'],
+          'dosage': row['dosage'] ?? '',
+          'notes': row['notes'] ?? '',
+        }).toList();
+      },
+      <dynamic>[],
+    );
+  }
+
+  Future<void> saveDose(Map<String, dynamic> data) async {
+    await _tryOrDemoVoid(() async {
+      await _supabase.from('medication_doses').insert({
+        'medication_id': data['medication_id'],
+        'patient_id': data['patient_id'],
+        'taken_at': data['taken_at'] ?? DateTime.now().toUtc().toIso8601String(),
+        'dosage': data['dosage'] ?? '',
+        'notes': data['notes'] ?? '',
+      });
+    });
+  }
+
   // Create patient (admin - no auth user required)
   Future<void> createPatient(Map<String, dynamic> data) async {
     await _tryOrDemoVoid(() async {

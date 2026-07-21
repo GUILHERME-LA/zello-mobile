@@ -8,7 +8,6 @@ import '../features/auth/screens/sign_up_screen.dart';
 import '../features/patient/home/screens/home_gateway.dart';
 import '../features/patient/prontuario/screens/prontuario_screen.dart';
 import '../features/patient/medications/screens/medications_screen.dart';
-import '../features/patient/consultations/screens/consultations_screen.dart';
 import '../features/patient/therapies/screens/therapies_screen.dart';
 import '../features/patient/treatments/screens/treatments_screen.dart';
 import '../features/patient/anamnesis/screens/initial_anamnesis_screen.dart';
@@ -89,10 +88,6 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/medications',
               pageBuilder: (context, state) => _slideFadePage(const MedicationsScreen()),
-            ),
-            GoRoute(
-              path: '/consultations',
-              pageBuilder: (context, state) => _slideFadePage(const ConsultationsScreen()),
             ),
             GoRoute(
               path: '/therapies',
