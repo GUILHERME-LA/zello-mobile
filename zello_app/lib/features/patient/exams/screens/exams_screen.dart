@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zello_shared/zello_shared.dart';
@@ -164,7 +165,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(),
+                    _buildHeader(context),
                     const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -242,7 +243,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _buildHeader(),
+              _buildHeader(context),
               const SizedBox(height: 8),
               ...List.generate(
                   4,
@@ -258,7 +259,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: const BoxDecoration(
@@ -274,11 +275,22 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
       ),
       child: Row(
         children: [
-          const Icon(LucideIcons.flaskConical, color: Colors.white, size: 28),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(38),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => context.pop(),
+            ),
+          ),
           const SizedBox(width: 14),
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text('Exames',
                   style: TextStyle(
                       color: Colors.white,

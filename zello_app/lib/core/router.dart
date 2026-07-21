@@ -5,7 +5,7 @@ import 'package:zello_shared/zello_shared.dart';
 import 'patient_shell.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/sign_up_screen.dart';
-import '../features/patient/home/screens/home_screen.dart';
+import '../features/patient/home/screens/home_gateway.dart';
 import '../features/patient/prontuario/screens/prontuario_screen.dart';
 import '../features/patient/medications/screens/medications_screen.dart';
 import '../features/patient/consultations/screens/consultations_screen.dart';
@@ -54,15 +54,6 @@ final appRouter = GoRouter(
 
     if (isLoggedIn && isOnLogin) return '/home';
 
-    if (location == '/anamnesis') return null;
-
-    final anamnesisAsync = ProviderScope.containerOf(context).read(currentAnamnesisProvider);
-    if (!anamnesisAsync.hasValue) return null;
-    final anamnesisValue = anamnesisAsync.valueOrNull;
-    if (anamnesisValue == null || !anamnesisValue.completed) {
-      return '/anamnesis';
-    }
-
     return null;
   },
   routes: [
@@ -93,7 +84,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/home',
-              pageBuilder: (context, state) => _slideFadePage(const HomeScreen()),
+              pageBuilder: (context, state) => _slideFadePage(const HomeGateway()),
             ),
             GoRoute(
               path: '/medications',

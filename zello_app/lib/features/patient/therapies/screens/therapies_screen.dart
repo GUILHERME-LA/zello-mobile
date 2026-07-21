@@ -22,7 +22,7 @@ class TherapiesScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GradientHeader(greeting: 'Acompanhamento', title: 'Terapias'),
+                    GradientHeader(greeting: 'Acompanhamento', title: 'Terapias', showBack: true),
                     const SizedBox(height: 8),
                     SectionHeader(
                       title: 'Terapias Ativas',
@@ -78,7 +78,7 @@ class TherapiesScreen extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              GradientHeader(greeting: 'Acompanhamento', title: 'Terapias'),
+              GradientHeader(greeting: 'Acompanhamento', title: 'Terapias', showBack: true),
               ...List.generate(
                   4,
                   (_) => const Padding(

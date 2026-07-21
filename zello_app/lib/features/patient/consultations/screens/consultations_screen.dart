@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zello_shared/zello_shared.dart';
 
 class ConsultationsScreen extends ConsumerWidget {
@@ -21,7 +22,7 @@ class ConsultationsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(),
+                    _buildHeader(context),
                     const SizedBox(height: 8),
                     SectionHeader(title: 'Próximas Consultas', subtitle: '${upcoming.length} consultas agendadas'),
                     if (upcoming.isEmpty)
@@ -139,18 +140,29 @@ class ConsultationsScreen extends ConsumerWidget {
     );
   }
 
-  static Widget _buildHeader() {
+  static Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1565C0), Color(0xFF0D47A1)]),
         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.calendar_month, color: Colors.white, size: 28),
-          SizedBox(width: 14),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(38),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => context.pop(),
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Consultas', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
             SizedBox(height: 2),
             Text('Gerencie seus agendamentos', style: TextStyle(color: Colors.white70, fontSize: 12)),

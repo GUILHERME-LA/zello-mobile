@@ -636,10 +636,10 @@ class _QuickActionsGrid extends StatelessWidget {
                 Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.calendarCheck,
-                  label: 'Agenda',
+                  label: 'Consultas',
                   color: const Color(0xFF1E88E5),
                   bgColor: const Color(0xFF1E88E5).withAlpha(20),
-                  onTap: () => context.push('/agenda'),
+                  onTap: () => context.push('/consultations'),
                 ),
               ),
               const SizedBox(width: 10),
@@ -680,10 +680,10 @@ class _QuickActionsGrid extends StatelessWidget {
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.sparkles,
-                  label: 'Perguntas IA',
+                  label: 'Olga',
                   color: const Color(0xFF7C3AED),
                   bgColor: const Color(0xFF7C3AED).withAlpha(20),
-                  onTap: () => context.push('/ai'),
+                  onTap: () => context.push('/olga'),
                 ),
               ),
             ],

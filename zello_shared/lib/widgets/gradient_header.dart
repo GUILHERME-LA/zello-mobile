@@ -7,6 +7,7 @@ class GradientHeader extends StatelessWidget {
   final Widget? trailing;
   final double bottomPadding;
   final String? greeting;
+  final bool showBack;
 
   const GradientHeader({
     super.key,
@@ -15,6 +16,7 @@ class GradientHeader extends StatelessWidget {
     this.trailing,
     this.bottomPadding = 24,
     this.greeting,
+    this.showBack = false,
   });
 
   @override
@@ -26,9 +28,15 @@ class GradientHeader extends StatelessWidget {
         borderRadius: ZelloRadius.headerRadius,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (showBack)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
