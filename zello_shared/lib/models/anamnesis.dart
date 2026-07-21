@@ -12,6 +12,7 @@ class Anamnesis {
   final bool completed;
 
   final String rg;
+  final String cpf;
   final double? altura;
   final bool hasDepression;
   final bool hasSuicideAttempts;
@@ -42,6 +43,7 @@ class Anamnesis {
     this.familyHistory = '',
     this.completed = false,
     this.rg = '',
+    this.cpf = '',
     this.altura,
     this.hasDepression = false,
     this.hasSuicideAttempts = false,
@@ -76,6 +78,7 @@ class Anamnesis {
       familyHistory: json['familyHistory'] as String? ?? '',
       completed: json['completed'] as bool? ?? false,
       rg: json['rg'] as String? ?? '',
+      cpf: json['cpf'] as String? ?? '',
       altura: (json['altura'] as num?)?.toDouble(),
       hasDepression: json['has_depression'] as bool? ?? false,
       hasSuicideAttempts: json['has_suicide_attempts'] as bool? ?? false,
@@ -109,6 +112,7 @@ class Anamnesis {
       'familyHistory': familyHistory,
       'completed': completed,
       'rg': rg,
+      'cpf': cpf,
       'altura': altura,
       'has_depression': hasDepression,
       'has_suicide_attempts': hasSuicideAttempts,
@@ -141,6 +145,7 @@ class Anamnesis {
     String? familyHistory,
     bool? completed,
     String? rg,
+    String? cpf,
     double? altura,
     bool? hasDepression,
     bool? hasSuicideAttempts,
@@ -172,6 +177,7 @@ class Anamnesis {
       familyHistory: familyHistory ?? this.familyHistory,
       completed: completed ?? this.completed,
       rg: rg ?? this.rg,
+      cpf: cpf ?? this.cpf,
       altura: altura ?? this.altura,
       hasDepression: hasDepression ?? this.hasDepression,
       hasSuicideAttempts: hasSuicideAttempts ?? this.hasSuicideAttempts,

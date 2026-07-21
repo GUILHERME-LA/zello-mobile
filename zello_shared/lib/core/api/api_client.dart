@@ -542,7 +542,7 @@ class ApiClient {
     return _tryOrDemoList(
       () async {
         dynamic query = _supabase.from('anamneses').select(
-            'id, date, professional, chief_complaint, history_present_illness, past_history, continuous_medication, allergies, habits, family_history, completed, rg, altura, has_depression, has_suicide_attempts, has_self_harm, mental_health_notes, allergies_details, surgeries_description, has_insurance, insurance_provider, insurance_plan, address_street, address_number, address_neighborhood, address_city, address_state, address_zip');
+            'id, date, professional, chief_complaint, history_present_illness, past_history, continuous_medication, allergies, habits, family_history, completed, rg, cpf, altura, has_depression, has_suicide_attempts, has_self_harm, mental_health_notes, allergies_details, surgeries_description, has_insurance, insurance_provider, insurance_plan, address_street, address_number, address_neighborhood, address_city, address_state, address_zip');
         if (_currentPatientId != null) {
           query.eq('patient_id', _currentPatientId);
         }
@@ -560,6 +560,7 @@ class ApiClient {
           'familyHistory': row['family_history'] ?? '',
           'completed': row['completed'] ?? false,
           'rg': row['rg'] ?? '',
+          'cpf': row['cpf'] ?? '',
           'altura': row['altura'],
           'has_depression': row['has_depression'] ?? false,
           'has_suicide_attempts': row['has_suicide_attempts'] ?? false,
