@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Medication {
   final String id;
   final String name;
@@ -11,6 +13,7 @@ class Medication {
   final DateTime? nextDose;
   final String? observations;
   final DateTime? discontinuedAt;
+  final String? scheduleTime;
 
   const Medication({
     required this.id,
@@ -25,7 +28,18 @@ class Medication {
     this.nextDose,
     this.observations,
     this.discontinuedAt,
+    this.scheduleTime,
   });
+
+  TimeOfDay? get scheduleTimeOfDay {
+    if (scheduleTime == null || scheduleTime!.isEmpty) return null;
+    final parts = scheduleTime!.split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+    return TimeOfDay(hour: h, minute: m);
+  }
 
   factory Medication.fromJson(Map<String, dynamic> json) {
     return Medication(
@@ -49,6 +63,7 @@ class Medication {
       discontinuedAt: json['discontinuedAt'] != null
           ? DateTime.tryParse(json['discontinuedAt'] as String)
           : null,
+      scheduleTime: json['scheduleTime'] as String?,
     );
   }
 
@@ -66,6 +81,7 @@ class Medication {
       'nextDose': nextDose?.toIso8601String(),
       'observations': observations,
       'discontinuedAt': discontinuedAt?.toIso8601String(),
+      'scheduleTime': scheduleTime,
     };
   }
 
@@ -82,6 +98,7 @@ class Medication {
     DateTime? nextDose,
     String? observations,
     DateTime? discontinuedAt,
+    String? scheduleTime,
   }) {
     return Medication(
       id: id ?? this.id,
@@ -96,6 +113,7 @@ class Medication {
       nextDose: nextDose ?? this.nextDose,
       observations: observations ?? this.observations,
       discontinuedAt: discontinuedAt ?? this.discontinuedAt,
+      scheduleTime: scheduleTime ?? this.scheduleTime,
     );
   }
 

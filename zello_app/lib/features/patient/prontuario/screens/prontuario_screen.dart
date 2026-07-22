@@ -451,9 +451,9 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                         final color = _examStatusColor(e.status);
                         return ProntuarioItem(
                           title: e.title,
-                          subtitle: e.examType.isNotEmpty ? e.examType : null,
+                          subtitle: e.examType,
                           trailing: e.statusLabel,
-                          notes: e.notes,
+                          notes: e.notes ?? '',
                           trailingColor: color,
                         );
                       },

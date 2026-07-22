@@ -454,13 +454,16 @@ class _InitialAnamnesisScreenState
           const SizedBox(height: 8),
           Row(
             children: [
-              if (_existingAnamnesis != null)
-                IconButton(
-                  onPressed: () {
+              IconButton(
+                onPressed: () {
+                  if (_existingAnamnesis != null) {
                     setState(() => _isEditing = false);
-                  },
-                  icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
-                ),
+                  } else {
+                    context.pop();
+                  }
+                },
+                icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+              ),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(

@@ -328,12 +328,19 @@ class _Header extends StatelessWidget {
                       ),
             ),
             const SizedBox(height: 16),
-            _notifItem(context, LucideIcons.calendar,
-                'Consulta amanhã às 14:30', 'Dr. Carlos Silva - Cardiologia'),
-            const SizedBox(height: 12),
-            _notifItem(context, LucideIcons.pill, 'Hora do Losartana 50mg',
-                'Próxima dose em 30 min'),
-            const SizedBox(height: 12),
+            Center(
+              child: Column(
+                children: [
+                  Icon(LucideIcons.bellOff, size: 48, color: Colors.grey.shade300),
+                  const SizedBox(height: 12),
+                  const Text('Nenhuma notificação no momento',
+                      style: TextStyle(fontSize: 15, color: Color(0xFF6B7280))),
+                  const SizedBox(height: 4),
+                  const Text('Notificações de medicamentos e consultas aparecerão aqui.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
+                ],
+              ),
+            ),
 
           ],
         ),

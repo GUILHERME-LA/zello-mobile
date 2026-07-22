@@ -392,7 +392,7 @@ class ApiClient {
       () async {
         dynamic query = _supabase
             .from('medications')
-            .select('id, name, dosage, frequency, prescribing_doctor, start_date, end_date, is_active, next_dose');
+            .select('id, name, dosage, frequency, prescribing_doctor, start_date, end_date, is_active, next_dose, schedule_time');
         if (_currentPatientId != null) {
           query = query.eq('patient_id', _currentPatientId);
         }
@@ -407,6 +407,7 @@ class ApiClient {
           'endDate': row['end_date'],
           'isActive': row['is_active'] ?? true,
           'nextDose': row['next_dose'],
+          'scheduleTime': row['schedule_time'],
         }).toList();
       },
       demoMedications,
@@ -880,7 +881,7 @@ class ApiClient {
       () async {
         final data = await _supabase
             .from('medications')
-            .select('id, name, dosage, frequency, prescribing_doctor, start_date, end_date, is_active, next_dose')
+            .select('id, name, dosage, frequency, prescribing_doctor, start_date, end_date, is_active, next_dose, schedule_time')
             .eq('patient_id', patientId)
             .order('name');
         return data.map((row) => {
@@ -893,6 +894,7 @@ class ApiClient {
           'endDate': row['end_date'],
           'isActive': row['is_active'] ?? true,
           'nextDose': row['next_dose'],
+          'scheduleTime': row['schedule_time'],
         }).toList();
       },
       demoMedications,
@@ -930,6 +932,7 @@ class ApiClient {
         'end_date': data['end_date'],
         'is_active': data['is_active'] ?? true,
         'observations': data['observations'] ?? '',
+        'schedule_time': data['schedule_time'],
       });
     });
   }

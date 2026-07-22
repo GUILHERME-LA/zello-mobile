@@ -19,6 +19,10 @@ import '../features/patient/exams/screens/exams_screen.dart';
 import '../features/patient/convenio/screens/convenio_result_screen.dart';
 import '../features/patient/settings/screens/settings_screen.dart';
 import '../features/olga/screens/olga_screen.dart';
+import '../features/psychology/psychologist_shell.dart';
+import '../features/psychology/screens/psychology_home_screen.dart';
+import '../features/psychology/screens/psychology_history_screen.dart';
+import '../features/psychology/screens/psychology_consultations_screen.dart';
 
 Page<void> _slideFadePage(Widget child) {
   return CustomTransitionPage<void>(
@@ -48,7 +52,6 @@ final appRouter = GoRouter(
     final isLoggedIn = auth.status == ZelloAuthStatus.authenticated;
     final location = state.matchedLocation;
     final isOnLogin = location == '/login' || location == '/signup';
-    final isOnRoleSelect = location == '/role-select';
     final authPaths = ['/login', '/signup', '/role-select', '/forgot-password', '/change-password'];
 
     if (!isLoggedIn && !isOnLogin) return '/login';
@@ -58,6 +61,9 @@ final appRouter = GoRouter(
 
     final area = ProviderScope.containerOf(context).read(areaProvider);
     if (area == null && !authPaths.contains(location)) return '/role-select';
+
+    if (area == AreaType.psychology && location.startsWith('/home')) return '/psicologia';
+    if (area == AreaType.medical && location.startsWith('/psicologia')) return '/home';
 
     return null;
   },
@@ -82,6 +88,8 @@ final appRouter = GoRouter(
       path: '/anamnesis',
       builder: (context, state) => const InitialAnamnesisScreen(),
     ),
+
+    // Medical shell
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           PatientShell(navigationShell: navigationShell),
@@ -149,6 +157,54 @@ final appRouter = GoRouter(
               path: '/profile',
               pageBuilder: (context, state) =>
                   _slideFadePage(const ProfileScreen()),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    // Psychology shell
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          PsychologistShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/psicologia',
+              pageBuilder: (context, state) => _slideFadePage(const PsychologyHomeScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/psicologia/historico',
+              pageBuilder: (context, state) => _slideFadePage(const PsychologyHistoryScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/psicologia/consultas',
+              pageBuilder: (context, state) => _slideFadePage(const PsychologyConsultationsScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/psicologia/olga',
+              pageBuilder: (context, state) => _slideFadePage(const OlgaScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/psicologia/perfil',
+              pageBuilder: (context, state) => _slideFadePage(const ProfileScreen()),
             ),
           ],
         ),
