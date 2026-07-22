@@ -282,15 +282,10 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                         onEdit: null,
                         onDelete: () async {
                           final confirmed = await _confirmDelete(context, 'medicação', m.name);
-                          if (confirmed && context.mounted) {
-                            try {
-                              final api = ref.read(apiClientProvider);
-                              await api.deleteMedication(m.id);
-                              ref.invalidate(patientMedicationsProvider(patientId));
-                              if (context.mounted) _sucesso(context);
-                            } catch (e) {
-                              if (context.mounted) _snack(context, 'Erro ao excluir: $e');
-                            }
+                          if (confirmed) {
+                            await ref.read(patientHealthProvider).deleteMedication(m.id);
+                            ref.invalidate(patientMedicationsProvider(patientId));
+                            if (context.mounted) _sucesso(context);
                           }
                         },
                       ),

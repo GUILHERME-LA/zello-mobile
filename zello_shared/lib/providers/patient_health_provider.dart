@@ -145,6 +145,11 @@ class PatientHealthNotifier {
 
   PatientHealthNotifier(this._supabase);
 
+  // Medicacoes
+  Future<void> deleteMedication(String id) async {
+    await _supabase.from('medications').delete().eq('id', id);
+  }
+
   // Cirurgias
   Future<void> addSurgery(Surgery surgery) async {
     await _supabase.from('surgeries').insert(surgery.toJson()..remove('id'));
