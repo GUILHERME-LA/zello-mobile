@@ -50,6 +50,7 @@ export 'providers/professionals_provider.dart';
 export 'providers/professional_availability_provider.dart';
 export 'providers/filtered_professionals_provider.dart';
 export 'providers/patient_health_provider.dart';
+export 'providers/patient_medications_provider.dart';
 export 'providers/prontuario_analysis_provider.dart';
 export 'providers/prontuario_import_provider.dart';
 
