@@ -9,6 +9,7 @@ class ProntuarioItem extends StatelessWidget {
   final String notes;
   final bool isUrgent;
   final bool isPending;
+  final Color? trailingColor;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -20,6 +21,7 @@ class ProntuarioItem extends StatelessWidget {
     this.notes = '',
     this.isUrgent = false,
     this.isPending = false,
+    this.trailingColor,
     this.onEdit,
     this.onDelete,
   });
@@ -62,11 +64,13 @@ class ProntuarioItem extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: isPending
-                              ? ZelloColors.warning.withAlpha(20)
-                              : isUrgent
-                                  ? ZelloColors.danger.withAlpha(15)
-                                  : ZelloColors.textTertiary.withAlpha(15),
+                          color: trailingColor != null
+                              ? trailingColor!.withAlpha(20)
+                              : isPending
+                                  ? ZelloColors.warning.withAlpha(20)
+                                  : isUrgent
+                                      ? ZelloColors.danger.withAlpha(15)
+                                      : ZelloColors.textTertiary.withAlpha(15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -74,11 +78,11 @@ class ProntuarioItem extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: isPending
+                            color: trailingColor ?? (isPending
                                 ? ZelloColors.warning
                                 : isUrgent
                                     ? ZelloColors.danger
-                                    : ZelloColors.textSecondary,
+                                    : ZelloColors.textSecondary),
                           ),
                         ),
                       ),
