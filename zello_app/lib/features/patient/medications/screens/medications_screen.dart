@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
 import 'package:zello_shared/providers/dose_history_provider.dart';
+import 'add_medication_dialog.dart';
 
 class MedicationsScreen extends ConsumerStatefulWidget {
   const MedicationsScreen({super.key});
@@ -14,6 +15,17 @@ class MedicationsScreen extends ConsumerStatefulWidget {
 
 class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   bool _showActive = true;
+
+  void _showAddDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => const AddMedicationDialog(),
+    );
+  }
 
   void _showMedicationDetail(Medication med) {
     showModalBottomSheet(
@@ -165,7 +177,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   ElevatedButton.icon(
-                                    onPressed: () => showAddMedicationDialog(context, ref),
+                                    onPressed: _showAddDialog,
                                     icon: const Icon(Icons.add, size: 18),
                                     label: const Text('Adicionar Medicação'),
                                     style: ElevatedButton.styleFrom(
@@ -194,6 +206,12 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               ),
             ),
           ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: _showAddDialog,
+            icon: const Icon(Icons.add),
+            label: const Text('Adicionar'),
+            backgroundColor: const Color(0xFF1565C0),
+            foregroundColor: Colors.white,
           ),
         );
       },
