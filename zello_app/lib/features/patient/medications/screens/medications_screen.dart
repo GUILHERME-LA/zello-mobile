@@ -150,15 +150,32 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: displayedMeds.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 40),
-                                child: Text(
-                                  _showActive
-                                      ? 'Nenhuma medicação ativa'
-                                      : 'Nenhuma medicação encerrada',
-                                  style: const TextStyle(color: Color(0xFF6B7280)),
-                                ),
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 40),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.medication_outlined, size: 48, color: Color(0xFF9CA3AF)),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    _showActive
+                                        ? 'Nenhuma medicação ativa'
+                                        : 'Nenhuma medicação encerrada',
+                                    style: const TextStyle(color: Color(0xFF6B7280)),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ElevatedButton.icon(
+                                    onPressed: () => showAddMedicationDialog(context, ref),
+                                    icon: const Icon(Icons.add, size: 18),
+                                    label: const Text('Adicionar Medicação'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF1565C0),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
                           : Column(
@@ -176,6 +193,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 ),
               ),
             ),
+          ),
           ),
         );
       },
