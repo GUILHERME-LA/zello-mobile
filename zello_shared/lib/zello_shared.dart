@@ -53,6 +53,7 @@ export 'providers/patient_health_provider.dart';
 export 'providers/patient_medications_provider.dart';
 export 'providers/patient_exams_provider.dart';
 export 'providers/patient_therapies_provider.dart';
+export 'providers/area_provider.dart';
 export 'providers/prontuario_analysis_provider.dart';
 export 'providers/prontuario_import_provider.dart';
 

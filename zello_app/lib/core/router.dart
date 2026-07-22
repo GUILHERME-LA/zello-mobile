@@ -5,6 +5,7 @@ import 'package:zello_shared/zello_shared.dart';
 import 'patient_shell.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/sign_up_screen.dart';
+import '../features/auth/screens/role_selection_screen.dart';
 import '../features/patient/home/screens/home_gateway.dart';
 import '../features/patient/prontuario/screens/prontuario_screen.dart';
 import '../features/patient/medications/screens/medications_screen.dart';
@@ -47,17 +48,23 @@ final appRouter = GoRouter(
     final isLoggedIn = auth.status == ZelloAuthStatus.authenticated;
     final location = state.matchedLocation;
     final isOnLogin = location == '/login' || location == '/signup';
+    final isOnRoleSelect = location == '/role-select';
+    final authPaths = ['/login', '/signup', '/role-select', '/forgot-password', '/change-password'];
 
     if (!isLoggedIn && !isOnLogin) return '/login';
     if (!isLoggedIn) return null;
 
-    if (isLoggedIn && isOnLogin) return '/home';
+    if (isLoggedIn && isOnLogin) return '/role-select';
+
+    final area = ProviderScope.containerOf(context).read(areaProvider);
+    if (area == null && !authPaths.contains(location)) return '/role-select';
 
     return null;
   },
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(path: '/signup', builder: (context, state) => const SignUpScreen()),
+    GoRoute(path: '/role-select', builder: (context, state) => const RoleSelectionScreen()),
     GoRoute(
       path: '/forgot-password',
       builder: (context, state) => ForgotPasswordScreen(
