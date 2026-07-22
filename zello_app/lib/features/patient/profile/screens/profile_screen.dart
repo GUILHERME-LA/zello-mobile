@@ -133,18 +133,22 @@ class ProfileScreen extends ConsumerWidget {
       _MenuOption(LucideIcons.activity, 'Terapias', 'Acompanhamento terapêutico', route: '/therapies'),
       _MenuOption(LucideIcons.heartPulse, 'Tratamentos', 'Tratamentos em curso', route: '/treatments'),
       _MenuOption(LucideIcons.clipboardList, 'Anamnese', 'Histórico clínico', route: '/anamnesis'),
+      _MenuOption(LucideIcons.swapCw, 'Trocar de área', 'Médico ou Psicologia', isCustom: true, onTap: () {
+        ref.read(areaProvider.notifier).state = null;
+        context.go('/role-select');
+      }),
     ];
     return Column(
       children: [...options.map((o) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: AnimatedCard(
-          onTap: () {
-            if (o.route != null) {
-              context.push(o.route!);
-            } else {
-              _showMenuOption(context, o.title, o.subtitle);
-            }
-          },
+          child: AnimatedCard(
+            onTap: o.onTap ?? (() {
+              if (o.route != null) {
+                context.push(o.route!);
+              } else {
+                _showMenuOption(context, o.title, o.subtitle);
+              }
+            }),
           child: Row(
             children: [
               Icon(o.icon, size: 20, color: const Color(0xFF1565C0)),
@@ -211,5 +215,6 @@ class _MenuOption {
   final String title;
   final String subtitle;
   final String? route;
-  const _MenuOption(this.icon, this.title, this.subtitle, {this.route});
+  final VoidCallback? onTap;
+  const _MenuOption(this.icon, this.title, this.subtitle, {this.route, this.onTap});
 }
