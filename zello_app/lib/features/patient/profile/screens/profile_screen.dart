@@ -133,7 +133,7 @@ class ProfileScreen extends ConsumerWidget {
       _MenuOption(LucideIcons.activity, 'Terapias', 'Acompanhamento terapêutico', route: '/therapies'),
       _MenuOption(LucideIcons.heartPulse, 'Tratamentos', 'Tratamentos em curso', route: '/treatments'),
       _MenuOption(LucideIcons.clipboardList, 'Anamnese', 'Histórico clínico', route: '/anamnesis'),
-      _MenuOption(LucideIcons.swapCw, 'Trocar de área', 'Médico ou Psicologia', isCustom: true, onTap: () {
+      _MenuOption(LucideIcons.shuffle, 'Trocar de área', 'Médico ou Psicologia', onTap: () {
         ref.read(areaProvider.notifier).state = null;
         context.go('/role-select');
       }),
