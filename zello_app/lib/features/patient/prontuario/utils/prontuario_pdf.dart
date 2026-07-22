@@ -31,7 +31,7 @@ class ProntuarioPdf {
             child: pw.Column(
               children: [
                 pw.Text(
-                  'Prontuário do Paciente',
+                  'Histórico de Saúde',
                   style: pw.TextStyle(
                     fontSize: 22,
                     fontWeight: pw.FontWeight.bold,

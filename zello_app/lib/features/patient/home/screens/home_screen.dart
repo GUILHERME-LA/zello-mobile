@@ -490,7 +490,7 @@ class _QuickActionsGrid extends StatelessWidget {
               Expanded(
                 child: _QuickActionButton(
                   icon: LucideIcons.folder,
-                  label: 'Prontuário',
+                  label: 'Meu Histórico',
                   color: const Color(0xFF1976D2),
                   bgColor: const Color(0xFF1976D2).withAlpha(20),
                   onTap: () => context.push('/prontuario'),

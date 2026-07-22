@@ -13,6 +13,8 @@ class TypedListSection<T> extends StatelessWidget {
   final Widget Function(T) itemBuilder;
   final bool isUrgent;
   final VoidCallback? onAdd;
+  final void Function(T)? onItemEdit;
+  final void Function(T)? onItemDelete;
 
   const TypedListSection({
     super.key,
@@ -24,6 +26,8 @@ class TypedListSection<T> extends StatelessWidget {
     required this.itemBuilder,
     this.isUrgent = false,
     this.onAdd,
+    this.onItemEdit,
+    this.onItemDelete,
   });
 
   @override

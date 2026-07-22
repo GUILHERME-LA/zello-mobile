@@ -8,34 +8,42 @@ import '../widgets/perfil_section.dart';
 import '../widgets/typed_list_section.dart';
 import '../widgets/prontuario_item.dart';
 import '../widgets/prontuario_helpers.dart';
+import '../widgets/delete_confirm_dialog.dart';
 import 'add_dialogs.dart';
+import 'edit_dialogs.dart';
 
-enum ProntuarioFilter { todos, perfil, anamnese, cirurgias, internacoes, sintomas, alergias, vacinas }
+enum SaudeFilter { todos, anamnese, perfil, medicacoes, cirurgias, internacoes, sintomas, alergias, vacinas, terapias, tratamentos }
 
-extension ProntuarioFilterX on ProntuarioFilter {
+extension SaudeFilterX on SaudeFilter {
   String get label {
     switch (this) {
-      case ProntuarioFilter.todos: return 'Todos';
-      case ProntuarioFilter.perfil: return 'Perfil';
-      case ProntuarioFilter.anamnese: return 'Anamnese';
-      case ProntuarioFilter.cirurgias: return 'Cirurgias';
-      case ProntuarioFilter.internacoes: return 'Internações';
-      case ProntuarioFilter.sintomas: return 'Sintomas';
-      case ProntuarioFilter.alergias: return 'Alergias';
-      case ProntuarioFilter.vacinas: return 'Vacinas';
+      case SaudeFilter.todos: return 'Todos';
+      case SaudeFilter.anamnese: return 'Anamnese';
+      case SaudeFilter.perfil: return 'Perfil';
+      case SaudeFilter.medicacoes: return 'Medicações';
+      case SaudeFilter.cirurgias: return 'Cirurgias';
+      case SaudeFilter.internacoes: return 'Internações';
+      case SaudeFilter.sintomas: return 'Sintomas';
+      case SaudeFilter.alergias: return 'Alergias';
+      case SaudeFilter.vacinas: return 'Vacinas';
+      case SaudeFilter.terapias: return 'Terapias';
+      case SaudeFilter.tratamentos: return 'Tratamentos';
     }
   }
 
   IconData get icon {
     switch (this) {
-      case ProntuarioFilter.todos: return Icons.dashboard;
-      case ProntuarioFilter.perfil: return Icons.person;
-      case ProntuarioFilter.anamnese: return LucideIcons.clipboardList;
-      case ProntuarioFilter.cirurgias: return Icons.content_cut;
-      case ProntuarioFilter.internacoes: return Icons.local_hospital;
-      case ProntuarioFilter.sintomas: return Icons.monitor_heart_outlined;
-      case ProntuarioFilter.alergias: return Icons.warning_amber;
-      case ProntuarioFilter.vacinas: return Icons.vaccines_outlined;
+      case SaudeFilter.todos: return Icons.dashboard;
+      case SaudeFilter.anamnese: return LucideIcons.clipboardList;
+      case SaudeFilter.perfil: return Icons.person;
+      case SaudeFilter.medicacoes: return LucideIcons.pill;
+      case SaudeFilter.cirurgias: return Icons.content_cut;
+      case SaudeFilter.internacoes: return Icons.local_hospital;
+      case SaudeFilter.sintomas: return Icons.monitor_heart_outlined;
+      case SaudeFilter.alergias: return Icons.warning_amber;
+      case SaudeFilter.vacinas: return Icons.vaccines_outlined;
+      case SaudeFilter.terapias: return LucideIcons.activity;
+      case SaudeFilter.tratamentos: return LucideIcons.heartPulse;
     }
   }
 }
@@ -49,7 +57,11 @@ class ProntuarioScreen extends ConsumerStatefulWidget {
 
 class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
   bool _showFilters = false;
-  ProntuarioFilter _selectedFilter = ProntuarioFilter.todos;
+  SaudeFilter _selectedFilter = SaudeFilter.todos;
+
+  Future<bool> _confirmDelete(BuildContext context, String type, String name) {
+    return showDeleteConfirmDialog(context, type, name);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +87,9 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
     final profileAsync = patientId != null
         ? ref.watch(patientHealthProfileProvider(patientId))
         : const AsyncLoading<HealthProfile?>();
+    final medsAsync = patientId != null
+        ? ref.watch(patientMedicationsProvider(patientId))
+        : const AsyncLoading<List<Medication>>();
     final surgeriesAsync = patientId != null
         ? ref.watch(patientSurgeriesProvider(patientId))
         : const AsyncLoading<List<Surgery>>();
@@ -101,8 +116,10 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
             _buildHeader(context),
             Expanded(
               child: _buildBody(context, patientId, isDemo, userName,
-                  anamnesisAsync, profileAsync, surgeriesAsync, hospitalizationsAsync,
-                  symptomsAsync, allergiesAsync, vaccinesAsync, analysisState, isAnalyzing),
+                  anamnesisAsync, profileAsync, medsAsync,
+                  surgeriesAsync, hospitalizationsAsync,
+                  symptomsAsync, allergiesAsync, vaccinesAsync,
+                  analysisState, isAnalyzing),
             ),
             if (patientId != null)
               _buildBottomBar(isAnalyzing, patientId, userName),
@@ -145,19 +162,20 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Meu Prontuário',
+                    Text('Meu Histórico de Saúde',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                             fontSize: 20)),
-                    Text('Histórico completo de saúde',
+                    Text('Todas as suas informações de saúde',
                         style: TextStyle(color: Colors.white70, fontSize: 13)),
                   ],
                 ),
               ),
               IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+                icon: Icon(_showFilters ? LucideIcons.filterX : LucideIcons.filter,
+                    color: Colors.white.withAlpha(180)),
+                onPressed: () => setState(() => _showFilters = !_showFilters),
               ),
             ],
           ),
@@ -173,6 +191,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
     String userName,
     AsyncValue<Anamnesis?> anamnesisAsync,
     AsyncValue<HealthProfile?> profileAsync,
+    AsyncValue<List<Medication>> medsAsync,
     AsyncValue<List<Surgery>> surgeriesAsync,
     AsyncValue<List<Hospitalization>> hospitalizationsAsync,
     AsyncValue<List<Symptom>> symptomsAsync,
@@ -196,7 +215,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              isDemo ? 'Modo Demonstração' : 'Prontuário não disponível',
+              isDemo ? 'Modo Demonstração' : 'Histórico não disponível',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A1A2E)),
             ),
             const SizedBox(height: 8),
@@ -204,7 +223,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 isDemo
-                    ? 'Faça login com uma conta real para acessar seu prontuário.'
+                    ? 'Faça login com uma conta real para acessar seu histórico.'
                     : 'Não foi possível identificar seu perfil de paciente.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.4),
@@ -220,6 +239,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
         ref.invalidate(anamnesesProvider);
         ref.invalidate(currentAnamnesisProvider);
         ref.invalidate(patientHealthProfileProvider(patientId));
+        ref.invalidate(patientMedicationsProvider(patientId));
         ref.invalidate(patientSurgeriesProvider(patientId));
         ref.invalidate(patientHospitalizationsProvider(patientId));
         ref.invalidate(patientSymptomsProvider(patientId));
@@ -237,22 +257,60 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Anamnese Section
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.anamnese)
+                  // Anamnese
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.anamnese)
                     _AnamnesisSection(anamnesisAsync: anamnesisAsync),
 
-                  // Perfil de Saúde
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.perfil)
-                    const SizedBox(height: 16),
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.perfil)
-                    PerfilSection(profileAsync: profileAsync, patientId: patientId),
+                  // Perfil
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.perfil)
+                    Padding(
+                      padding: EdgeInsets.only(top: _selectedFilter != SaudeFilter.todos ? 0 : 16),
+                      child: PerfilSection(profileAsync: profileAsync, patientId: patientId),
+                    ),
+
+                  // Medications
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.medicacoes)
+                    TypedListSection<Medication>(
+                      title: 'Medicações', icon: LucideIcons.pill, iconColor: const Color(0xFF1565C0),
+                      async: medsAsync, emptyText: 'Nenhuma medicação cadastrada.',
+                      onAdd: null,
+                      itemBuilder: (m) => ProntuarioItem(
+                        title: m.name,
+                        subtitle: '${m.dosage}${m.frequency.isNotEmpty ? ' — ${m.frequency}' : ''}',
+                        trailing: m.isActive ? 'Ativo' : 'Inativo',
+                        notes: m.prescribingDoctor.isNotEmpty ? 'Dr(a). ${m.prescribingDoctor}' : '',
+                        onEdit: null,
+                        onDelete: () async {
+                          final confirmed = await _confirmDelete(context, 'medicação', m.name);
+                          if (confirmed && context.mounted) {
+                            try {
+                              final api = ref.read(apiClientProvider);
+                              await api.deleteMedication(m.id);
+                              ref.invalidate(patientMedicationsProvider(patientId));
+                              if (context.mounted) _sucesso(context);
+                            } catch (e) {
+                              if (context.mounted) _snack(context, 'Erro ao excluir: $e');
+                            }
+                          }
+                        },
+                      ),
+                    ),
 
                   // Cirurgias
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.cirurgias)
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.cirurgias)
                     TypedListSection<Surgery>(
                       title: 'Cirurgias', icon: LucideIcons.scissors, iconColor: ZelloColors.primary,
                       async: surgeriesAsync, emptyText: 'Nenhuma cirurgia cadastrada.',
                       onAdd: () => showAddSurgeryDialog(context, ref, patientId),
+                      onItemEdit: (s) => showEditSurgeryDialog(context, ref, patientId, s),
+                      onItemDelete: (s) async {
+                        final confirmed = await _confirmDelete(context, 'cirurgia', s.name);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteSurgery(s.id);
+                          ref.invalidate(patientSurgeriesProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
                       itemBuilder: (s) => ProntuarioItem(
                         title: s.name,
                         subtitle: Formatters.formatDate(s.date),
@@ -262,11 +320,20 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                     ),
 
                   // Internações
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.internacoes)
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.internacoes)
                     TypedListSection<Hospitalization>(
                       title: 'Internações', icon: LucideIcons.building2, iconColor: ZelloColors.danger,
                       async: hospitalizationsAsync, emptyText: 'Nenhuma internação registrada.',
                       onAdd: () => showAddHospitalizationDialog(context, ref, patientId),
+                      onItemEdit: (h) => showEditHospitalizationDialog(context, ref, patientId, h),
+                      onItemDelete: (h) async {
+                        final confirmed = await _confirmDelete(context, 'internação', h.reason);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteHospitalization(h.id);
+                          ref.invalidate(patientHospitalizationsProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
                       itemBuilder: (h) => ProntuarioItem(
                         title: h.reason,
                         subtitle: '${Formatters.formatDate(h.startDate)} a ${h.endDate != null ? Formatters.formatDate(h.endDate!) : "em andamento"}',
@@ -276,11 +343,20 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                     ),
 
                   // Sintomas
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.sintomas)
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.sintomas)
                     TypedListSection<Symptom>(
                       title: 'Sintomas Recorrentes', icon: LucideIcons.activity, iconColor: ZelloColors.warning,
                       async: symptomsAsync, emptyText: 'Nenhum sintoma registrado.',
                       onAdd: () => showAddSymptomDialog(context, ref, patientId),
+                      onItemEdit: (s) => showEditSymptomDialog(context, ref, patientId, s),
+                      onItemDelete: (s) async {
+                        final confirmed = await _confirmDelete(context, 'sintoma', s.name);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteSymptom(s.id);
+                          ref.invalidate(patientSymptomsProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
                       itemBuilder: (s) => ProntuarioItem(
                         title: s.name,
                         subtitle: [
@@ -292,12 +368,21 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                     ),
 
                   // Alergias
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.alergias)
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.alergias)
                     TypedListSection<Allergy>(
                       title: 'Alergias', icon: LucideIcons.shieldAlert, iconColor: ZelloColors.danger,
                       async: allergiesAsync, emptyText: 'Nenhuma alergia cadastrada.',
                       isUrgent: true,
                       onAdd: () => showAddAllergyDialog(context, ref, patientId),
+                      onItemEdit: (a) => showEditAllergyDialog(context, ref, patientId, a),
+                      onItemDelete: (a) async {
+                        final confirmed = await _confirmDelete(context, 'alergia', a.name);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteAllergy(a.id);
+                          ref.invalidate(patientAllergiesProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
                       itemBuilder: (a) => ProntuarioItem(
                         title: a.name,
                         subtitle: 'Tipo: ${a.type}${a.reaction.isNotEmpty ? " — ${a.reaction}" : ""}',
@@ -307,11 +392,20 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                     ),
 
                   // Vacinas
-                  if (_selectedFilter == ProntuarioFilter.todos || _selectedFilter == ProntuarioFilter.vacinas)
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.vacinas)
                     TypedListSection<Vaccine>(
                       title: 'Vacinas', icon: LucideIcons.syringe, iconColor: ZelloColors.success,
                       async: vaccinesAsync, emptyText: 'Nenhuma vacina cadastrada.',
                       onAdd: () => showAddVaccineDialog(context, ref, patientId),
+                      onItemEdit: (v) => showEditVaccineDialog(context, ref, patientId, v),
+                      onItemDelete: (v) async {
+                        final confirmed = await _confirmDelete(context, 'vacina', v.name);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteVaccine(v.id);
+                          ref.invalidate(patientVaccinesProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
                       itemBuilder: (v) => ProntuarioItem(
                         title: v.name,
                         subtitle: '${Formatters.formatDate(v.date)}${v.dose.isNotEmpty ? " — ${v.dose}" : ""}',
@@ -430,7 +524,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: ProntuarioFilter.values.map((f) {
+              children: SaudeFilter.values.map((f) {
                 final selected = _selectedFilter == f;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -498,7 +592,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
       _showAnalysisResult(context, state.result!);
     } else if (state.status == ProntuarioAnalysisStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error ?? 'Erro ao analisar prontuário'), behavior: SnackBarBehavior.floating),
+        SnackBar(content: Text(state.error ?? 'Erro ao analisar histórico'), behavior: SnackBarBehavior.floating),
       );
     }
   }
@@ -538,7 +632,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Análise do Prontuário', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A1A2E))),
+                        Text('Análise do Histórico', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A1A2E))),
                         SizedBox(height: 2),
                         Text('Gerado por IA', style: TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
                       ],
@@ -758,4 +852,15 @@ class _AnamnesisRow extends StatelessWidget {
       ),
     );
   }
+}
+
+void _snack(BuildContext ctx, String msg) {
+  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
+}
+
+void _sucesso(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    content: Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 18), SizedBox(width: 8), Text('Operação concluída!')]),
+    backgroundColor: Color(0xFF10B981), behavior: SnackBarBehavior.floating,
+  ));
 }

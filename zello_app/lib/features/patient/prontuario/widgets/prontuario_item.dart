@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zello_shared/zello_shared.dart';
 
 class ProntuarioItem extends StatelessWidget {
@@ -8,6 +9,8 @@ class ProntuarioItem extends StatelessWidget {
   final String notes;
   final bool isUrgent;
   final bool isPending;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const ProntuarioItem({
     super.key,
@@ -17,12 +20,14 @@ class ProntuarioItem extends StatelessWidget {
     this.notes = '',
     this.isUrgent = false,
     this.isPending = false,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,6 +104,30 @@ class ProntuarioItem extends StatelessWidget {
               ],
             ),
           ),
+          if (onEdit != null || onDelete != null) ...[
+            const SizedBox(width: 4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onEdit != null)
+                  IconButton(
+                    onPressed: onEdit,
+                    icon: Icon(LucideIcons.pencil, size: 16, color: Colors.grey.shade500),
+                    padding: const EdgeInsets.all(6),
+                    constraints: const BoxConstraints(),
+                    splashRadius: 18,
+                  ),
+                if (onDelete != null)
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: Icon(LucideIcons.trash2, size: 16, color: Colors.red.shade300),
+                    padding: const EdgeInsets.all(6),
+                    constraints: const BoxConstraints(),
+                    splashRadius: 18,
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );

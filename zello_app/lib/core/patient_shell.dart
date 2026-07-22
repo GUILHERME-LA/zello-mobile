@@ -19,7 +19,7 @@ class PatientShell extends ConsumerWidget {
       NavigationDestination(
         icon: Icon(LucideIcons.fileText),
         selectedIcon: Icon(LucideIcons.fileText),
-        label: 'Prontuário',
+        label: 'Histórico',
       ),
       NavigationDestination(
         icon: Icon(LucideIcons.bot),
