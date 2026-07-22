@@ -509,6 +509,21 @@ class ApiClient {
     );
   }
 
+  Future<void> createTherapy(Map<String, dynamic> data) async {
+    await _tryOrDemoVoid(() async {
+      await _supabase.from('therapies').insert({
+        'patient_id': data['patient_id'],
+        'name': data['name'],
+        'professional': data['professional'] ?? '',
+        'type': data['type'] ?? 'outro',
+        'frequency': data['frequency'] ?? '',
+        'start_date': data['start_date'],
+        'status': data['status'] ?? 'ativa',
+        'notes': data['notes'] ?? '',
+      });
+    });
+  }
+
   // Treatments
   Future<List<dynamic>> getTreatments() async {
     await _ensurePatientLoaded();

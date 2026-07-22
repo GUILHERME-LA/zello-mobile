@@ -5,6 +5,8 @@ import '../models/hospitalization.dart';
 import '../models/symptom.dart';
 import '../models/allergy.dart';
 import '../models/vaccine.dart';
+import '../models/exam.dart';
+import '../models/therapy.dart';
 import '../models/health_profile.dart';
 import 'auth_provider.dart';
 import 'api_client_provider.dart';
@@ -193,6 +195,31 @@ class PatientHealthNotifier {
 
   Future<void> deleteVaccine(String id) async {
     await _supabase.from('vaccines').delete().eq('id', id);
+  }
+
+  // Exames
+  Future<void> addExam(Exam exam) async {
+    await _supabase.from('exams').insert({
+      'patient_id': exam.patientId,
+      'title': exam.title,
+      'exam_type': exam.examType,
+      'status': exam.status,
+      'notes': exam.notes ?? '',
+      'requested_at': DateTime.now().toUtc().toIso8601String(),
+    });
+  }
+
+  Future<void> deleteExam(String id) async {
+    await _supabase.from('exams').delete().eq('id', id);
+  }
+
+  // Terapias
+  Future<void> addTherapy(Therapy therapy) async {
+    await _supabase.from('therapies').insert(therapy.toJson()..remove('id'));
+  }
+
+  Future<void> deleteTherapy(String id) async {
+    await _supabase.from('therapies').delete().eq('id', id);
   }
 
   // HealthProfile

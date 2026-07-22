@@ -343,3 +343,117 @@ void _showEditSheet(
     ),
   );
 }
+
+// ==================== EDIT EXAM ====================
+
+void showEditExamDialog(
+    BuildContext context, WidgetRef ref, String patientId, Exam exam) {
+  final titleCtrl = TextEditingController(text: exam.title);
+  final typeCtrl = TextEditingController(text: exam.examType);
+  final notesCtrl = TextEditingController(text: exam.notes ?? '');
+  var selectedStatus = exam.status;
+  var isLoading = false;
+
+  _showEditSheet(
+    context, ref, patientId,
+    Icons.science_outlined, const Color(0xFF7C3AED), 'Editar Exame',
+    Column(children: [
+      _requiredField(titleCtrl, 'Nome do exame *', 'Ex: Hemograma'),
+      const SizedBox(height: 12),
+      _optField(typeCtrl, 'Tipo', 'Ex: Sangue, Imagem'),
+      const SizedBox(height: 12),
+      DropdownButtonFormField<String>(
+        value: selectedStatus,
+        decoration: const InputDecoration(labelText: 'Status'),
+        items: Exam.statuses
+            .map((s) => DropdownMenuItem(value: s, child: Text(Exam.statusLabels[s] ?? s)))
+            .toList(),
+        onChanged: (v) => selectedStatus = v ?? 'solicitado',
+      ),
+      const SizedBox(height: 12),
+      _notesField(notesCtrl),
+    ]),
+    isLoading, 'Salvar',
+    () async {
+      if (titleCtrl.text.trim().isEmpty) return _snack(context, 'Informe o nome do exame');
+      await ref.read(patientHealthProvider).deleteExam(exam.id);
+      await ref.read(patientHealthProvider).addExam(Exam(
+        id: '', patientId: patientId, title: titleCtrl.text.trim(),
+        examType: typeCtrl.text.trim(), status: selectedStatus,
+        notes: notesCtrl.text.trim(),
+      ));
+      ref.invalidate(patientExamsProvider(patientId));
+      _sucesso(context);
+    },
+  );
+}
+
+// ==================== EDIT THERAPY ====================
+
+void showEditTherapyDialog(
+    BuildContext context, WidgetRef ref, String patientId, Therapy therapy) {
+  final nameCtrl = TextEditingController(text: therapy.name);
+  final profCtrl = TextEditingController(text: therapy.professional);
+  final freqCtrl = TextEditingController(text: therapy.frequency);
+  final notesCtrl = TextEditingController(text: therapy.notes);
+  var selectedType = therapy.type;
+  var selectedStatus = therapy.status;
+  var isLoading = false;
+
+  _showEditSheet(
+    context, ref, patientId,
+    Icons.psychology_outlined, const Color(0xFF8B5CF6), 'Editar Terapia',
+    Column(children: [
+      _requiredField(nameCtrl, 'Nome da terapia *', 'Ex: Terapia Cognitivo-Comportamental'),
+      const SizedBox(height: 12),
+      _optField(profCtrl, 'Profissional', 'Ex: Dr. Silva'),
+      const SizedBox(height: 12),
+      _optField(freqCtrl, 'Frequência', 'Ex: Semanal'),
+      const SizedBox(height: 12),
+      DropdownButtonFormField<TherapyType>(
+        value: selectedType,
+        decoration: const InputDecoration(labelText: 'Tipo'),
+        items: TherapyType.values.map((t) {
+          final label = {
+            TherapyType.fisica: 'Física',
+            TherapyType.ocupacional: 'Ocupacional',
+            TherapyType.fonoaudiologica: 'Fonoaudiológica',
+            TherapyType.psicologica: 'Psicológica',
+            TherapyType.outro: 'Outro',
+          }[t]!;
+          return DropdownMenuItem(value: t, child: Text(label));
+        }).toList(),
+        onChanged: (v) => selectedType = v ?? TherapyType.psicologica,
+      ),
+      const SizedBox(height: 12),
+      DropdownButtonFormField<TherapyStatus>(
+        value: selectedStatus,
+        decoration: const InputDecoration(labelText: 'Status'),
+        items: TherapyStatus.values.map((s) {
+          final label = {
+            TherapyStatus.ativa: 'Ativa',
+            TherapyStatus.concluida: 'Concluída',
+            TherapyStatus.pausada: 'Pausada',
+          }[s]!;
+          return DropdownMenuItem(value: s, child: Text(label));
+        }).toList(),
+        onChanged: (v) => selectedStatus = v ?? TherapyStatus.ativa,
+      ),
+      const SizedBox(height: 12),
+      _notesField(notesCtrl),
+    ]),
+    isLoading, 'Salvar',
+    () async {
+      if (nameCtrl.text.trim().isEmpty) return _snack(context, 'Informe o nome da terapia');
+      await ref.read(patientHealthProvider).deleteTherapy(therapy.id);
+      await ref.read(patientHealthProvider).addTherapy(Therapy(
+        id: '', name: nameCtrl.text.trim(),
+        professional: profCtrl.text.trim(), type: selectedType,
+        frequency: freqCtrl.text.trim(), status: selectedStatus,
+        notes: notesCtrl.text.trim(),
+      ));
+      ref.invalidate(patientTherapiesProvider(patientId));
+      _sucesso(context);
+    },
+  );
+}

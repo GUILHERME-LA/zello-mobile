@@ -12,7 +12,7 @@ import '../widgets/delete_confirm_dialog.dart';
 import 'add_dialogs.dart';
 import 'edit_dialogs.dart';
 
-enum SaudeFilter { todos, anamnese, perfil, medicacoes, cirurgias, internacoes, sintomas, alergias, vacinas, terapias, tratamentos }
+enum SaudeFilter { todos, anamnese, perfil, medicacoes, cirurgias, internacoes, sintomas, alergias, vacinas, exames, terapias, tratamentos }
 
 extension SaudeFilterX on SaudeFilter {
   String get label {
@@ -26,6 +26,7 @@ extension SaudeFilterX on SaudeFilter {
       case SaudeFilter.sintomas: return 'Sintomas';
       case SaudeFilter.alergias: return 'Alergias';
       case SaudeFilter.vacinas: return 'Vacinas';
+      case SaudeFilter.exames: return 'Exames';
       case SaudeFilter.terapias: return 'Terapias';
       case SaudeFilter.tratamentos: return 'Tratamentos';
     }
@@ -42,6 +43,7 @@ extension SaudeFilterX on SaudeFilter {
       case SaudeFilter.sintomas: return Icons.monitor_heart_outlined;
       case SaudeFilter.alergias: return Icons.warning_amber;
       case SaudeFilter.vacinas: return Icons.vaccines_outlined;
+      case SaudeFilter.exames: return LucideIcons.flaskConical;
       case SaudeFilter.terapias: return LucideIcons.activity;
       case SaudeFilter.tratamentos: return LucideIcons.heartPulse;
     }
@@ -61,6 +63,15 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
 
   Future<bool> _confirmDelete(BuildContext context, String type, String name) {
     return showDeleteConfirmDialog(context, type, name);
+  }
+
+  Color _examStatusColor(String status) {
+    switch (status) {
+      case 'concluido': return ZelloColors.success;
+      case 'confirmado': return ZelloColors.primary;
+      case 'recusado': case 'cancelado': return ZelloColors.danger;
+      default: return ZelloColors.warning;
+    }
   }
 
   @override
@@ -105,6 +116,12 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
     final vaccinesAsync = patientId != null
         ? ref.watch(patientVaccinesProvider(patientId))
         : const AsyncLoading<List<Vaccine>>();
+    final examsAsync = patientId != null
+        ? ref.watch(patientExamsProvider(patientId))
+        : const AsyncLoading<List<Exam>>();
+    final therapiesAsync = patientId != null
+        ? ref.watch(patientTherapiesProvider(patientId))
+        : const AsyncLoading<List<Therapy>>();
     final analysisState = ref.watch(prontuarioAnalysisProvider);
 
     final isAnalyzing = analysisState.status == ProntuarioAnalysisStatus.loading;
@@ -119,6 +136,7 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                   anamnesisAsync, profileAsync, medsAsync,
                   surgeriesAsync, hospitalizationsAsync,
                   symptomsAsync, allergiesAsync, vaccinesAsync,
+                  examsAsync, therapiesAsync,
                   analysisState, isAnalyzing),
             ),
             if (patientId != null)
@@ -197,6 +215,8 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
     AsyncValue<List<Symptom>> symptomsAsync,
     AsyncValue<List<Allergy>> allergiesAsync,
     AsyncValue<List<Vaccine>> vaccinesAsync,
+    AsyncValue<List<Exam>> examsAsync,
+    AsyncValue<List<Therapy>> therapiesAsync,
     ProntuarioAnalysisState analysisState,
     bool isAnalyzing,
   ) {
@@ -245,6 +265,8 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
         ref.invalidate(patientSymptomsProvider(patientId));
         ref.invalidate(patientAllergiesProvider(patientId));
         ref.invalidate(patientVaccinesProvider(patientId));
+        ref.invalidate(patientExamsProvider(patientId));
+        ref.invalidate(patientTherapiesProvider(patientId));
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -407,6 +429,56 @@ class _ProntuarioScreenState extends ConsumerState<ProntuarioScreen> {
                         trailing: v.isPending ? 'Pendente' : null,
                         notes: v.notes,
                         isPending: v.isPending,
+                      ),
+                    ),
+
+                  // Exames
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.exames)
+                    TypedListSection<Exam>(
+                      title: 'Exames', icon: LucideIcons.flaskConical, iconColor: const Color(0xFF7C3AED),
+                      async: examsAsync, emptyText: 'Nenhum exame cadastrado.',
+                      onAdd: () => showAddExamDialog(context, ref, patientId),
+                      onItemEdit: (e) => showEditExamDialog(context, ref, patientId, e),
+                      onItemDelete: (e) async {
+                        final confirmed = await _confirmDelete(context, 'exame', e.title);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteExam(e.id);
+                          ref.invalidate(patientExamsProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
+                      itemBuilder: (e) {
+                        final color = _examStatusColor(e.status);
+                        return ProntuarioItem(
+                          title: e.title,
+                          subtitle: e.examType.isNotEmpty ? e.examType : null,
+                          trailing: e.statusLabel,
+                          notes: e.notes,
+                          trailingColor: color,
+                        );
+                      },
+                    ),
+
+                  // Terapias
+                  if (_selectedFilter == SaudeFilter.todos || _selectedFilter == SaudeFilter.terapias)
+                    TypedListSection<Therapy>(
+                      title: 'Terapias', icon: LucideIcons.activity, iconColor: const Color(0xFF8B5CF6),
+                      async: therapiesAsync, emptyText: 'Nenhuma terapia cadastrada.',
+                      onAdd: () => showAddTherapyDialog(context, ref, patientId),
+                      onItemEdit: (t) => showEditTherapyDialog(context, ref, patientId, t),
+                      onItemDelete: (t) async {
+                        final confirmed = await _confirmDelete(context, 'terapia', t.name);
+                        if (confirmed) {
+                          await ref.read(patientHealthProvider).deleteTherapy(t.id);
+                          ref.invalidate(patientTherapiesProvider(patientId));
+                          if (context.mounted) _sucesso(context);
+                        }
+                      },
+                      itemBuilder: (t) => ProntuarioItem(
+                        title: t.name,
+                        subtitle: '${t.frequency.isNotEmpty ? "${t.frequency} — " : ""}${t.professional.isNotEmpty ? t.professional : ""}',
+                        trailing: t.status == TherapyStatus.ativa ? 'Ativa' : t.status == TherapyStatus.concluida ? 'Concluída' : 'Pausada',
+                        notes: t.notes,
                       ),
                     ),
                 ],

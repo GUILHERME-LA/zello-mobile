@@ -451,3 +451,155 @@ void showEditProfileDialog(BuildContext context, WidgetRef ref, String patientId
     ),
   );
 }
+
+// ==================== EXAM ====================
+
+void showAddExamDialog(BuildContext context, WidgetRef ref, String patientId) {
+  final titleCtrl = TextEditingController();
+  final typeCtrl = TextEditingController();
+  final notesCtrl = TextEditingController();
+  var selectedStatus = 'solicitado';
+  var isLoading = false;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setLocal) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 12, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _handle(ctx),
+              _header(Icons.science_outlined, const Color(0xFF7C3AED), 'Novo Exame'),
+              const SizedBox(height: 20),
+              _requiredField(titleCtrl, 'Nome do exame *', 'Ex: Hemograma'),
+              const SizedBox(height: 12),
+              _optField(typeCtrl, 'Tipo', 'Ex: Sangue, Imagem'),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedStatus,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: Exam.statuses
+                    .map((s) => DropdownMenuItem(value: s, child: Text(Exam.statusLabels[s] ?? s)))
+                    .toList(),
+                onChanged: (v) => setLocal(() => selectedStatus = v ?? 'solicitado'),
+              ),
+              const SizedBox(height: 12),
+              _notesField(notesCtrl),
+              const SizedBox(height: 20),
+              _btn(isLoading, 'Adicionar Exame', () async {
+                if (titleCtrl.text.trim().isEmpty) return _snack(ctx, 'Informe o nome do exame');
+                setLocal(() => isLoading = true);
+                try {
+                  await ref.read(patientHealthProvider).addExam(Exam(
+                    id: '', patientId: patientId, title: titleCtrl.text.trim(),
+                    examType: typeCtrl.text.trim(), status: selectedStatus,
+                    notes: notesCtrl.text.trim(),
+                  ));
+                  ref.invalidate(patientExamsProvider(patientId));
+                  _sucesso(context);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                } catch (e) {
+                  setLocal(() => isLoading = false);
+                  if (ctx.mounted) _snack(ctx, 'Erro ao salvar: $e');
+                }
+              }),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+// ==================== THERAPY ====================
+
+void showAddTherapyDialog(BuildContext context, WidgetRef ref, String patientId) {
+  final nameCtrl = TextEditingController();
+  final profCtrl = TextEditingController();
+  final freqCtrl = TextEditingController();
+  final notesCtrl = TextEditingController();
+  var selectedType = TherapyType.psicologica;
+  var selectedStatus = TherapyStatus.ativa;
+  var isLoading = false;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setLocal) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 12, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _handle(ctx),
+              _header(Icons.psychology_outlined, const Color(0xFF8B5CF6), 'Nova Terapia'),
+              const SizedBox(height: 20),
+              _requiredField(nameCtrl, 'Nome da terapia *', 'Ex: Terapia Cognitivo-Comportamental'),
+              const SizedBox(height: 12),
+              _optField(profCtrl, 'Profissional', 'Ex: Dr. Silva'),
+              const SizedBox(height: 12),
+              _optField(freqCtrl, 'Frequência', 'Ex: Semanal, Quinzenal'),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<TherapyType>(
+                value: selectedType,
+                decoration: const InputDecoration(labelText: 'Tipo'),
+                items: TherapyType.values.map((t) {
+                  final label = {
+                    TherapyType.fisica: 'Física',
+                    TherapyType.ocupacional: 'Ocupacional',
+                    TherapyType.fonoaudiologica: 'Fonoaudiológica',
+                    TherapyType.psicologica: 'Psicológica',
+                    TherapyType.outro: 'Outro',
+                  }[t]!;
+                  return DropdownMenuItem(value: t, child: Text(label));
+                }).toList(),
+                onChanged: (v) => setLocal(() => selectedType = v ?? TherapyType.psicologica),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<TherapyStatus>(
+                value: selectedStatus,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: TherapyStatus.values.map((s) {
+                  final label = {
+                    TherapyStatus.ativa: 'Ativa',
+                    TherapyStatus.concluida: 'Concluída',
+                    TherapyStatus.pausada: 'Pausada',
+                  }[s]!;
+                  return DropdownMenuItem(value: s, child: Text(label));
+                }).toList(),
+                onChanged: (v) => setLocal(() => selectedStatus = v ?? TherapyStatus.ativa),
+              ),
+              const SizedBox(height: 12),
+              _notesField(notesCtrl),
+              const SizedBox(height: 20),
+              _btn(isLoading, 'Adicionar Terapia', () async {
+                if (nameCtrl.text.trim().isEmpty) return _snack(ctx, 'Informe o nome da terapia');
+                setLocal(() => isLoading = true);
+                try {
+                  await ref.read(patientHealthProvider).addTherapy(Therapy(
+                    id: '', name: nameCtrl.text.trim(),
+                    professional: profCtrl.text.trim(), type: selectedType,
+                    frequency: freqCtrl.text.trim(), status: selectedStatus,
+                    notes: notesCtrl.text.trim(),
+                  ));
+                  ref.invalidate(patientTherapiesProvider(patientId));
+                  _sucesso(context);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                } catch (e) {
+                  setLocal(() => isLoading = false);
+                  if (ctx.mounted) _snack(ctx, 'Erro ao salvar: $e');
+                }
+              }),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
