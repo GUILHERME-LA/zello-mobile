@@ -53,7 +53,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                 color: const Color(0xFF7C3AED),
                 onTap: () {
                   ref.read(areaProvider.notifier).state = AreaType.psychology;
-                  context.go('/home');
+                  context.go('/psicologia');
                 },
               ),
               const Spacer(flex: 3),
